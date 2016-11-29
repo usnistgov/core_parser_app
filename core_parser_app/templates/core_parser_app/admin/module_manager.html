@@ -1,0 +1,49 @@
+<h1>Module Manager</h1>
+<p>
+    Click on an element from the following tree to associate it with a module. Elements will then be replaced by the
+    chosen module during the curation process.
+</p>
+
+<div class="right-side">
+<span class="ctx_menu">
+    <a href="{% url 'admin:core_main_app_manage_template_versions' data.version_manager.id%}">
+        <div class="icon legend long upload">Back to Versions</div>
+    </a>
+</span>
+</div>
+
+
+{% autoescape off %}	 
+<div>
+{{data.xsdTree}}
+</div>
+{% endautoescape %}
+
+<div id="dialog-modules" title="Manage Module" style="display:none;">
+	<p>
+		Select the module you want to associate with the selected element.
+	</p>
+	<table class="table table-bordered">
+		<tr>
+			<td><b>Default</b></td>
+			<td>Default behavior</td>
+			<td>
+				<button class="btn delete">
+					<i class="icon-plus-sign"></i>Restore
+				</button>
+			</td>
+		</tr>
+		{% for module in data.modules %}
+		<tr>
+			<td moduleID="{{module.id}}"><b>{{module.name}}</b></td>
+			<td>{{module.url}}</td>
+			<td>
+				<button class="btn insert">
+					<i class="icon-plus-sign"></i>Insert
+				</button>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>	
+</div>
+<div id="templateid" style="display:none;">{{data.object.id}}</div>
