@@ -1,0 +1,22 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+
+    <xsd:element name="material">
+        <xsd:simpleType>
+        <xsd:annotation>
+            <xsd:appinfo>
+                <module>/examples/chemical-element-selection</module>
+            </xsd:appinfo>
+        </xsd:annotation>
+            <xsd:restriction base="xsd:string">
+                <xsd:enumeration value="Ac"/>
+                <xsd:enumeration value="Al"/>
+                <xsd:enumeration value="Ag"/>
+                <xsd:enumeration value="Am"/>
+                <xsd:enumeration value="Ar"/>
+                <xsd:enumeration value="As"/>
+                <xsd:enumeration value="At"/>
+                <xsd:enumeration value="Au"/>
+            </xsd:restriction>
+        </xsd:simpleType>
+    </xsd:element>
+</xsd:schema>

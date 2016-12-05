@@ -1,0 +1,21 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+
+    <xsd:element name="material">
+        <xsd:simpleType>
+        <xsd:annotation>
+            <xsd:appinfo>
+                <module>/examples/autocomplete</module>
+            </xsd:appinfo>
+        </xsd:annotation>
+            <xsd:restriction base="xsd:string">
+                <xsd:enumeration value="Plastic"/>
+                <xsd:enumeration value="Concrete"/>
+                <xsd:enumeration value="Cement"/>
+                <xsd:enumeration value="Material1"/>
+                <xsd:enumeration value="Material2"/>
+                <xsd:enumeration value="Material3"/>
+                <xsd:enumeration value="Others"/>
+            </xsd:restriction>
+        </xsd:simpleType>
+    </xsd:element>
+</xsd:schema>

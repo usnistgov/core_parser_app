@@ -4,6 +4,6 @@ from os.path import join, dirname, realpath
 if not settings.configured:
     settings.configure()
 
-SITE_ROOT = getattr(settings, 'SITE_ROOT', join(dirname(realpath(__file__))).replace('\\', '/'))
+MODULES_ROOT = join(dirname(realpath(__file__)).replace('\\', '/'), 'tools', 'modules')
 
-MODULE_ATTRIBUTE = getattr(settings, 'MODULE_ATTRIBUTE', 'module')
+MODULE_TAG_NAME = getattr(settings, 'MODULE_TAG_NAME', 'module')

@@ -79,9 +79,9 @@
 								</xsl:when>
 							</xsl:choose>
 							<xsl:choose>
-								<xsl:when test="./xsd:annotation/xsd:appinfo/module_attribute">
+								<xsl:when test="./xsd:annotation/xsd:appinfo/module_tag_name">
 								<span class="module">
-									<xsl:value-of select="./xsd:annotation/xsd:appinfo/module_attribute" />
+									<xsl:value-of select="./xsd:annotation/xsd:appinfo/module_tag_name" />
 								</span>
 								</xsl:when>
 							</xsl:choose>							
@@ -144,9 +144,9 @@
 								</xsl:when>
 							</xsl:choose>
 							<xsl:choose>
-								<xsl:when test="./xsd:annotation/xsd:appinfo/module_attribute">
+								<xsl:when test="./xsd:annotation/xsd:appinfo/module_tag_name">
 								<span class="module">
-									<xsl:value-of select="./xsd:annotation/xsd:appinfo/module_attribute" />
+									<xsl:value-of select="./xsd:annotation/xsd:appinfo/module_tag_name" />
 								</span>
 								</xsl:when>
 							</xsl:choose>

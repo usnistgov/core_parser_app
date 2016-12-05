@@ -1,5 +1,5 @@
 """
-Url router for the administration site
+Url router for the administration views
 """
 from django.contrib import admin
 from django.conf.urls import url

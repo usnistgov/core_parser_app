@@ -1,4 +1,4 @@
-""" Data API
+"""API for Data Structure Element
 """
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 
