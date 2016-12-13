@@ -450,6 +450,7 @@ def is_key(request, element, full_path):
     for key in request.session['keys'].keys():
         if request.session['keys'][key]['xpath'] == xpath:
             if request.session['keys'][key]['module'] is not None:
+                # FIXME: module not here anymore
                 element.attrib['{http://mdcs.ns}_mod_mdcs_'] = request.session['keys'][key]['module']
                 return True
     return False
@@ -471,6 +472,7 @@ def is_key_ref(request, element, db_element, full_path):
         xpath = re.sub(r'{}:'.format(prefix), '', xpath)
     for keyref in request.session['keyrefs'].keys():
         if request.session['keyrefs'][keyref]['xpath'] == xpath:
+            # FIXME: modules not here anymore
             element.attrib['{http://mdcs.ns}_mod_mdcs_'] = '/curator/auto-keyref?keyref={}'.format(keyref)
             return True
     return False
@@ -515,6 +517,7 @@ def manage_key_keyref(request, element, full_path, xmlTree):
 
             # look if a module is attached to the key
             module = None
+            # FIXME: module not here
             if '{http://mdcs.ns}_mod_mdcs_' in key.attrib:
                 # get the url of the module
                 url = key.attrib['{http://mdcs.ns}_mod_mdcs_']
@@ -655,67 +658,46 @@ def get_extensions(xml_doc_tree, base_type_name):
 ##################################################
 # Part II: Schema parsing
 ##################################################
-   
-def load_config(request, config):
-    """
-    Load configuration for the parser
-    :param request:
-    :param config:
-    :return:
-    """
-    if 'config' in request.session:
-        del request.session['config']
+class XSDParser(object):
 
-    properties = ['PARSER_APPLICATION',
-                  'PARSER_MIN_TREE',
-                  'PARSER_IGNORE_MODULES',
-                  'PARSER_COLLAPSE',
-                  'PARSER_AUTO_KEY_KEYREF',
-                  'PARSER_IMPLICIT_EXTENSION_BASE',
-                  'PARSER_DOWNLOAD_DEPENDENCIES']
+    def __init__(self, min_tree=True, ignore_modules=False, collapse=True, auto_key_keyref=True,
+                 implicit_extension_base=False, download_dependencies=True, store_type=False):
+        self.min_tree = min_tree
+        self.ignore_modules = ignore_modules
+        self.collapse = collapse
+        self.auto_key_keyref = auto_key_keyref
+        self.implicit_extension_base = implicit_extension_base
+        self.download_dependencies = download_dependencies
+        self.store_type = store_type
 
-    if config is not None:
-        for property, value in config.iteritems():
-            if property not in properties:
-                raise ParserError('Bad configuration parameter.')
-            if not isinstance(value, bool):
-                if property != 'PARSER_APPLICATION':
-                    raise ParserError('Bad type for configuration parameter.')
-        request.session.update(config)
-    else:
-        raise ParserError('Parser is expecting configuration parameters.')
+        self.implicit_extension = True
+        self.editing = False
 
+    def generate_form(self, request, xsd_doc_data, xml_doc_data=None):
+        """
+        Renders HTMl form for display
+        :param request:
+        :param xsd_doc_data:
+        :param xml_doc_data:
+        :return:
+        """
 
-def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
-    """
-    Renders HTMl form for display
-    :param request:
-    :param xsd_doc_data:
-    :param xml_doc_data:
-    :return:
-    """
+        # flatten the includes
+        flattener = XSDFlattenerURL(xsd_doc_data, self.download_dependencies)
+        xml_doc_tree_str = flattener.get_flat()
+        xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
 
-    request.session['implicit_extension'] = True
-    load_config(request, config)
+        request.session['xmlDocTree'] = xml_doc_tree_str
 
-    # flatten the includes
-    download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-    flattener = XSDFlattenerURL(xsd_doc_data, download_enabled)
-    xml_doc_tree_str = flattener.get_flat()
-    xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+        if 'keys' in request.session:
+            del request.session['keys']
+        request.session['keys'] = {}
+        if 'keyrefs' in request.session:
+            del request.session['keyrefs']
+        request.session['keyrefs'] = {}
 
-    request.session['xmlDocTree'] = xml_doc_tree_str
-
-    if 'keys' in request.session:
-        del request.session['keys']
-    request.session['keys'] = {}
-    if 'keyrefs' in request.session:
-        del request.session['keyrefs']
-    request.session['keyrefs'] = {}
-
-    # if editing, get the XML data to fill the form
-    edit_data_tree = None
-    if 'curate_edit' in request.session and request.session['curate_edit']:
+        # if editing, get the XML data to fill the form
+        edit_data_tree = None
         # build the tree from data
         # transform unicode to str to support XML declaration
         if xml_doc_data is not None:
@@ -725,619 +707,663 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
             etree.set_default_parser(parser=clean_parser)
             # xml data not empty
             if xml_doc_data != "":
+                # TODO: check from curate that editing works
+                self.editing = True
                 # load the XML tree from the text
                 edit_data_tree = etree.XML(str(xml_doc_data.encode('utf-8')))
             else:
-                request.session['curate_edit'] = False
+                self.editing = False
         else:  # no data found, not editing
-            request.session['curate_edit'] = False
+            self.editing = False
 
-    # find all root elements
-    elements = xml_doc_tree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
+        # find all root elements
+        elements = xml_doc_tree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
 
-    try:
-        if len(elements) == 1:  # One root
-            form_content = generate_element(request,
-                                            elements[0],
-                                            xml_doc_tree,
-                                            edit_data_tree=edit_data_tree)
-        elif len(elements) > 1:  # Several root
-            # look if a default choice to render is defined
-            default_choice = False
-            for element in elements:
-                app_info = get_app_info_options(element)
-                if 'default' in app_info:
-                    form_content = generate_element(request,
-                                                    element,
-                                                    xml_doc_tree,
-                                                    edit_data_tree=edit_data_tree)
-                    default_choice = True
-                    break
-            if not default_choice:
-                form_content = generate_choice(request,
-                                               elements,
-                                               xml_doc_tree,
-                                               edit_data_tree=edit_data_tree)
-        else:  # len(elements) == 0 (no root element)
-            # TODO: does it make sense to get all simple types too?
-            complex_types = xml_doc_tree.findall("./{0}complexType".format(LXML_SCHEMA_NAMESPACE))
-            if len(complex_types) > 0:
+        try:
+            if len(elements) == 1:  # One root
+                form_content = self.generate_element(request,
+                                                     elements[0],
+                                                     xml_doc_tree,
+                                                     edit_data_tree=edit_data_tree)
+            elif len(elements) > 1:  # Several root
                 # look if a default choice to render is defined
                 default_choice = False
-                for complex_type in complex_types:
-                    app_info = get_app_info_options(complex_type)
+                for element in elements:
+                    app_info = get_app_info_options(element)
                     if 'default' in app_info:
-                        form_content = generate_choice_extensions(request,
-                                                                  [complex_type],
-                                                                  xml_doc_tree,
-                                                                  edit_data_tree=edit_data_tree)
+                        form_content = self.generate_element(request,
+                                                             element,
+                                                             xml_doc_tree,
+                                                             edit_data_tree=edit_data_tree)
                         default_choice = True
                         break
                 if not default_choice:
-                    form_content = generate_choice_extensions(request,
-                                                              complex_types,
-                                                              xml_doc_tree,
-                                                              edit_data_tree=edit_data_tree)
-            else:  # len(complex_types) == 0
-                raise Exception("No possible root element detected")
+                    form_content = self.generate_choice(request,
+                                                        elements,
+                                                        xml_doc_tree,
+                                                        edit_data_tree=edit_data_tree)
+            else:  # len(elements) == 0 (no root element)
+                # TODO: does it make sense to get all simple types too?
+                complex_types = xml_doc_tree.findall("./{0}complexType".format(LXML_SCHEMA_NAMESPACE))
+                if len(complex_types) > 0:
+                    # look if a default choice to render is defined
+                    default_choice = False
+                    for complex_type in complex_types:
+                        app_info = get_app_info_options(complex_type)
+                        if 'default' in app_info:
+                            form_content = self.generate_choice_extensions(request,
+                                                                           [complex_type],
+                                                                           xml_doc_tree,
+                                                                           edit_data_tree=edit_data_tree)
+                            default_choice = True
+                            break
+                    if not default_choice:
+                        form_content = self.generate_choice_extensions(request,
+                                                                       complex_types,
+                                                                       xml_doc_tree,
+                                                                       edit_data_tree=edit_data_tree)
+                else:  # len(complex_types) == 0
+                    raise Exception("No possible root element detected")
 
-        root_element = load_schema_data_in_db(form_content)
+            root_element = load_schema_data_in_db(form_content)
 
-        request.session['curate_edit'] = False
-        return root_element.pk
-    except Exception as e:
-        exc_info = sys.exc_info()
+            self.editing = False
+            return root_element.pk
+        except Exception as e:
+            exc_info = sys.exc_info()
 
-        # Adding information to the Exception message
-        exception_message = "Schema parsing failed: " + str(e)
-        logger.fatal(exception_message)
+            # Adding information to the Exception message
+            exception_message = "Schema parsing failed: " + str(e)
+            logger.fatal(exception_message)
 
-        traceback.print_exception(*exc_info)
-        del exc_info
+            traceback.print_exception(*exc_info)
+            del exc_info
 
-        request.session['curate_edit'] = False
-        raise Exception(exception_message)
+            self.editing = False
+            raise Exception(exception_message)
 
+    def generate_element(self, request, element, xml_tree, choice_counter=None, full_path="", edit_data_tree=None,
+                         schema_location=None, xml_element=None, force_generation=False):
+        """Generate an HTML string that represents an XML element.
 
-def generate_element(request, element, xml_tree, choice_counter=None, full_path="", edit_data_tree=None,
-                     schema_location=None, xml_element=None, force_generation=False):
-    """Generate an HTML string that represents an XML element.
+        Parameters:
+            request: HTTP request
+            element: XML element
+            xml_tree: XML tree of the template
+            choice_counter:
+            full_path:
+            edit_data_tree:
+            schema_location:
+            xml_element:
+            force_generation:
 
-    Parameters:
-        request: HTTP request
-        element: XML element
-        xml_tree: XML tree of the template
-        choice_counter:
-        full_path:
-        edit_data_tree:
-        schema_location:
-        xml_element:
-        force_generation:
+        Returns:
+            JSON data
+        """
+        # FIXME if elif without else need to be corrected
+        # FIXME Support for unique is not present
+        # FIXME Support for key / keyref
+        app_info = get_app_info_options(element)
 
-    Returns:
-        JSON data
-    """
-    # FIXME if elif without else need to be corrected
-    # FIXME Support for unique is not present
-    # FIXME Support for key / keyref
-    app_info = get_app_info_options(element)
+        # check if the element has a module
+        module_url = get_module_url(element)
+        _has_module = True if module_url is not None else False
+        # checks if the module manage the occurrences by itself
+        _is_multiple = is_module_multiple(request, element)
 
-    # check if the element has a module
-    module_url = get_module_url(element)
-    _has_module = True if module_url is not None else False
-    # checks if the module manage the occurrences by itself
-    _is_multiple = is_module_multiple(request, element)
+        # FIXME see if we can avoid these basic initialization
+        # FIXME this is not necessarily true (see attributes)
+        min_occurs = 1
+        max_occurs = 1
 
-    # FIXME see if we can avoid these basic initialization
-    # FIXME this is not necessarily true (see attributes)
-    min_occurs = 1
-    max_occurs = 1
+        text_capitalized = ''
+        element_tag = ''
+        edit_elements = []
+        ##############################################
 
-    text_capitalized = ''
-    element_tag = ''
-    edit_elements = []
-    ##############################################
+        # check if XML element or attribute
+        if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+            min_occurs, max_occurs = get_element_occurrences(element)
+            element_tag = 'element'
+        elif element.tag == "{0}attribute".format(LXML_SCHEMA_NAMESPACE):
+            min_occurs, max_occurs = get_attribute_occurrences(element)
+            element_tag = 'attribute'
 
-    # check if XML element or attribute
-    if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-        min_occurs, max_occurs = get_element_occurrences(element)
-        element_tag = 'element'
-    elif element.tag == "{0}attribute".format(LXML_SCHEMA_NAMESPACE):
-        min_occurs, max_occurs = get_attribute_occurrences(element)
-        element_tag = 'attribute'
+        # get schema namespaces
+        xml_tree_str = etree.tostring(xml_tree)
+        namespaces = get_namespaces(xml_tree_str)
 
-    # get schema namespaces
-    xml_tree_str = etree.tostring(xml_tree)
-    namespaces = get_namespaces(xml_tree_str)
-
-    db_element = {
-        'tag': element_tag,  # 'element' or 'attribute'
-        'options': {
-            'name': text_capitalized,
-            'min': min_occurs,
-            'max': max_occurs,
-            'module': None if not _has_module else True,
-            'xpath': {
-                'xsd': None,
-                'xml': full_path
+        db_element = {
+            'tag': element_tag,  # 'element' or 'attribute'
+            'options': {
+                'name': text_capitalized,
+                'min': min_occurs,
+                'max': max_occurs,
+                'module': None if not _has_module else True,
+                'xpath': {
+                    'xsd': None,
+                    'xml': full_path
+                },
+                'schema_location': schema_location,
             },
-            'schema_location': schema_location,
-        },
-        'value': None,
-        'children': []
-    }
-
-    # get the name of the element, go find the reference if there's one
-    if 'ref' in element.attrib:  # type is a reference included in the document
-        ref = element.attrib['ref']
-        download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-        ref_element, xml_tree, schema_location = get_ref_element(xml_tree, ref, namespaces,
-                                                                 element_tag, schema_location,
-                                                                 download_enabled=download_enabled)
-        if ref_element is not None:
-            text_capitalized = ref_element.attrib.get('name')
-            element = ref_element
-            # check if the element has a module
-            module_url = get_module_url(element)
-            _has_module = True if module_url is not None else False
-        else:
-            # the element was not found where it was supposed to be
-            # could be a use case too complex for the current parser
-            warning_message = "Ref element not found: " + str(element.attrib)
-            logger.warning(warning_message)
-
-            return db_element
-    else:
-        text_capitalized = element.attrib.get('name')
-
-    xml_tree_str = etree.tostring(xml_tree)
-    namespaces = get_namespaces(xml_tree_str)
-    target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
-
-    # build xpath
-    # XML xpath:/root/element
-    if element_tag == 'element':
-        if target_namespace is not None:
-            if target_namespace_prefix != '':
-                if get_element_form_default(xml_tree) == "qualified":
-                    full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-                elif "{0}:".format(target_namespace_prefix) in full_path:
-                    full_path += '/{0}'.format(text_capitalized)
-                else:
-                    full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-            else:
-                full_path += '/*[local-name()="{0}"]'.format(text_capitalized)
-        else:
-            full_path += "/{0}".format(text_capitalized)
-    elif element_tag == 'attribute':
-        if target_namespace is not None:
-            if target_namespace_prefix != '':
-                if get_attribute_form_default(xml_tree) == "qualified":
-                    full_path += '/@{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-                elif "{0}:".format(target_namespace_prefix) in full_path:
-                    full_path += '/@{0}'.format(text_capitalized)
-                else:
-                    full_path += '/@{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-            else:
-                full_path += '/@*[local-name()="{0}"]'.format(text_capitalized)
-        else:
-            full_path += "/@{0}".format(text_capitalized)
-
-    # print full_path
-
-    # XSD xpath: /element/complexType/sequence
-    xsd_xpath = xml_tree.getpath(element)
-
-    db_element['options']['name'] = element.attrib.get('name')
-    db_element['options']['xpath']['xsd'] = xsd_xpath
-    db_element['options']['xpath']['xml'] = full_path
-    if 'PARSER_APPLICATION' in request.session and request.session['PARSER_APPLICATION'] == 'EXPLORE':
-        db_element['options']['type'] = element.attrib['type'] if 'type' in element.attrib else None
-
-    # init variables for buttons management
-    nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-    nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
-    use = ""
-    removed = False
-
-    # loading data in the form
-    if 'curate_edit' in request.session and request.session['curate_edit']:
-        if xml_element is None:
-            # get the number of occurrences in the data
-            edit_elements = edit_data_tree.xpath(full_path, namespaces=namespaces)
-            nb_occurrences_data = len(edit_elements)
-        else:
-            if xml_element is False:  # explicitly say to not generate the element
-                edit_elements = []
-                nb_occurrences_data = 1
-            else:
-                edit_elements = [xml_element]
-                nb_occurrences_data = 1
-
-        if nb_occurrences_data == 0:
-            use = "removed"
-            removed = True
-
-    else:  # starting an empty form
-        # Don't generate the element if not necessary
-        if request.session['PARSER_MIN_TREE'] and min_occurs == 0:
-            use = "removed"
-            removed = True
-
-    if _has_module and _is_multiple:
-        # block maxOccurs to one, the module should take care of occurrences when the element is replaced
-        nb_occurrences = 1
-        # max_occurs = 1
-    elif nb_occurrences_data > nb_occurrences:
-        nb_occurrences = nb_occurrences_data
-
-    # get the element namespace
-    element_ns = get_element_namespace(element, xml_tree)
-    # set the element namespace
-    # tag_ns = ' xmlns="{0}" '.format(element_ns) if element_ns is not None else ''
-    ns_prefix = None
-    if element_tag == "attribute" and target_namespace is not None:
-        for prefix, ns in namespaces.iteritems():
-            if ns == target_namespace:
-                ns_prefix = prefix
-                break
-
-    # get the element type
-    default_prefix = get_default_prefix(namespaces)
-
-    db_element['options']['schema_location'] = schema_location
-    db_element['options']['xmlns'] = element_ns
-    db_element['options']['ns_prefix'] = ns_prefix
-
-    download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-    element_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces,
-                                                               default_prefix, target_namespace_prefix,
-                                                               schema_location, download_enabled=download_enabled)
-
-    # management of elements inside a choice (don't display if not part of the currently selected choice)
-    if choice_counter:
-        if 'curate_edit' in request.session and request.session['curate_edit']:
-            if len(edit_elements) == 0:
-                if request.session['PARSER_MIN_TREE']:
-                    return db_element
-        else:
-            if choice_counter > 0:
-                if request.session['PARSER_MIN_TREE']:
-                    return db_element
-
-    if force_generation:
-        nb_occurrences = 1
-        removed = False
-
-    # if auto key/keyref is True, go find keys/keyrefs in element scope
-    if request.session['PARSER_AUTO_KEY_KEYREF']:
-        # TODO: for now, support key/keyref for attributes only
-        if element_tag == 'attribute':
-            if is_key(request, element, full_path):
-                _has_module = True
-                db_element['options']['module'] = _has_module
-            elif is_key_ref(request, element, db_element, full_path):
-                _has_module = True
-                db_element['options']['module'] = _has_module
-        if element_tag == 'element':
-            # look if key/keyrefs are defined for the scope of this element
-            manage_key_keyref(request, element, full_path, xml_tree)
-
-    for x in range(0, int(nb_occurrences)):
-        db_elem_iter = {
-            'tag': 'elem-iter',
             'value': None,
             'children': []
         }
 
-        # get the use from app info element
-        app_info_use = app_info['use'] if 'use' in app_info else ''
-        app_info_use = app_info_use if app_info_use is not None else ''
-        use += ' ' + app_info_use
+        # get the name of the element, go find the reference if there's one
+        if 'ref' in element.attrib:  # type is a reference included in the document
+            ref = element.attrib['ref']
+            download_enabled = self.download_dependencies
+            ref_element, xml_tree, schema_location = get_ref_element(xml_tree, ref, namespaces,
+                                                                     element_tag, schema_location,
+                                                                     download_enabled=download_enabled)
+            if ref_element is not None:
+                text_capitalized = ref_element.attrib.get('name')
+                element = ref_element
+                # check if the element has a module
+                module_url = get_module_url(element)
+                _has_module = True if module_url is not None else False
+            else:
+                # the element was not found where it was supposed to be
+                # could be a use case too complex for the current parser
+                warning_message = "Ref element not found: " + str(element.attrib)
+                logger.warning(warning_message)
 
-        label = app_info['label'] if 'label' in app_info else text_capitalized
-        label = label if label is not None else ''
-
-        db_element['options']['label'] = label
-
-        # if element not removed
-        if not removed:
-            # if module is present, replace default input by module
-            if _has_module:
-                xml_path = full_path
-                if not _is_multiple:
-                    xml_path = '{0}[{1}]'.format(full_path, str(x+1))
-
-                module = generate_module(request, element, xsd_xpath, xml_path, xml_tree=xml_tree,
-                                         edit_data_tree=edit_data_tree)
-
-                db_elem_iter['children'].append(module)
-            else:  # generate the type
-                # get the default value (from xsd or from loaded xml)
-                default_value = ""
-                if 'curate_edit' in request.session and request.session['curate_edit']:
-                    # if elements are found at this xpath
-                    if len(edit_elements) > 0:
-                        # it is an XML element
-                        if element_tag == 'element':
-                            # get the value of the element x
-                            if edit_elements[x].text is not None:
-                                # set the value of the element
-                                default_value = edit_elements[x].text
-                        # it is an XMl attribute
-                        elif element_tag == 'attribute':
-                            # get the value of the attribute
-                            if edit_elements[x] is not None:
-                                # set the value of the element
-                                if isinstance(edit_elements[x], numbers.Number):
-                                    default_value = str(edit_elements[x])
-                                else:
-                                    default_value = edit_elements[x]
-                elif 'default' in element.attrib:
-                    # if the default attribute is present
-                    default_value = element.attrib['default']
-
-                default_value = default_value.strip()
-
-                if element_type is None:  # no complex/simple type
-                    placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
-                    tooltip = format_tooltip(app_info['tooltip']) if 'tooltip' in app_info else ''
-                    use = app_info['use'] if 'use' in app_info else ''
-
-                    db_child = {
-                        'tag': 'input',
-                        'options': {
-                            'placeholder': placeholder,
-                            'tooltip': tooltip,
-                            'use': use,
-                        },
-                        'value': default_value
-                    }
-                    db_elem_iter['children'].append(db_child)
-                else:  # complex/simple type
-
-                    if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                        complex_type_result = generate_complex_type(request, element_type, xml_tree,
-                                                                    full_path=full_path + '[' + str(x + 1) + ']',
-                                                                    edit_data_tree=edit_data_tree,
-                                                                    default_value=default_value,
-                                                                    schema_location=schema_location)
-
-                        db_elem_iter['children'].append(complex_type_result)
-                    elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
-                        simple_type_result = generate_simple_type(request, element_type, xml_tree,
-                                                                  full_path=full_path + '[' + str(x + 1) + ']',
-                                                                  edit_data_tree=edit_data_tree,
-                                                                  default_value=default_value,
-                                                                  schema_location=schema_location)
-
-                        db_elem_iter['children'].append(simple_type_result)
-
-        db_element['children'].append(db_elem_iter)
-
-    return db_element
-
-
-def generate_element_absent(request, element_id, config=None):
-    """
-
-    Parameters:
-        request:
-        element_id:
-    :return:
-    """
-    load_config(request, config)
-
-    sub_element = data_structure_element_api.get_by_id(element_id)
-    element_list = data_structure_element_api.get_all_by_child_id(element_id)
-
-    if len(element_list) == 0:
-        raise ValueError("No SchemaElement found")
-    elif len(element_list) > 1:
-        raise ValueError("More than one SchemaElement found")
-
-    schema_element = element_list[0]
-
-    schema_location = None
-    if 'schema_location' in schema_element.options:
-        schema_location = schema_element.options['schema_location']
-
-    # if the xml element is from an imported schema
-    if schema_location is not None:
-        # open the imported file
-        download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-        if download_enabled:
-            ref_xml_schema_file = urllib2.urlopen(schema_element.options['schema_location'])
-            # get the content of the file
-            ref_xml_schema_content = ref_xml_schema_file.read()
-            # build the XML tree
-            xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-            # get the namespaces from the imported schema
-            namespaces = get_namespaces(ref_xml_schema_content)
+                return db_element
         else:
-            raise ParserError('Dependency could not be downloaded')
-    else:
-        # get the content of the XML tree
-        xml_doc_tree_str = request.session['xmlDocTree']
-        # # build the XML tree
-        xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
-        # get the namespaces
-        namespaces = get_namespaces(xml_doc_tree_str)
+            text_capitalized = element.attrib.get('name')
 
-    # flatten the includes
-    download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-    flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree), download_enabled)
-    xml_doc_tree_str = flattener.get_flat()
-    xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+        xml_tree_str = etree.tostring(xml_tree)
+        namespaces = get_namespaces(xml_tree_str)
+        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
 
-    xpath_element = schema_element.options['xpath']
-    xsd_xpath = xpath_element['xsd']
+        # build xpath
+        # XML xpath:/root/element
+        if element_tag == 'element':
+            if target_namespace is not None:
+                if target_namespace_prefix != '':
+                    if get_element_form_default(xml_tree) == "qualified":
+                        full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
+                    elif "{0}:".format(target_namespace_prefix) in full_path:
+                        full_path += '/{0}'.format(text_capitalized)
+                    else:
+                        full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
+                else:
+                    full_path += '/*[local-name()="{0}"]'.format(text_capitalized)
+            else:
+                full_path += "/{0}".format(text_capitalized)
+        elif element_tag == 'attribute':
+            if target_namespace is not None:
+                if target_namespace_prefix != '':
+                    if get_attribute_form_default(xml_tree) == "qualified":
+                        full_path += '/@{0}:{1}'.format(target_namespace_prefix, text_capitalized)
+                    elif "{0}:".format(target_namespace_prefix) in full_path:
+                        full_path += '/@{0}'.format(text_capitalized)
+                    else:
+                        full_path += '/@{0}:{1}'.format(target_namespace_prefix, text_capitalized)
+                else:
+                    full_path += '/@*[local-name()="{0}"]'.format(text_capitalized)
+            else:
+                full_path += "/@{0}".format(text_capitalized)
 
-    xml_xpath = None
-    if 'xml' in xpath_element:
-        xml_xpath = xpath_element['xml']
+        # print full_path
 
-    xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
+        # XSD xpath: /element/complexType/sequence
+        xsd_xpath = xml_tree.getpath(element)
 
-    if 'min' in schema_element.options:
-        xml_element.attrib['minOccurs'] = str(schema_element.options['min'])
-
-    if 'max' in schema_element.options:
-        if schema_element.options['max'] != -1:
-            xml_element.attrib['maxOccurs'] = str(schema_element.options['max'])
-        else:
-            xml_element.attrib['maxOccurs'] = "unbounded"
-
-    # generating a choice, generate the parent element
-    if schema_element.tag == "choice":
-        # can use generate_element to generate a choice never generated
-        db_tree = generate_choice(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
-    elif schema_element.tag == 'sequence':
-        db_tree = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
-    else:
-        # can't directly use generate_element because only need the body of the element not its title
-        # provide xpath without element name because already generated in generate_element
-        db_tree = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0],
-                                   force_generation=True)
-
-    # Saving the tree in MongoDB
-    tree_root = load_schema_data_in_db(db_tree)
-    generated_element = tree_root.children[0]
-
-    # Updating the schema element
-    children = schema_element.children
-    element_index = children.index(sub_element)
-
-    children.insert(element_index + 1, generated_element)
-    schema_element.update(set__children=children)
-
-    if len(sub_element.children) == 0:
-        schema_element_to_pull = data_structure_element_api.get_by_id(element_id)
-        schema_element.update(pull__children=schema_element_to_pull)
-
-    schema_element.reload()
-    update_branch_xpath(schema_element)
-
-    tree_root_options = tree_root.options
-    tree_root_options['real_root'] = str(schema_element.pk)
-
-    tree_root.update(set__options=tree_root_options)
-    tree_root.reload()
-
-    renderer = ListRenderer(tree_root, request)
-    html_form = renderer.render(True)
-
-    tree_root.delete()
-    return html_form
-
-
-def generate_sequence(request, element, xml_tree, choice_counter=None, full_path="", edit_data_tree=None,
-                      schema_location=None, force_generation=False):
-    """Generates a section of the form that represents an XML sequence
-
-    Parameters:
-        request:
-        element: XML element
-        xml_tree: XML Tree
-        choice_counter:
-        full_path:
-        edit_data_tree:
-        schema_location:
-        force_generation:
-
-    Returns:       HTML string representing a sequence
-    """
-    # (annotation?,(element|group|choice|sequence|any)*)
-    # FIXME implement group, any
-
-    min_occurs, max_occurs = get_element_occurrences(element)
-
-    # XSD xpath
-    xsd_xpath = xml_tree.getpath(element)
-
-    db_element = {
-        'tag': 'sequence',
-        'options': {
-            'min': min_occurs,
-            'max': max_occurs,
-            'xpath': {
-                'xsd': xsd_xpath,
-                'xml': full_path
-            },
-            'schema_location': schema_location
-        },
-        'value': None,
-        'children': []
-    }
-
-    if min_occurs != 1 or max_occurs != 1:
-        text = "Sequence"
+        db_element['options']['name'] = element.attrib.get('name')
+        db_element['options']['xpath']['xsd'] = xsd_xpath
+        db_element['options']['xpath']['xml'] = full_path
+        if self.store_type:
+            db_element['options']['type'] = element.attrib['type'] if 'type' in element.attrib else None
 
         # init variables for buttons management
         nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
         nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
+        use = ""
+        removed = False
 
         # loading data in the form
-        if 'curate_edit' in request.session and request.session['curate_edit']:
-            # get the number of occurrences in the data
-            download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-            elements_found = lookup_occurs(element, xml_tree, full_path, edit_data_tree,
-                                           download_enabled=download_enabled)
-            if max_occurs != 1:
-                nb_occurrences_data = len(elements_found)
+        if self.editing:
+            if xml_element is None:
+                # get the number of occurrences in the data
+                edit_elements = edit_data_tree.xpath(full_path, namespaces=namespaces)
+                nb_occurrences_data = len(edit_elements)
             else:
-                if len(elements_found) > 0:
+                if xml_element is False:  # explicitly say to not generate the element
+                    edit_elements = []
+                    nb_occurrences_data = 1
+                else:
+                    edit_elements = [xml_element]
                     nb_occurrences_data = 1
 
-        if nb_occurrences_data > nb_occurrences:
+            if nb_occurrences_data == 0:
+                use = "removed"
+                removed = True
+
+        else:  # starting an empty form
+            # Don't generate the element if not necessary
+            if self.min_tree and min_occurs == 0:
+                use = "removed"
+                removed = True
+
+        if _has_module and _is_multiple:
+            # block maxOccurs to one, the module should take care of occurrences when the element is replaced
+            nb_occurrences = 1
+            # max_occurs = 1
+        elif nb_occurrences_data > nb_occurrences:
             nb_occurrences = nb_occurrences_data
 
-        # keeps track of elements to display depending on the selected choice
-        if choice_counter:
-            if 'curate_edit' in request.session and request.session['curate_edit']:
-                if nb_occurrences == 0:
-                    if request.session['PARSER_MIN_TREE']:
+        # get the element namespace
+        element_ns = get_element_namespace(element, xml_tree)
+        # set the element namespace
+        # tag_ns = ' xmlns="{0}" '.format(element_ns) if element_ns is not None else ''
+        ns_prefix = None
+        if element_tag == "attribute" and target_namespace is not None:
+            for prefix, ns in namespaces.iteritems():
+                if ns == target_namespace:
+                    ns_prefix = prefix
+                    break
+
+        # get the element type
+        default_prefix = get_default_prefix(namespaces)
+
+        db_element['options']['schema_location'] = schema_location
+        db_element['options']['xmlns'] = element_ns
+        db_element['options']['ns_prefix'] = ns_prefix
+
+        download_enabled = self.download_dependencies
+        element_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces,
+                                                                   default_prefix, target_namespace_prefix,
+                                                                   schema_location, download_enabled=download_enabled)
+
+        # management of elements inside a choice (don't display if not part of the currently selected choice)
+        if choice_counter is not None:
+            if self.editing:
+                if len(edit_elements) == 0:
+                    if self.min_tree:
                         return db_element
             else:
                 if choice_counter > 0:
-                    if request.session['PARSER_MIN_TREE']:
+                    if self.min_tree:
                         return db_element
 
         if force_generation:
             nb_occurrences = 1
+            removed = False
+
+        # if auto key/keyref is True, go find keys/keyrefs in element scope
+        if self.auto_key_keyref:
+            # TODO: for now, support key/keyref for attributes only
+            if element_tag == 'attribute':
+                if is_key(request, element, full_path):
+                    _has_module = True
+                    db_element['options']['module'] = _has_module
+                elif is_key_ref(request, element, db_element, full_path):
+                    _has_module = True
+                    db_element['options']['module'] = _has_module
+            if element_tag == 'element':
+                # look if key/keyrefs are defined for the scope of this element
+                manage_key_keyref(request, element, full_path, xml_tree)
 
         for x in range(0, int(nb_occurrences)):
+            db_elem_iter = {
+                'tag': 'elem-iter',
+                'value': None,
+                'children': []
+            }
+
+            # get the use from app info element
+            app_info_use = app_info['use'] if 'use' in app_info else ''
+            app_info_use = app_info_use if app_info_use is not None else ''
+            use += ' ' + app_info_use
+
+            label = app_info['label'] if 'label' in app_info else text_capitalized
+            label = label if label is not None else ''
+
+            db_element['options']['label'] = label
+
+            # if element not removed
+            if not removed:
+                # if module is present, replace default input by module
+                if _has_module:
+                    xml_path = full_path
+                    if not _is_multiple:
+                        xml_path = '{0}[{1}]'.format(full_path, str(x+1))
+
+                    module = self.generate_module(request, element, xsd_xpath, xml_path, xml_tree=xml_tree,
+                                                  edit_data_tree=edit_data_tree)
+
+                    db_elem_iter['children'].append(module)
+                else:  # generate the type
+                    # get the default value (from xsd or from loaded xml)
+                    default_value = ""
+                    if self.editing:
+                        # if elements are found at this xpath
+                        if len(edit_elements) > 0:
+                            # it is an XML element
+                            if element_tag == 'element':
+                                # get the value of the element x
+                                if edit_elements[x].text is not None:
+                                    # set the value of the element
+                                    default_value = edit_elements[x].text
+                            # it is an XMl attribute
+                            elif element_tag == 'attribute':
+                                # get the value of the attribute
+                                if edit_elements[x] is not None:
+                                    # set the value of the element
+                                    if isinstance(edit_elements[x], numbers.Number):
+                                        default_value = str(edit_elements[x])
+                                    else:
+                                        default_value = edit_elements[x]
+                    elif 'default' in element.attrib:
+                        # if the default attribute is present
+                        default_value = element.attrib['default']
+
+                    default_value = default_value.strip()
+
+                    if element_type is None:  # no complex/simple type
+                        placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
+                        tooltip = format_tooltip(app_info['tooltip']) if 'tooltip' in app_info else ''
+                        use = app_info['use'] if 'use' in app_info else ''
+
+                        db_child = {
+                            'tag': 'input',
+                            'options': {
+                                'placeholder': placeholder,
+                                'tooltip': tooltip,
+                                'use': use,
+                            },
+                            'value': default_value
+                        }
+                        db_elem_iter['children'].append(db_child)
+                    else:  # complex/simple type
+
+                        if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                            complex_type_result = self.generate_complex_type(request, element_type, xml_tree,
+                                                                             full_path=full_path + '[' + str(x + 1) + ']',
+                                                                             edit_data_tree=edit_data_tree,
+                                                                             default_value=default_value,
+                                                                             schema_location=schema_location)
+
+                            db_elem_iter['children'].append(complex_type_result)
+                        elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                            simple_type_result = self.generate_simple_type(request, element_type, xml_tree,
+                                                                           full_path=full_path + '[' + str(x + 1) + ']',
+                                                                           edit_data_tree=edit_data_tree,
+                                                                           default_value=default_value,
+                                                                           schema_location=schema_location)
+
+                            db_elem_iter['children'].append(simple_type_result)
+
+            db_element['children'].append(db_elem_iter)
+
+        return db_element
+
+    def generate_element_absent(self, request, element_id):
+        """
+
+        Parameters:
+            request:
+            element_id:
+        :return:
+        """
+
+        sub_element = data_structure_element_api.get_by_id(element_id)
+        element_list = data_structure_element_api.get_all_by_child_id(element_id)
+
+        if len(element_list) == 0:
+            raise ValueError("No SchemaElement found")
+        elif len(element_list) > 1:
+            raise ValueError("More than one SchemaElement found")
+
+        schema_element = element_list[0]
+
+        schema_location = None
+        if 'schema_location' in schema_element.options:
+            schema_location = schema_element.options['schema_location']
+
+        # if the xml element is from an imported schema
+        if schema_location is not None:
+            # open the imported file
+            download_enabled = self.download_dependencies
+            if download_enabled:
+                ref_xml_schema_file = urllib2.urlopen(schema_element.options['schema_location'])
+                # get the content of the file
+                ref_xml_schema_content = ref_xml_schema_file.read()
+                # build the XML tree
+                xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                # get the namespaces from the imported schema
+                namespaces = get_namespaces(ref_xml_schema_content)
+            else:
+                raise ParserError('Dependency could not be downloaded')
+        else:
+            # get the content of the XML tree
+            xml_doc_tree_str = request.session['xmlDocTree']
+            # # build the XML tree
+            xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
+            # get the namespaces
+            namespaces = get_namespaces(xml_doc_tree_str)
+
+        # flatten the includes
+        download_enabled = self.download_dependencies
+        flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree), download_enabled)
+        xml_doc_tree_str = flattener.get_flat()
+        xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+
+        xpath_element = schema_element.options['xpath']
+        xsd_xpath = xpath_element['xsd']
+
+        xml_xpath = None
+        if 'xml' in xpath_element:
+            xml_xpath = xpath_element['xml']
+
+        xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
+
+        if 'min' in schema_element.options:
+            xml_element.attrib['minOccurs'] = str(schema_element.options['min'])
+
+        if 'max' in schema_element.options:
+            if schema_element.options['max'] != -1:
+                xml_element.attrib['maxOccurs'] = str(schema_element.options['max'])
+            else:
+                xml_element.attrib['maxOccurs'] = "unbounded"
+
+        # generating a choice, generate the parent element
+        if schema_element.tag == "choice":
+            # can use generate_element to generate a choice never generated
+            db_tree = self.generate_choice(request, xml_element, xml_doc_tree,
+                                           full_path=xml_xpath,
+                                           force_generation=True)
+        elif schema_element.tag == 'sequence':
+            db_tree = self.generate_sequence(request, xml_element, xml_doc_tree,
+                                             full_path=xml_xpath,
+                                             force_generation=True)
+        else:
+            # can't directly use generate_element because only need the body of the element not its title
+            # provide xpath without element name because already generated in generate_element
+            db_tree = self.generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0],
+                                            force_generation=True)
+
+        # Saving the tree in MongoDB
+        tree_root = load_schema_data_in_db(db_tree)
+        generated_element = tree_root.children[0]
+
+        # Updating the schema element
+        children = schema_element.children
+        element_index = children.index(sub_element)
+
+        children.insert(element_index + 1, generated_element)
+        schema_element.update(set__children=children)
+
+        if len(sub_element.children) == 0:
+            schema_element_to_pull = data_structure_element_api.get_by_id(element_id)
+            schema_element.update(pull__children=schema_element_to_pull)
+
+        schema_element.reload()
+        update_branch_xpath(schema_element)
+
+        tree_root_options = tree_root.options
+        tree_root_options['real_root'] = str(schema_element.pk)
+
+        tree_root.update(set__options=tree_root_options)
+        tree_root.reload()
+
+        renderer = ListRenderer(tree_root, request)
+        html_form = renderer.render(True)
+
+        tree_root.delete()
+        return html_form
+
+    def generate_sequence(self, request, element, xml_tree, choice_counter=None, full_path="", edit_data_tree=None,
+                          schema_location=None, force_generation=False):
+        """Generates a section of the form that represents an XML sequence
+
+        Parameters:
+            request:
+            element: XML element
+            xml_tree: XML Tree
+            choice_counter:
+            full_path:
+            edit_data_tree:
+            schema_location:
+            force_generation:
+
+        Returns:       HTML string representing a sequence
+        """
+        # (annotation?,(element|group|choice|sequence|any)*)
+        # FIXME implement group, any
+
+        min_occurs, max_occurs = get_element_occurrences(element)
+
+        # XSD xpath
+        xsd_xpath = xml_tree.getpath(element)
+
+        db_element = {
+            'tag': 'sequence',
+            'options': {
+                'min': min_occurs,
+                'max': max_occurs,
+                'xpath': {
+                    'xsd': xsd_xpath,
+                    'xml': full_path
+                },
+                'schema_location': schema_location
+            },
+            'value': None,
+            'children': []
+        }
+
+        if min_occurs != 1 or max_occurs != 1:
+            # init variables for buttons management
+            nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
+            nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
+
+            # loading data in the form
+            if self.editing:
+                # get the number of occurrences in the data
+                download_enabled = self.download_dependencies
+                elements_found = lookup_occurs(element, xml_tree, full_path, edit_data_tree,
+                                               download_enabled=download_enabled)
+                if max_occurs != 1:
+                    nb_occurrences_data = len(elements_found)
+                else:
+                    if len(elements_found) > 0:
+                        nb_occurrences_data = 1
+
+            if nb_occurrences_data > nb_occurrences:
+                nb_occurrences = nb_occurrences_data
+
+            # keeps track of elements to display depending on the selected choice
+            if choice_counter is not None:
+                if self.editing:
+                    if nb_occurrences == 0:
+                        if self.min_tree:
+                            return db_element
+                else:
+                    if choice_counter > 0:
+                        if self.min_tree:
+                            return db_element
+
+            if force_generation:
+                nb_occurrences = 1
+
+            for x in range(0, int(nb_occurrences)):
+                db_elem_iter = {
+                    'tag': 'sequence-iter',
+                    'value': None,
+                    'children': []
+                }
+
+                # generates the sequence
+                for child in element:
+                    if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                        element_result = self.generate_element(request, child, xml_tree, choice_counter,
+                                                               full_path=full_path, edit_data_tree=edit_data_tree,
+                                                               schema_location=schema_location)
+
+                        db_elem_iter['children'].append(element_result)
+                    elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                        sequence_result = self.generate_sequence(request, child, xml_tree, choice_counter,
+                                                                 full_path=full_path, edit_data_tree=edit_data_tree,
+                                                                 schema_location=schema_location)
+
+                        db_elem_iter['children'].append(sequence_result)
+                    elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+                        choice_result = self.generate_choice(request, child, xml_tree, choice_counter,
+                                                             full_path=full_path, edit_data_tree=edit_data_tree,
+                                                             schema_location=schema_location)
+
+                        db_elem_iter['children'].append(choice_result)
+                    elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
+                        pass
+                    elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
+                        pass
+
+                db_element['children'].append(db_elem_iter)
+
+        else:  # min_occurs == 1 and max_occurs == 1
             db_elem_iter = {
                 'tag': 'sequence-iter',
                 'value': None,
                 'children': []
             }
 
-            li_content = ''
+            # XSD xpath
+            # xsd_xpath = xml_tree.getpath(element)
 
-            if len(list(element)) > 0 and request.session['PARSER_COLLAPSE']:
-                li_content += ''
+            # init variables for buttons management
+            nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
+            # nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
 
-            li_content += text
+            if choice_counter is not None:
+                if self.editing:
+                    if nb_occurrences == 0:
+                        if self.min_tree:
+                            return db_element
+                else:
+                    if choice_counter > 0:
+                        if self.min_tree:
+                            return db_element
 
             # generates the sequence
             for child in element:
                 if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-                    element_result = generate_element(request, child, xml_tree, choice_counter,
-                                                      full_path=full_path, edit_data_tree=edit_data_tree,
-                                                      schema_location=schema_location)
+                    element_result = self.generate_element(request, child, xml_tree, choice_counter,
+                                                           full_path=full_path, edit_data_tree=edit_data_tree,
+                                                           schema_location=schema_location)
 
                     db_elem_iter['children'].append(element_result)
                 elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
-                    sequence_result = generate_sequence(request, child, xml_tree, choice_counter,
-                                                        full_path=full_path, edit_data_tree=edit_data_tree,
-                                                        schema_location=schema_location)
+                    sequence_result = self.generate_sequence(request, child, xml_tree, choice_counter,
+                                                             full_path=full_path, edit_data_tree=edit_data_tree,
+                                                             schema_location=schema_location)
 
                     db_elem_iter['children'].append(sequence_result)
                 elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
-                    choice_result = generate_choice(request, child, xml_tree, choice_counter,
-                                                    full_path=full_path, edit_data_tree=edit_data_tree,
-                                                    schema_location=schema_location)
+                    choice_result = self.generate_choice(request, child, xml_tree, choice_counter,
+                                                         full_path=full_path, edit_data_tree=edit_data_tree,
+                                                         schema_location=schema_location)
 
                     db_elem_iter['children'].append(choice_result)
                 elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
@@ -1347,1080 +1373,1032 @@ def generate_sequence(request, element, xml_tree, choice_counter=None, full_path
 
             db_element['children'].append(db_elem_iter)
 
-    else:  # min_occurs == 1 and max_occurs == 1
-        db_elem_iter = {
+        return db_element
+
+    def generate_sequence_absent(self, request, element, xml_tree, schema_location=None):
+        """Generates a section of the form that represents an XML sequence
+
+        Parameters:
+            request:
+            element: XML element
+            xml_tree: XML Tree
+            schema_location:
+
+        Returns:
+            HTML string representing a sequence
+        """
+        # TODO see if it can be merged in generate_sequence
+        db_element = {
             'tag': 'sequence-iter',
             'value': None,
             'children': []
         }
 
-        # XSD xpath
-        # xsd_xpath = xml_tree.getpath(element)
-
-        # init variables for buttons management
-        nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-        # nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
-
-        if choice_counter:
-            if 'curate_edit' in request.session and request.session['curate_edit']:
-                if nb_occurrences == 0:
-                    if request.session['PARSER_MIN_TREE']:
-                        return db_element
-            else:
-                if choice_counter > 0:
-                    if request.session['PARSER_MIN_TREE']:
-                        return db_element
-
         # generates the sequence
         for child in element:
             if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-                element_result = generate_element(request, child, xml_tree, choice_counter,
-                                                  full_path=full_path, edit_data_tree=edit_data_tree,
-                                                  schema_location=schema_location)
-
-                db_elem_iter['children'].append(element_result)
+                element = self.generate_element(request, child, xml_tree, schema_location=schema_location)
+                db_element['children'].append(element)
             elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
-                sequence_result = generate_sequence(request, child, xml_tree, choice_counter,
-                                                    full_path=full_path, edit_data_tree=edit_data_tree,
-                                                    schema_location=schema_location)
-
-                db_elem_iter['children'].append(sequence_result)
+                sequence = self.generate_sequence(request, child, xml_tree, schema_location=schema_location)
+                db_element['children'].append(sequence)
             elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
-                choice_result = generate_choice(request, child, xml_tree, choice_counter,
-                                                full_path=full_path, edit_data_tree=edit_data_tree,
-                                                schema_location=schema_location)
-
-                db_elem_iter['children'].append(choice_result)
+                choice = self.generate_choice(request, child, xml_tree, schema_location=schema_location)
+                db_element['children'].append(choice)
             elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                 pass
             elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
                 pass
 
-        db_element['children'].append(db_elem_iter)
+        return db_element
 
-    return db_element
+    def generate_choice(self, request, element, xml_tree, choice_counter=None, full_path="", edit_data_tree=None,
+                        schema_location=None, force_generation=False):
+        """Generates a section of the form that represents an XML choice
 
+        Parameters:
+            request:
+            element: XML element
+            xml_tree: XML Tree
+            choice_counter: to keep track of branches to display (chosen ones) when going recursively down the tree
+            full_path: XML xpath being built
+            edit_data_tree: XML tree of data being edited
+            schema_location:
+            force_generation:
 
-def generate_sequence_absent(request, element, xml_tree, schema_location=None):
-    """Generates a section of the form that represents an XML sequence
-
-    Parameters:
-        request:
-        element: XML element
-        xml_tree: XML Tree
-        schema_location:
-
-    Returns:
-        HTML string representing a sequence
-    """
-    # TODO see if it can be merged in generate_sequence
-    db_element = {
-        'tag': 'sequence-iter',
-        'value': None,
-        'children': []
-    }
-
-    # generates the sequence
-    for child in element:
-        if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-            element = generate_element(request, child, xml_tree, schema_location=schema_location)
-            db_element['children'].append(element)
-        elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
-            sequence = generate_sequence(request, child, xml_tree, schema_location=schema_location)
-            db_element['children'].append(sequence)
-        elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
-            choice = generate_choice(request, child, xml_tree, schema_location=schema_location)
-            db_element['children'].append(choice)
-        elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-            pass
-        elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-            pass
-
-    return db_element
-
-
-def generate_choice(request, element, xml_tree, choice_counter=None, full_path="", edit_data_tree=None,
-                    schema_location=None, force_generation=False):
-    """Generates a section of the form that represents an XML choice
-
-    Parameters:
-        request:
-        element: XML element
-        xml_tree: XML Tree
-        choice_counter: to keep track of branches to display (chosen ones) when going recursively down the tree
-        full_path: XML xpath being built
-        edit_data_tree: XML tree of data being edited
-        schema_location:
-        force_generation:
-
-    Returns:       HTML string representing a sequence
-    """
-    # (annotation?, (element|group|choice|sequence|any)*)
-    # FIXME Group not supported
-    # FIXME Choice not supported
-    db_element = {
-        'tag': 'choice',
-        'options': {
-            'xpath': {
-                'xsd': None,
-                'xml': full_path
+        Returns:       HTML string representing a sequence
+        """
+        # (annotation?, (element|group|choice|sequence|any)*)
+        # FIXME Group not supported
+        # FIXME Choice not supported
+        db_element = {
+            'tag': 'choice',
+            'options': {
+                'xpath': {
+                    'xsd': None,
+                    'xml': full_path
+                },
+                'schema_location': schema_location
             },
-            'schema_location': schema_location
-        },
-        'value': None,
-        'children': []
-    }
-
-    # init variables for buttons management
-    nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-
-    max_occurs = 1
-
-    elements_found = None
-    xml_element = None
-
-    # not multiple roots
-    # FIXME process differently this part
-    if not isinstance(element, list):
-        # XSD xpath: don't need it when multiple root (can't duplicate a root)
-        xsd_xpath = xml_tree.getpath(element)
-
-        db_element['options']['xpath']['xsd'] = xsd_xpath
-
-        # get element's min/max occurs attributes
-        min_occurs, max_occurs = get_element_occurrences(element)
-        nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
-
-        # loading data in the form
-        if 'curate_edit' in request.session and request.session['curate_edit']:
-            # get the number of occurrences in the data
-            download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-            elements_found = lookup_occurs(element, xml_tree, full_path, edit_data_tree,
-                                           download_enabled=download_enabled)
-            nb_occurrences_data = len(elements_found)
-            if max_occurs != 1:
-                nb_occurrences_data = len(elements_found)
-            else:
-                if len(elements_found) > 0:
-                    nb_occurrences_data = 1
-
-        if nb_occurrences_data > nb_occurrences:
-            nb_occurrences = nb_occurrences_data
-
-        # 'occurs' key contains the tuple (minOccurs, nbOccurs, maxOccurs)
-        # db_element['options'] = (min_occurs, nb_occurrences_data, max_occurs)
-        db_element['options']['min'] = min_occurs
-        db_element['options']['max'] = max_occurs
-
-    # keeps track of elements to display depending on the selected choice
-    if choice_counter:
-        if 'curate_edit' in request.session and request.session['curate_edit']:
-            if nb_occurrences == 0:
-                if request.session['PARSER_MIN_TREE']:
-                    return db_element
-        else:
-            if choice_counter > 0:
-                # chosen = False
-
-                if request.session['PARSER_MIN_TREE']:
-                    return db_element
-
-    if force_generation:
-        nb_occurrences = 1
-
-    for x in range(0, int(nb_occurrences)):
-        db_child = {
-            'tag': 'choice-iter',
             'value': None,
             'children': []
         }
 
-        li_content = ''
+        # init variables for buttons management
+        nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
 
-        element_found = None
-        if elements_found is not None:
-            try:
-                element_found = elements_found[x]
-            except:
-                pass
+        max_occurs = 1
 
-        for (counter, choiceChild) in enumerate(list(element)):
-            # For unbounded choice, explicitly don't generate the choices not selected
-            if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-                # Find the default element
-                if choiceChild.attrib.get('name') is not None:
-                    opt_label = choiceChild.attrib.get('name')
+        elements_found = None
+        xml_element = None
+
+        # not multiple roots
+        # FIXME process differently this part
+        if not isinstance(element, list):
+            # XSD xpath: don't need it when multiple root (can't duplicate a root)
+            xsd_xpath = xml_tree.getpath(element)
+
+            db_element['options']['xpath']['xsd'] = xsd_xpath
+
+            # get element's min/max occurs attributes
+            min_occurs, max_occurs = get_element_occurrences(element)
+            nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
+
+            # loading data in the form
+            if self.editing:
+                # get the number of occurrences in the data
+                download_enabled = self.download_dependencies
+                elements_found = lookup_occurs(element, xml_tree, full_path, edit_data_tree,
+                                               download_enabled=download_enabled)
+                nb_occurrences_data = len(elements_found)
+                if max_occurs != 1:
+                    nb_occurrences_data = len(elements_found)
                 else:
-                    opt_label = choiceChild.attrib.get('ref')
+                    if len(elements_found) > 0:
+                        nb_occurrences_data = 1
 
-                    if ':' in choiceChild.attrib.get('ref'):
-                        opt_label = opt_label.split(':')[1]
+            if nb_occurrences_data > nb_occurrences:
+                nb_occurrences = nb_occurrences_data
 
-                # get the schema namespaces
-                xml_tree_str = etree.tostring(xml_tree)
-                namespaces = get_namespaces(xml_tree_str)
-                # add the XSI prefix used by extensions
-                namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
-                target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+            # 'occurs' key contains the tuple (minOccurs, nbOccurs, maxOccurs)
+            # db_element['options'] = (min_occurs, nb_occurrences_data, max_occurs)
+            db_element['options']['min'] = min_occurs
+            db_element['options']['max'] = max_occurs
 
-                if 'curate_edit' in request.session and request.session['curate_edit']:
-                    # TODO: manage unbounded choices for sequences/choices as well
-                    if max_occurs != 1:
-                        xml_element = False  # explicitly don't generate the element
-                        element_path = opt_label if target_namespace is None else "{" + target_namespace + "}" + opt_label
-                        if element_found is not None and element_found.tag == element_path:
-                            xml_element = element_found  # explicitly build the element if found
-                            db_child['value'] = counter
+        # keeps track of elements to display depending on the selected choice
+        if choice_counter is not None:
+            if self.editing:
+                if nb_occurrences == 0:
+                    if self.min_tree:
+                        return db_element
+            else:
+                if choice_counter > 0:
+                    if self.min_tree:
+                        return db_element
 
+        if force_generation:
+            nb_occurrences = 1
+
+        for x in range(0, int(nb_occurrences)):
+            db_child = {
+                'tag': 'choice-iter',
+                'value': None,
+                'children': []
+            }
+
+            element_found = None
+            if elements_found is not None:
+                try:
+                    element_found = elements_found[x]
+                except:
+                    pass
+
+            for (counter, choiceChild) in enumerate(list(element)):
+                # For unbounded choice, explicitly don't generate the choices not selected
+                if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                    # Find the default element
+                    if choiceChild.attrib.get('name') is not None:
+                        opt_label = choiceChild.attrib.get('name')
                     else:
-                        # TODO: create prefix if no prefix?
-                        ns_prefix = target_namespace_prefix + ":" if target_namespace is not None else ""
-                        element_path = '{0}/{1}{2}'.format(full_path, ns_prefix, opt_label)
-                        if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
-                            db_child['value'] = counter
-                element_result = generate_element(request, choiceChild, xml_tree,
-                                                  counter,
-                                                  full_path=full_path,
-                                                  edit_data_tree=edit_data_tree,
-                                                  schema_location=schema_location,
-                                                  xml_element=xml_element)
+                        opt_label = choiceChild.attrib.get('ref')
 
-                db_child_0 = element_result
-                db_child['children'].append(db_child_0)
-            elif choiceChild.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-                pass
-            elif choiceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
-                choice = generate_choice(request, choiceChild, xml_tree,
-                                         counter, full_path=full_path,
-                                         edit_data_tree=edit_data_tree, schema_location=schema_location)
+                        if ':' in choiceChild.attrib.get('ref'):
+                            opt_label = opt_label.split(':')[1]
 
-                db_child['children'].append(choice)
-            elif choiceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
-                sequence = generate_sequence(request, choiceChild, xml_tree,
-                                             counter, full_path=full_path,
-                                             edit_data_tree=edit_data_tree, schema_location=schema_location)
+                    # get the schema namespaces
+                    xml_tree_str = etree.tostring(xml_tree)
+                    namespaces = get_namespaces(xml_tree_str)
+                    # add the XSI prefix used by extensions
+                    namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
+                    target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
 
-                db_child_0 = sequence
-                db_child['children'].append(db_child_0)
-            elif choiceChild.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-                pass
+                    if self.editing:
+                        # TODO: manage unbounded choices for sequences/choices as well
+                        if max_occurs != 1:
+                            xml_element = False  # explicitly don't generate the element
+                            element_path = opt_label if target_namespace is None else "{" + target_namespace + "}" + opt_label
+                            if element_found is not None and element_found.tag == element_path:
+                                xml_element = element_found  # explicitly build the element if found
+                                db_child['value'] = counter
 
-        db_element['children'].append(db_child)
+                        else:
+                            # TODO: create prefix if no prefix?
+                            ns_prefix = target_namespace_prefix + ":" if target_namespace is not None else ""
+                            element_path = '{0}/{1}{2}'.format(full_path, ns_prefix, opt_label)
+                            if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
+                                db_child['value'] = counter
+                    element_result = self.generate_element(request, choiceChild, xml_tree,
+                                                           counter,
+                                                           full_path=full_path,
+                                                           edit_data_tree=edit_data_tree,
+                                                           schema_location=schema_location,
+                                                           xml_element=xml_element)
 
-    return db_element
+                    db_child_0 = element_result
+                    db_child['children'].append(db_child_0)
+                elif choiceChild.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
+                    pass
+                elif choiceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+                    choice = self.generate_choice(request, choiceChild, xml_tree,
+                                                  counter, full_path=full_path,
+                                                  edit_data_tree=edit_data_tree, schema_location=schema_location)
 
+                    db_child['children'].append(choice)
+                elif choiceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                    sequence = self.generate_sequence(request, choiceChild, xml_tree,
+                                                      counter, full_path=full_path,
+                                                      edit_data_tree=edit_data_tree, schema_location=schema_location)
 
-def generate_choice_absent(request, element_id, config=None):
-    load_config(request, config)
+                    db_child_0 = sequence
+                    db_child['children'].append(db_child_0)
+                elif choiceChild.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
+                    pass
 
-    element = data_structure_element_api.get_by_id(element_id)
-    parents = data_structure_element_api.get_all_by_child_id(element_id)
-
-    if len(parents) == 0:
-        raise ValueError("No SchemaElement found")
-    elif len(parents) > 1:
-        raise ValueError("More than one SchemaElement found")
-
-    parent = parents[0]
-
-    schema_location = None
-    if 'schema_location' in element.options:
-        schema_location = element.options['schema_location']
-
-    # if the xml element is from an imported schema
-    if schema_location is not None:
-        # open the imported file
-        download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-        if download_enabled:
-            ref_xml_schema_file = urllib2.urlopen(element.options['schema_location'])
-            # get the content of the file
-            ref_xml_schema_content = ref_xml_schema_file.read()
-            # build the XML tree
-            xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-            # get the namespaces from the imported schema
-            namespaces = get_namespaces(ref_xml_schema_content)
-        else:
-            raise ParserError('Dependency could not be downloaded')
-    else:
-        # get the content of the XML tree
-        xml_doc_tree_str = request.session['xmlDocTree']
-        # # build the XML tree
-        xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
-        # get the namespaces
-        namespaces = get_namespaces(xml_doc_tree_str)
-
-    # flatten the includes
-    download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-    flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree), download_enabled)
-    xml_doc_tree_str = flattener.get_flat()
-    xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
-
-    xpath_element = element.options['xpath']
-    xsd_xpath = xpath_element['xsd']
-
-    xml_xpath = None
-    if 'xml' in xpath_element:
-        xml_xpath = xpath_element['xml']
-
-    xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
-
-    # FIXME: Support all possibilities
-    if element.tag == 'element':
-        # provide xpath without element name because already generated in generate_element
-        db_tree = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0])
-    elif element.tag == 'sequence':
-        db_tree = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath)
-    else:
-        raise ParserError('Element cannot be generated: not implemented.')
-
-    # Saving the tree in MongoDB
-    tree_root = load_schema_data_in_db(db_tree)
-
-    # Replacing the children with the generated branch
-    children = parent.children
-    element_index = children.index(element)
-
-    children[element_index] = tree_root
-
-    parent.update(set__children=children)
-    parent.update(set__value=str(tree_root.pk))
-
-    parent.reload()
-
-    renderer = ListRenderer(tree_root, request)
-    html_form = renderer.render(False)
-
-    return html_form
-
-
-def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=None,
-                         default_value=None, schema_location=None):
-    """Generates a section of the form that represents an XML simple type
-
-    Parameters:
-        request:
-        element:
-        xml_tree:
-        full_path:
-        edit_data_tree:
-        default_value:
-        schema_location:
-
-    Returns:
-        HTML string representing a simple type
-    """
-    # FIXME implement union, correct list
-    db_element = {
-        'tag': 'simple_type',
-        'value': None,
-        'children': [],
-        'options': {
-            'name': element.attrib['name'] if 'name' in element.attrib else '',
-            'xmlns': get_element_namespace(element, xml_tree),
-        },
-    }
-
-    # get namespace prefix to reference extension in xsi:type
-    xml_tree_str = etree.tostring(xml_tree)
-    namespaces = get_namespaces(xml_tree_str)
-    target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
-    ns_prefix = None
-    if target_namespace is not None:
-        for prefix, ns in namespaces.iteritems():
-            if ns == target_namespace:
-                ns_prefix = prefix
-                break
-    db_element['options']['ns_prefix'] = ns_prefix
-
-    if get_module_url(element) is not None:
-        # XSD xpath: /element/complexType/sequence
-        xsd_xpath = xml_tree.getpath(element)
-        module = generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
-                                 edit_data_tree=edit_data_tree)
-
-        db_element['children'].append(module)
+            db_element['children'].append(db_child)
 
         return db_element
 
-    # TODO: check that it's not already extending a base
-    # check if the type has a name (can be referenced by an extension)
-    if 'name' in element.attrib and request.session['implicit_extension']:
-        # check if types extend this one
-        extensions = get_extensions(xml_tree, element.attrib['name'])
+    def generate_choice_absent(self, request, element_id):
+        """
 
-        # the type has some possible extensions
-        if len(extensions) > 0:
-            # add the base type that can be rendered alone without extensions
-            extensions.insert(0, element)
-            choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
-                                                        schema_location)
-            db_element['children'].append(choice_content)
+        Args:
+            request:
+            element_id:
+
+        Returns:
+
+        """
+        element = data_structure_element_api.get_by_id(element_id)
+        parents = data_structure_element_api.get_all_by_child_id(element_id)
+
+        if len(parents) == 0:
+            raise ValueError("No SchemaElement found")
+        elif len(parents) > 1:
+            raise ValueError("More than one SchemaElement found")
+
+        parent = parents[0]
+
+        schema_location = None
+        if 'schema_location' in element.options:
+            schema_location = element.options['schema_location']
+
+        # if the xml element is from an imported schema
+        if schema_location is not None:
+            # open the imported file
+            download_enabled = self.download_dependencies
+            if download_enabled:
+                ref_xml_schema_file = urllib2.urlopen(element.options['schema_location'])
+                # get the content of the file
+                ref_xml_schema_content = ref_xml_schema_file.read()
+                # build the XML tree
+                xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                # get the namespaces from the imported schema
+                namespaces = get_namespaces(ref_xml_schema_content)
+            else:
+                raise ParserError('Dependency could not be downloaded')
+        else:
+            # get the content of the XML tree
+            xml_doc_tree_str = request.session['xmlDocTree']
+            # # build the XML tree
+            xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
+            # get the namespaces
+            namespaces = get_namespaces(xml_doc_tree_str)
+
+        # flatten the includes
+        download_enabled = self.download_dependencies
+        flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree), download_enabled)
+        xml_doc_tree_str = flattener.get_flat()
+        xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+
+        xpath_element = element.options['xpath']
+        xsd_xpath = xpath_element['xsd']
+
+        xml_xpath = None
+        if 'xml' in xpath_element:
+            xml_xpath = xpath_element['xml']
+
+        xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
+
+        # FIXME: Support all possibilities
+        if element.tag == 'element':
+            # provide xpath without element name because already generated in generate_element
+            db_tree = self.generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0])
+        elif element.tag == 'sequence':
+            db_tree = self.generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath)
+        else:
+            raise ParserError('Element cannot be generated: not implemented.')
+
+        # Saving the tree in MongoDB
+        tree_root = load_schema_data_in_db(db_tree)
+
+        # Replacing the children with the generated branch
+        children = parent.children
+        element_index = children.index(element)
+
+        children[element_index] = tree_root
+
+        parent.update(set__children=children)
+        parent.update(set__value=str(tree_root.pk))
+
+        parent.reload()
+
+        renderer = ListRenderer(tree_root, request)
+        html_form = renderer.render(False)
+
+        return html_form
+
+    def generate_simple_type(self, request, element, xml_tree, full_path, edit_data_tree=None,
+                             default_value=None, schema_location=None):
+        """Generates a section of the form that represents an XML simple type
+
+        Parameters:
+            request:
+            element:
+            xml_tree:
+            full_path:
+            edit_data_tree:
+            default_value:
+            schema_location:
+
+        Returns:
+            HTML string representing a simple type
+        """
+        # FIXME implement union, correct list
+        db_element = {
+            'tag': 'simple_type',
+            'value': None,
+            'children': [],
+            'options': {
+                'name': element.attrib['name'] if 'name' in element.attrib else '',
+                'xmlns': get_element_namespace(element, xml_tree),
+            },
+        }
+
+        # get namespace prefix to reference extension in xsi:type
+        xml_tree_str = etree.tostring(xml_tree)
+        namespaces = get_namespaces(xml_tree_str)
+        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+        ns_prefix = None
+        if target_namespace is not None:
+            for prefix, ns in namespaces.iteritems():
+                if ns == target_namespace:
+                    ns_prefix = prefix
+                    break
+        db_element['options']['ns_prefix'] = ns_prefix
+
+        if get_module_url(element) is not None:
+            # XSD xpath: /element/complexType/sequence
+            xsd_xpath = xml_tree.getpath(element)
+            module = self.generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
+                                          edit_data_tree=edit_data_tree)
+
+            db_element['children'].append(module)
+
             return db_element
 
-    restriction_child = element.find('{0}restriction'.format(LXML_SCHEMA_NAMESPACE))
-    if restriction_child is not None:
-        restriction = generate_restriction(request, restriction_child, xml_tree, full_path,
-                                           edit_data_tree=edit_data_tree,
-                                           default_value=default_value,
-                                           schema_location=schema_location)
-        db_child = restriction
-    else:
-        list_child = element.find('{0}list'.format(LXML_SCHEMA_NAMESPACE))
-        if list_child is not None:
-            # TODO list can contain a restriction/enumeration
-            # FIXME None default value
-            if default_value is None:
-                default_value = ''
+        # TODO: check that it's not already extending a base
+        # check if the type has a name (can be referenced by an extension)
+        if 'name' in element.attrib and self.implicit_extension:
+            # check if types extend this one
+            extensions = get_extensions(xml_tree, element.attrib['name'])
 
-            db_child = {
-                'tag': 'list',
-                'value': default_value,
-                'children': []
-            }
+            # the type has some possible extensions
+            if len(extensions) > 0:
+                # add the base type that can be rendered alone without extensions
+                extensions.insert(0, element)
+                choice_content = self.generate_choice_extensions(request, extensions, xml_tree, None,
+                                                                 full_path,
+                                                                 edit_data_tree,
+                                                                 schema_location)
+                db_element['children'].append(choice_content)
+                return db_element
+
+        restriction_child = element.find('{0}restriction'.format(LXML_SCHEMA_NAMESPACE))
+        if restriction_child is not None:
+            restriction = self.generate_restriction(request, restriction_child, xml_tree, full_path,
+                                                    edit_data_tree=edit_data_tree,
+                                                    default_value=default_value,
+                                                    schema_location=schema_location)
+            db_child = restriction
         else:
-            union_child = element.find('{0}union'.format(LXML_SCHEMA_NAMESPACE))
-            if union_child is not None:
-                # TODO: provide UI for unions
+            list_child = element.find('{0}list'.format(LXML_SCHEMA_NAMESPACE))
+            if list_child is not None:
+                # TODO list can contain a restriction/enumeration
+                # FIXME None default value
+                if default_value is None:
+                    default_value = ''
+
                 db_child = {
-                    'tag': 'union',
+                    'tag': 'list',
                     'value': default_value,
                     'children': []
                 }
             else:
-                db_child = {
-                    'tag': 'error'
-                }
+                union_child = element.find('{0}union'.format(LXML_SCHEMA_NAMESPACE))
+                if union_child is not None:
+                    # TODO: provide UI for unions
+                    db_child = {
+                        'tag': 'union',
+                        'value': default_value,
+                        'children': []
+                    }
+                else:
+                    db_child = {
+                        'tag': 'error'
+                    }
 
-    db_element['children'].append(db_child)
-
-    return db_element
-
-
-def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
-                          schema_location=None):
-    """Generates a section of the form that represents an XML complexType
-
-    Parameters:
-        request:
-        element: XML element
-        xml_tree: XML Tree
-        full_path:
-        edit_data_tree:
-        default_value:
-        schema_location:
-
-    Returns:
-        HTML string representing a sequence
-    """
-    # FIXME add support for complexContent, group, attributeGroup, anyAttribute
-    # (
-    #   annotation?,
-    #   (
-    #       simpleContent|complexContent|(
-    #           (group|all|choice|sequence)?,
-    #           (
-    #               (attribute|attributeGroup)*,
-    #               anyAttribute?
-    #           )
-    #       )
-    #   )
-    # )
-    db_element = {
-        'tag': 'complex_type',
-        'value': None,
-        'children': [],
-        'options': {
-            'name': element.attrib['name'] if 'name' in element.attrib else '',
-            'xmlns': get_element_namespace(element, xml_tree),
-        },
-    }
-
-    # get namespace prefix to reference extension in xsi:type
-    xml_tree_str = etree.tostring(xml_tree)
-    namespaces = get_namespaces(xml_tree_str)
-    target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
-    ns_prefix = None
-
-    if target_namespace is not None:
-        for prefix, ns in namespaces.iteritems():
-            if ns == target_namespace:
-                ns_prefix = prefix
-                break
-
-    db_element['options']['ns_prefix'] = ns_prefix
-
-    if get_module_url(element) is not None:
-        # XSD xpath: /element/complexType/sequence
-        xsd_xpath = xml_tree.getpath(element)
-        module = generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
-                                 edit_data_tree=edit_data_tree)
-        db_element['children'].append(module)
+        db_element['children'].append(db_child)
 
         return db_element
 
-    # TODO: check that it's not already extending a base
-    # check if the type has a name (can be referenced by an extension)
-    if 'name' in element.attrib and request.session['implicit_extension']:
-        # check if types extend this one
-        extensions = get_extensions(xml_tree, element.attrib['name'])
+    def generate_complex_type(self, request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
+                              schema_location=None):
+        """Generates a section of the form that represents an XML complexType
 
-        # the type has some possible extensions
-        if len(extensions) > 0:
-            # add the base type that can be rendered alone without extensions
-            if request.session['PARSER_IMPLICIT_EXTENSION_BASE']:
-                extensions.insert(0, element)
+        Parameters:
+            request:
+            element: XML element
+            xml_tree: XML Tree
+            full_path:
+            edit_data_tree:
+            default_value:
+            schema_location:
 
-            choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path,
-                                                        edit_data_tree,
-                                                        schema_location)
-            db_element['children'].append(choice_content)
+        Returns:
+            HTML string representing a sequence
+        """
+        # FIXME add support for complexContent, group, attributeGroup, anyAttribute
+        # (
+        #   annotation?,
+        #   (
+        #       simpleContent|complexContent|(
+        #           (group|all|choice|sequence)?,
+        #           (
+        #               (attribute|attributeGroup)*,
+        #               anyAttribute?
+        #           )
+        #       )
+        #   )
+        # )
+        db_element = {
+            'tag': 'complex_type',
+            'value': None,
+            'children': [],
+            'options': {
+                'name': element.attrib['name'] if 'name' in element.attrib else '',
+                'xmlns': get_element_namespace(element, xml_tree),
+            },
+        }
+
+        # get namespace prefix to reference extension in xsi:type
+        xml_tree_str = etree.tostring(xml_tree)
+        namespaces = get_namespaces(xml_tree_str)
+        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+        ns_prefix = None
+
+        if target_namespace is not None:
+            for prefix, ns in namespaces.iteritems():
+                if ns == target_namespace:
+                    ns_prefix = prefix
+                    break
+
+        db_element['options']['ns_prefix'] = ns_prefix
+
+        if get_module_url(element) is not None:
+            # XSD xpath: /element/complexType/sequence
+            xsd_xpath = xml_tree.getpath(element)
+            module = self.generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
+                                          edit_data_tree=edit_data_tree)
+            db_element['children'].append(module)
+
             return db_element
 
-    # is it a simple content?
-    complex_type_child = element.find('{0}simpleContent'.format(LXML_SCHEMA_NAMESPACE))
-    if complex_type_child is not None:
-        result_simple_content = generate_simple_content(request, complex_type_child, xml_tree,
-                                                        full_path=full_path,
-                                                        edit_data_tree=edit_data_tree,
-                                                        default_value=default_value,
-                                                        schema_location=schema_location)
-        db_element['children'].append(result_simple_content)
+        # TODO: check that it's not already extending a base
+        # check if the type has a name (can be referenced by an extension)
+        if 'name' in element.attrib and self.implicit_extension:
+            # check if types extend this one
+            extensions = get_extensions(xml_tree, element.attrib['name'])
 
-        return db_element
+            # the type has some possible extensions
+            if len(extensions) > 0:
+                # add the base type that can be rendered alone without extensions
+                if self.implicit_extension_base:
+                    extensions.insert(0, element)
 
-    # is it a complex content?
-    complex_type_child = element.find('{0}complexContent'.format(LXML_SCHEMA_NAMESPACE))
-    if complex_type_child is not None:
-        complex_content_result = generate_complex_content(request, complex_type_child, xml_tree,
-                                                          full_path=full_path,
-                                                          edit_data_tree=edit_data_tree,
-                                                          default_value=default_value,
-                                                          schema_location=schema_location)
-        db_element['children'].append(complex_content_result)
+                choice_content = self.generate_choice_extensions(request, extensions, xml_tree, None, full_path,
+                                                                 edit_data_tree,
+                                                                 schema_location)
+                db_element['children'].append(choice_content)
+                return db_element
 
-        return db_element
-
-    # does it contain any attributes?
-    complex_type_children = element.findall('{0}attribute'.format(LXML_SCHEMA_NAMESPACE))
-    if len(complex_type_children) > 0:
-        for attribute in complex_type_children:
-            element_result = generate_element(request, attribute, xml_tree, full_path=full_path,
-                                              edit_data_tree=edit_data_tree, schema_location=schema_location)
-
-            db_element['children'].append(element_result)
-    # does it contain sequence or all?
-    complex_type_child = element.find('{0}sequence'.format(LXML_SCHEMA_NAMESPACE))
-    if complex_type_child is not None:
-        sequence_result = generate_sequence(request, complex_type_child, xml_tree, full_path=full_path,
-                                            edit_data_tree=edit_data_tree, schema_location=schema_location)
-
-        db_element['children'].append(sequence_result)
-    else:
-        complex_type_child = element.find('{0}all'.format(LXML_SCHEMA_NAMESPACE))
+        # is it a simple content?
+        complex_type_child = element.find('{0}simpleContent'.format(LXML_SCHEMA_NAMESPACE))
         if complex_type_child is not None:
-            sequence_result = generate_sequence(request, complex_type_child, xml_tree, full_path=full_path,
-                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
+            result_simple_content = self.generate_simple_content(request, complex_type_child, xml_tree,
+                                                                 full_path=full_path,
+                                                                 edit_data_tree=edit_data_tree,
+                                                                 default_value=default_value,
+                                                                 schema_location=schema_location)
+            db_element['children'].append(result_simple_content)
+
+            return db_element
+
+        # is it a complex content?
+        complex_type_child = element.find('{0}complexContent'.format(LXML_SCHEMA_NAMESPACE))
+        if complex_type_child is not None:
+            complex_content_result = self.generate_complex_content(request, complex_type_child, xml_tree,
+                                                                   full_path=full_path,
+                                                                   edit_data_tree=edit_data_tree,
+                                                                   default_value=default_value,
+                                                                   schema_location=schema_location)
+            db_element['children'].append(complex_content_result)
+
+            return db_element
+
+        # does it contain any attributes?
+        complex_type_children = element.findall('{0}attribute'.format(LXML_SCHEMA_NAMESPACE))
+        if len(complex_type_children) > 0:
+            for attribute in complex_type_children:
+                element_result = self.generate_element(request, attribute, xml_tree, full_path=full_path,
+                                                       edit_data_tree=edit_data_tree, schema_location=schema_location)
+
+                db_element['children'].append(element_result)
+        # does it contain sequence or all?
+        complex_type_child = element.find('{0}sequence'.format(LXML_SCHEMA_NAMESPACE))
+        if complex_type_child is not None:
+            sequence_result = self.generate_sequence(request, complex_type_child, xml_tree, full_path=full_path,
+                                                     edit_data_tree=edit_data_tree, schema_location=schema_location)
 
             db_element['children'].append(sequence_result)
         else:
-            # does it contain choice ?
-            complex_type_child = element.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
+            complex_type_child = element.find('{0}all'.format(LXML_SCHEMA_NAMESPACE))
             if complex_type_child is not None:
-                choice_result = generate_choice(request, complex_type_child, xml_tree, full_path=full_path,
-                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
+                sequence_result = self.generate_sequence(request, complex_type_child, xml_tree, full_path=full_path,
+                                                         edit_data_tree=edit_data_tree, schema_location=schema_location)
 
-                db_element['children'].append(choice_result)
+                db_element['children'].append(sequence_result)
+            else:
+                # does it contain choice ?
+                complex_type_child = element.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
+                if complex_type_child is not None:
+                    choice_result = self.generate_choice(request, complex_type_child, xml_tree, full_path=full_path,
+                                                         edit_data_tree=edit_data_tree, schema_location=schema_location)
 
-    return db_element
+                    db_element['children'].append(choice_result)
 
+        return db_element
 
-def generate_choice_extensions(request, element, xml_tree, choice_counter=None, full_path="",
-                               edit_data_tree=None, schema_location=None):
-    """Generates a section of the form that represents an implicit extension
+    def generate_choice_extensions(self, request, element, xml_tree, choice_counter=None, full_path="",
+                                   edit_data_tree=None, schema_location=None):
+        """Generates a section of the form that represents an implicit extension
 
-    Parameters:
-        request:
-        element: XML element
-        xml_tree: XML Tree
-        choice_counter: to keep track of branches to display (chosen ones) when going recursively down the tree
-        full_path: XML xpath being built
-        edit_data_tree: XML tree of data being edited
-        schema_location:
+        Parameters:
+            request:
+            element: XML element
+            xml_tree: XML Tree
+            choice_counter: to keep track of branches to display (chosen ones) when going recursively down the tree
+            full_path: XML xpath being built
+            edit_data_tree: XML tree of data being edited
+            schema_location:
 
-    Returns:       HTML string representing a sequence
-    """
-    db_element = {
-        'tag': 'choice',
-        'options': {
-            'xpath': {
-                'xsd': None,
-                'xml': full_path
+        Returns:       HTML string representing a sequence
+        """
+        db_element = {
+            'tag': 'choice',
+            'options': {
+                'xpath': {
+                    'xsd': None,
+                    'xml': full_path
+                },
+                'schema_location': schema_location
             },
-            'schema_location': schema_location
-        },
-        'value': None,
-        'children': []
-    }
-
-    # init variables for buttons management
-    nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-
-    # keeps track of elements to display depending on the selected choice
-    if choice_counter:
-        if 'curate_edit' in request.session and request.session['curate_edit']:
-            if nb_occurrences == 0:
-                if request.session['PARSER_MIN_TREE']:
-                    return db_element
-        else:
-            if choice_counter > 0:
-                if request.session['PARSER_MIN_TREE']:
-                    return db_element
-
-    # get the schema namespaces
-    xml_tree_str = etree.tostring(xml_tree)
-    namespaces = get_namespaces(xml_tree_str)
-    # add the XSI prefix used by extensions
-    namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
-    target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
-
-    # if root xsi:type
-    if full_path == "":
-        is_root = True
-    else:
-        is_root = False
-
-    for x in range(0, int(nb_occurrences)):
-        db_child = {
-            'tag': 'choice-iter',
             'value': None,
-            'children': [],
-            'options': {},
+            'children': []
         }
 
-        request.session['implicit_extension'] = False
-        for (counter, choiceChild) in enumerate(list(element)):
-
-            if is_root:
-                if target_namespace_prefix != "":
-                    full_path = "/{0}:{1}".format(target_namespace_prefix, choiceChild.attrib['name'])
-                else:
-                    full_path = "/{0}".format(choiceChild.attrib['name'])
-
-            if choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
-                            choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-
-                if choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                    result = generate_complex_type(request, choiceChild, xml_tree,
-                                                   full_path=full_path,
-                                                   edit_data_tree=edit_data_tree,
-                                                   schema_location=schema_location)
-
-                elif choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
-                    result = generate_simple_type(request, choiceChild, xml_tree,
-                                                  full_path=full_path,
-                                                  edit_data_tree=edit_data_tree,
-                                                  schema_location=schema_location)
-
-                # Find the default element
-                if choiceChild.attrib.get('name') is not None:
-                    opt_label = choiceChild.attrib.get('name')
-                else:
-                    opt_label = choiceChild.attrib.get('ref')
-
-                    if ':' in choiceChild.attrib.get('ref'):
-                        opt_label = opt_label.split(':')[1]
-
-                # look for active choice when editing
-                if 'curate_edit' in request.session and request.session['curate_edit']:
-                    ns_prefix = target_namespace_prefix + ":" if target_namespace is not None else ""
-                    ns_element_path = '{0}[@xsi:type="{1}{2}"]'.format(full_path, ns_prefix, opt_label)
-                    element_path = '{0}[@xsi:type="{1}"]'.format(full_path, opt_label)
-
-                    ns_elements = edit_data_tree.xpath(ns_element_path, namespaces=namespaces)
-                    elements = edit_data_tree.xpath(element_path, namespaces=namespaces)
-
-                    if len(ns_elements) != 0 or len(elements) != 0:
-                        db_child['value'] = counter
-
-                db_child['children'].append(result)
-
-        db_element['children'].append(db_child)
-
-    request.session['implicit_extension'] = True
-
-    return db_element
-
-
-def generate_complex_content(request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
-                             schema_location=None):
-    """
-    Inputs:        request -
-                   element - XML element
-                   xmlTree - XML Tree
-    Outputs:       HTML string representing a sequence
-    Exceptions:    None
-    Description:   Generates a section of the form that represents an XML complex content
-
-    Parameters:
-        request:
-        element:
-        xml_tree:
-        full_path:
-        edit_data_tree:
-        default_value:
-        schema_location:
-
-    :return:
-    """
-    # (annotation?,(restriction|extension))
-
-    db_element = {
-        'tag': 'complex_content',
-        'value': None,
-        'children': []
-    }
-
-    # generates the content
-    restriction_child = element.find('{0}restriction'.format(LXML_SCHEMA_NAMESPACE))
-    if restriction_child is not None:
-        restriction_result = generate_restriction(request, restriction_child, xml_tree, full_path,
-                                                  edit_data_tree=edit_data_tree,
-                                                  default_value=default_value,
-                                                  schema_location=schema_location)
-
-        db_element['children'].append(restriction_result)
-    else:
-        extension_child = element.find('{0}extension'.format(LXML_SCHEMA_NAMESPACE))
-        extension_result = generate_extension(request, extension_child, xml_tree, full_path,
-                                              edit_data_tree=edit_data_tree,
-                                              default_value=default_value,
-                                              schema_location=schema_location)
-
-        db_element['children'].append(extension_result)
-
-    return db_element
-
-
-def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=None, edit_data_tree=None):
-    """Generate a module to replace an element
-
-    Parameters:
-        request:
-        element:
-        xsd_xpath:
-        xml_xpath:
-        xml_tree:
-        edit_data_tree:
-
-    Returns:
-        Module
-    """
-    db_element = {
-        'tag': 'module',
-        'value': None,
-        'options': {
-            'data': None,
-            'attributes': None,
-            'params': None,
-            'multiple': False
-        },
-        'children': []
-    }
-    # FIXME: refactor get module url
-    module_url = get_module_url(element)
-
-    # check if a module is set for this element
-    if module_url is not None:
-
-        try:
-            module = module_api.get_by_url(module_url.path)
-
-            # add extra parameters coming from url parameters
-            if module_url.query != '':
-                db_element['options']['params'] = dict(parse_qsl(module_url.query))
-
-            db_element['options']['xpath'] = {
-                'xsd': xsd_xpath,
-                'xml': xml_xpath
-            }
-
-            db_element['options']['multiple'] = module.multiple
-
-            # Get data to reload the module
-            reload_data = None
-            reload_attrib = None
-
-            if 'curate_edit' in request.session and request.session['curate_edit']:
-                # get the schema namespaces
-                xml_tree_str = etree.tostring(xml_tree)
-                namespaces = get_namespaces(xml_tree_str)
-                edit_elements = edit_data_tree.xpath(xml_xpath, namespaces=namespaces)
-
-                if module.multiple:
-                    reload_data = ""
-                    for edit_element in edit_elements:
-                        reload_data += etree.tostring(edit_element)
-                else:
-                    if len(edit_elements) > 0:
-                        if len(edit_elements) == 1:
-                            edit_element = edit_elements[0]
-
-                            # get attributes
-                            if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
-                                reload_attrib = dict(edit_element.attrib)
-
-                            reload_data = get_xml_element_data(element, edit_element)
-                        else:
-                            raise ParserError("Unexpected number of elements found in the XML document.")
-
-            db_element['options']['url'] = module_url.path
-            db_element['options']['data'] = reload_data
-            db_element['options']['attributes'] = reload_attrib
-        except Exception, e:
-            raise ParserError('Module not found.')
-
-    return db_element
-
-
-def generate_simple_content(request, element, xml_tree, full_path='', edit_data_tree=None, default_value='',
-                            schema_location=None):
-    """Generates a section of the form that represents an XML simple content
-
-    Parameters:
-        request:
-        element:
-        xml_tree:
-        full_path:
-        edit_data_tree:
-        default_value:
-        schema_location:
-
-    Returns:
-        HTML string representing a simple content
-    """
-    # (annotation?,(restriction|extension))
-    # FIXME better support for extension
-
-    db_element = {
-        'tag': 'simple_content',
-        'value': None,
-        'children': []
-    }
-
-    # generates the content
-    restriction_child = element.find('{0}restriction'.format(LXML_SCHEMA_NAMESPACE))
-    if restriction_child is not None:
-        restriction_result = generate_restriction(request, restriction_child, xml_tree, full_path,
-                                                  edit_data_tree=edit_data_tree,
-                                                  default_value=default_value,
-                                                  schema_location=schema_location)
-
-        db_element['children'].append(restriction_result)
-    else:
-        extension_child = element.find('{0}extension'.format(LXML_SCHEMA_NAMESPACE))
-        extension_result = generate_extension(request, extension_child, xml_tree, full_path,
-                                              edit_data_tree=edit_data_tree,
-                                              default_value=default_value,
-                                              schema_location=schema_location)
-
-        db_element['children'].append(extension_result)
-
-    return db_element
-
-
-def generate_restriction(request, element, xml_tree, full_path="", edit_data_tree=None, default_value=None,
-                         schema_location=None):
-    """Generates a section of the form that represents an XML restriction
-
-    Parameters:
-        request:
-        element: XML element
-        xml_tree: XML Tree
-        full_path:
-        edit_data_tree:
-        default_value:
-        schema_location:
-
-    Returns:
-        HTML string representing a sequence
-    """
-    # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_restriction.asp)
-    # FIXME simpleType is a possible child only if the base attr has not been specified
-    db_element = {
-        'tag': 'restriction',
-        'options': {
-            'base': element.attrib.get('base')  # TODO Change it to avoid having the namespace with it
-        },
-        'value': None,
-        'children': []
-    }
-
-    enumeration = element.findall('{0}enumeration'.format(LXML_SCHEMA_NAMESPACE))
-
-    if len(enumeration) > 0:
-        option_list = []
-
-        if 'curate_edit' in request.session and request.session['curate_edit']:
-            default_value = default_value if default_value is not None else ''
-
-            for enum in enumeration:
-                db_child = {
-                    'tag': 'enumeration',
-                    'value': enum.attrib.get('value')
-                }
-
-                if default_value is not None and enum.attrib.get('value') == default_value:
-                    entry = (enum.attrib.get('value'), enum.attrib.get('value'), True)
-                    db_element['value'] = default_value
-                else:
-                    entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
-
-                option_list.append(entry)
-                db_element['children'].append(db_child)
-        else:
-            for enum in enumeration:
-                db_child = {
-                    'tag': 'enumeration',
-                    'value': enum.attrib.get('value')
-                }
-
-                entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
-                option_list.append(entry)
-
-                db_element['children'].append(db_child)
-
-            db_element['value'] = db_element['children'][0]['value']
-    else:
-        simple_type = element.find('{0}simpleType'.format(LXML_SCHEMA_NAMESPACE))
-        if simple_type is not None:
-            simple_type_result = generate_simple_type(request, simple_type, xml_tree, full_path=full_path,
-                                                      edit_data_tree=edit_data_tree, default_value=default_value,
-                                                      schema_location=schema_location)
-
-            db_child = simple_type_result
-        else:
-            # FIXME temp fix default value shouldn't be None
-            if default_value is None:
-                default_value = ''
-
-            db_child = {
-                'tag': 'input',
-                'value': default_value
-            }
-
-        db_element['children'].append(db_child)
-
-    return db_element
-
-
-def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=None, default_value='',
-                       schema_location=None):
-    """Generates a section of the form that represents an XML extension
-
-    Parameters:
-        request:
-        element:
-        xml_tree:
-        full_path:
-        edit_data_tree:
-        default_value:
-        schema_location:
-
-    Returns:
-        HTML string representing an extension
-    """
-    # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_extension.asp)
-    db_element = {
-        'tag': 'extension',
-        'value': None,
-        'children': []
-    }
-
-    request.session['implicit_extension'] = False
-
-    ##################################################
-    # Parsing attributes
-    #
-    # 'base' (required) is the only attribute to parse
-    ##################################################
-    if 'base' in element.attrib:
+        # init variables for buttons management
+        nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
+
+        # keeps track of elements to display depending on the selected choice
+        if choice_counter is not None:
+            if self.editing:
+                if nb_occurrences == 0:
+                    if self.min_tree:
+                        return db_element
+            else:
+                if choice_counter > 0:
+                    if self.min_tree:
+                        return db_element
+
+        # get the schema namespaces
         xml_tree_str = etree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
-        default_prefix = get_default_prefix(namespaces)
-
+        # add the XSI prefix used by extensions
+        namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
         target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
-        download_enabled = request.session['PARSER_DOWNLOAD_DEPENDENCIES']
-        base_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces, default_prefix,
-                                                                target_namespace_prefix, schema_location, 'base',
-                                                                download_enabled=download_enabled)
 
-        # test if base is a built-in data types
-        if base_type is None:
-            db_element['children'].append(
-                    {
-                        'tag': 'input',
-                        'value': default_value
-                    }
-            )
-        else:  # not a built-in data type
-            if base_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                complex_type_result = generate_complex_type(request, base_type, xml_tree,
+        # if root xsi:type
+        if full_path == "":
+            is_root = True
+        else:
+            is_root = False
+
+        for x in range(0, int(nb_occurrences)):
+            db_child = {
+                'tag': 'choice-iter',
+                'value': None,
+                'children': [],
+                'options': {},
+            }
+
+            self.implicit_extension = False
+            for (counter, choiceChild) in enumerate(list(element)):
+
+                if is_root:
+                    if target_namespace_prefix != "":
+                        full_path = "/{0}:{1}".format(target_namespace_prefix, choiceChild.attrib['name'])
+                    else:
+                        full_path = "/{0}".format(choiceChild.attrib['name'])
+
+                if choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
+                                choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+
+                    if choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                        result = self.generate_complex_type(request, choiceChild, xml_tree,
                                                             full_path=full_path,
                                                             edit_data_tree=edit_data_tree,
-                                                            default_value=default_value,
                                                             schema_location=schema_location)
 
-                db_element['children'].append(complex_type_result)
-            elif base_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
-                simple_type_result = generate_simple_type(request, base_type, xml_tree,
-                                                          full_path=full_path,
-                                                          edit_data_tree=edit_data_tree,
-                                                          default_value=default_value,
-                                                          schema_location=schema_location)
+                    elif choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                        result = self.generate_simple_type(request, choiceChild, xml_tree,
+                                                           full_path=full_path,
+                                                           edit_data_tree=edit_data_tree,
+                                                           schema_location=schema_location)
 
-                db_element['children'].append(simple_type_result)
+                    # Find the default element
+                    if choiceChild.attrib.get('name') is not None:
+                        opt_label = choiceChild.attrib.get('name')
+                    else:
+                        opt_label = choiceChild.attrib.get('ref')
 
-    ##################################################
-    # Parsing children
-    ##################################################
-    if 'children' in db_element['children'][0]:  # Element extends simple or complex type
-        extended_element = db_element['children'][0]['children']
-    else:  # Element extends one of the base types
-        extended_element = db_element['children']
+                        if ':' in choiceChild.attrib.get('ref'):
+                            opt_label = opt_label.split(':')[1]
 
-    # does it contain any attributes?
-    complex_type_children = element.findall('{0}attribute'.format(LXML_SCHEMA_NAMESPACE))
-    if len(complex_type_children) > 0:
-        for attribute in complex_type_children:
-            element_result = generate_element(request, attribute, xml_tree, full_path=full_path,
-                                              edit_data_tree=edit_data_tree, schema_location=schema_location)
+                    # look for active choice when editing
+                    if self.editing:
+                        ns_prefix = target_namespace_prefix + ":" if target_namespace is not None else ""
+                        ns_element_path = '{0}[@xsi:type="{1}{2}"]'.format(full_path, ns_prefix, opt_label)
+                        element_path = '{0}[@xsi:type="{1}"]'.format(full_path, opt_label)
 
-            # Attribute is pushed on top of the list of children
-            extended_element.insert(0, element_result)
+                        ns_elements = edit_data_tree.xpath(ns_element_path, namespaces=namespaces)
+                        elements = edit_data_tree.xpath(element_path, namespaces=namespaces)
 
-    # does it contain sequence or all?
-    complex_type_child = element.find('{0}sequence'.format(LXML_SCHEMA_NAMESPACE))
-    if complex_type_child is not None:
-        sequence_result = generate_sequence(request, complex_type_child, xml_tree, full_path=full_path,
-                                            edit_data_tree=edit_data_tree, schema_location=schema_location)
+                        if len(ns_elements) != 0 or len(elements) != 0:
+                            db_child['value'] = counter
 
-        extended_element.append(sequence_result)
-    else:
-        complex_type_child = element.find('{0}all'.format(LXML_SCHEMA_NAMESPACE))
+                    db_child['children'].append(result)
+
+            db_element['children'].append(db_child)
+
+        self.implicit_extension = True
+        return db_element
+
+    def generate_complex_content(self, request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
+                                 schema_location=None):
+        """
+        Inputs:        request -
+                       element - XML element
+                       xmlTree - XML Tree
+        Outputs:       HTML string representing a sequence
+        Exceptions:    None
+        Description:   Generates a section of the form that represents an XML complex content
+
+        Parameters:
+            request:
+            element:
+            xml_tree:
+            full_path:
+            edit_data_tree:
+            default_value:
+            schema_location:
+
+        :return:
+        """
+        # (annotation?,(restriction|extension))
+
+        db_element = {
+            'tag': 'complex_content',
+            'value': None,
+            'children': []
+        }
+
+        # generates the content
+        restriction_child = element.find('{0}restriction'.format(LXML_SCHEMA_NAMESPACE))
+        if restriction_child is not None:
+            restriction_result = self.generate_restriction(request, restriction_child, xml_tree, full_path,
+                                                           edit_data_tree=edit_data_tree,
+                                                           default_value=default_value,
+                                                           schema_location=schema_location)
+
+            db_element['children'].append(restriction_result)
+        else:
+            extension_child = element.find('{0}extension'.format(LXML_SCHEMA_NAMESPACE))
+            extension_result = self.generate_extension(request, extension_child, xml_tree, full_path,
+                                                       edit_data_tree=edit_data_tree,
+                                                       default_value=default_value,
+                                                       schema_location=schema_location)
+
+            db_element['children'].append(extension_result)
+
+        return db_element
+
+    def generate_module(self, request, element, xsd_xpath=None, xml_xpath=None, xml_tree=None, edit_data_tree=None):
+        """Generate a module to replace an element
+
+        Parameters:
+            request:
+            element:
+            xsd_xpath:
+            xml_xpath:
+            xml_tree:
+            edit_data_tree:
+
+        Returns:
+            Module
+        """
+        db_element = {
+            'tag': 'module',
+            'value': None,
+            'options': {
+                'data': None,
+                'attributes': None,
+                'params': None,
+                'multiple': False
+            },
+            'children': []
+        }
+        # FIXME: refactor get module url
+        module_url = get_module_url(element)
+
+        # check if a module is set for this element
+        if module_url is not None:
+
+            try:
+                module = module_api.get_by_url(module_url.path)
+
+                # add extra parameters coming from url parameters
+                if module_url.query != '':
+                    db_element['options']['params'] = dict(parse_qsl(module_url.query))
+
+                db_element['options']['xpath'] = {
+                    'xsd': xsd_xpath,
+                    'xml': xml_xpath
+                }
+
+                db_element['options']['multiple'] = module.multiple
+
+                # Get data to reload the module
+                reload_data = None
+                reload_attrib = None
+
+                if self.editing:
+                    # get the schema namespaces
+                    xml_tree_str = etree.tostring(xml_tree)
+                    namespaces = get_namespaces(xml_tree_str)
+                    edit_elements = edit_data_tree.xpath(xml_xpath, namespaces=namespaces)
+
+                    if module.multiple:
+                        reload_data = ""
+                        for edit_element in edit_elements:
+                            reload_data += etree.tostring(edit_element)
+                    else:
+                        if len(edit_elements) > 0:
+                            if len(edit_elements) == 1:
+                                edit_element = edit_elements[0]
+
+                                # get attributes
+                                if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
+                                    reload_attrib = dict(edit_element.attrib)
+
+                                reload_data = get_xml_element_data(element, edit_element)
+                            else:
+                                raise ParserError("Unexpected number of elements found in the XML document.")
+
+                db_element['options']['url'] = module_url.path
+                db_element['options']['data'] = reload_data
+                db_element['options']['attributes'] = reload_attrib
+            except Exception, e:
+                raise ParserError('Module not found.')
+
+        return db_element
+
+    def generate_simple_content(self, request, element, xml_tree, full_path='', edit_data_tree=None, default_value='',
+                                schema_location=None):
+        """Generates a section of the form that represents an XML simple content
+
+        Parameters:
+            request:
+            element:
+            xml_tree:
+            full_path:
+            edit_data_tree:
+            default_value:
+            schema_location:
+
+        Returns:
+            HTML string representing a simple content
+        """
+        # (annotation?,(restriction|extension))
+        # FIXME better support for extension
+
+        db_element = {
+            'tag': 'simple_content',
+            'value': None,
+            'children': []
+        }
+
+        # generates the content
+        restriction_child = element.find('{0}restriction'.format(LXML_SCHEMA_NAMESPACE))
+        if restriction_child is not None:
+            restriction_result = self.generate_restriction(request, restriction_child, xml_tree, full_path,
+                                                           edit_data_tree=edit_data_tree,
+                                                           default_value=default_value,
+                                                           schema_location=schema_location)
+
+            db_element['children'].append(restriction_result)
+        else:
+            extension_child = element.find('{0}extension'.format(LXML_SCHEMA_NAMESPACE))
+            extension_result = self.generate_extension(request, extension_child, xml_tree, full_path,
+                                                       edit_data_tree=edit_data_tree,
+                                                       default_value=default_value,
+                                                       schema_location=schema_location)
+
+            db_element['children'].append(extension_result)
+
+        return db_element
+
+    def generate_restriction(self, request, element, xml_tree, full_path="", edit_data_tree=None, default_value=None,
+                             schema_location=None):
+        """Generates a section of the form that represents an XML restriction
+
+        Parameters:
+            request:
+            element: XML element
+            xml_tree: XML Tree
+            full_path:
+            edit_data_tree:
+            default_value:
+            schema_location:
+
+        Returns:
+            HTML string representing a sequence
+        """
+        # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_restriction.asp)
+        # FIXME simpleType is a possible child only if the base attr has not been specified
+        db_element = {
+            'tag': 'restriction',
+            'options': {
+                'base': element.attrib.get('base')  # TODO Change it to avoid having the namespace with it
+            },
+            'value': None,
+            'children': []
+        }
+
+        enumeration = element.findall('{0}enumeration'.format(LXML_SCHEMA_NAMESPACE))
+
+        if len(enumeration) > 0:
+            option_list = []
+
+            if self.editing:
+                default_value = default_value if default_value is not None else ''
+
+                for enum in enumeration:
+                    db_child = {
+                        'tag': 'enumeration',
+                        'value': enum.attrib.get('value')
+                    }
+
+                    if default_value is not None and enum.attrib.get('value') == default_value:
+                        entry = (enum.attrib.get('value'), enum.attrib.get('value'), True)
+                        db_element['value'] = default_value
+                    else:
+                        entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
+
+                    option_list.append(entry)
+                    db_element['children'].append(db_child)
+            else:
+                for enum in enumeration:
+                    db_child = {
+                        'tag': 'enumeration',
+                        'value': enum.attrib.get('value')
+                    }
+
+                    entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
+                    option_list.append(entry)
+
+                    db_element['children'].append(db_child)
+
+                db_element['value'] = db_element['children'][0]['value']
+        else:
+            simple_type = element.find('{0}simpleType'.format(LXML_SCHEMA_NAMESPACE))
+            if simple_type is not None:
+                simple_type_result = self.generate_simple_type(request, simple_type, xml_tree,
+                                                               full_path=full_path,
+                                                               edit_data_tree=edit_data_tree,
+                                                               default_value=default_value,
+                                                               schema_location=schema_location)
+
+                db_child = simple_type_result
+            else:
+                # FIXME temp fix default value shouldn't be None
+                if default_value is None:
+                    default_value = ''
+
+                db_child = {
+                    'tag': 'input',
+                    'value': default_value
+                }
+
+            db_element['children'].append(db_child)
+
+        return db_element
+
+    def generate_extension(self, request, element, xml_tree, full_path="", edit_data_tree=None, default_value='',
+                           schema_location=None):
+        """Generates a section of the form that represents an XML extension
+
+        Parameters:
+            request:
+            element:
+            xml_tree:
+            full_path:
+            edit_data_tree:
+            default_value:
+            schema_location:
+
+        Returns:
+            HTML string representing an extension
+        """
+        # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_extension.asp)
+        db_element = {
+            'tag': 'extension',
+            'value': None,
+            'children': []
+        }
+
+        self.implicit_extension = False
+
+        ##################################################
+        # Parsing attributes
+        #
+        # 'base' (required) is the only attribute to parse
+        ##################################################
+        if 'base' in element.attrib:
+            xml_tree_str = etree.tostring(xml_tree)
+            namespaces = get_namespaces(xml_tree_str)
+            default_prefix = get_default_prefix(namespaces)
+
+            target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+            download_enabled = self.download_dependencies
+            base_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces, default_prefix,
+                                                                    target_namespace_prefix, schema_location, 'base',
+                                                                    download_enabled=download_enabled)
+
+            # test if base is a built-in data types
+            if base_type is None:
+                db_element['children'].append(
+                        {
+                            'tag': 'input',
+                            'value': default_value
+                        }
+                )
+            else:  # not a built-in data type
+                if base_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                    complex_type_result = self.generate_complex_type(request, base_type, xml_tree,
+                                                                     full_path=full_path,
+                                                                     edit_data_tree=edit_data_tree,
+                                                                     default_value=default_value,
+                                                                     schema_location=schema_location)
+
+                    db_element['children'].append(complex_type_result)
+                elif base_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                    simple_type_result = self.generate_simple_type(request, base_type, xml_tree,
+                                                                   full_path=full_path,
+                                                                   edit_data_tree=edit_data_tree,
+                                                                   default_value=default_value,
+                                                                   schema_location=schema_location)
+
+                    db_element['children'].append(simple_type_result)
+
+        ##################################################
+        # Parsing children
+        ##################################################
+        if 'children' in db_element['children'][0]:  # Element extends simple or complex type
+            extended_element = db_element['children'][0]['children']
+        else:  # Element extends one of the base types
+            extended_element = db_element['children']
+
+        # does it contain any attributes?
+        complex_type_children = element.findall('{0}attribute'.format(LXML_SCHEMA_NAMESPACE))
+        if len(complex_type_children) > 0:
+            for attribute in complex_type_children:
+                element_result = self.generate_element(request, attribute, xml_tree,
+                                                       full_path=full_path,
+                                                       edit_data_tree=edit_data_tree,
+                                                       schema_location=schema_location)
+
+                # Attribute is pushed on top of the list of children
+                extended_element.insert(0, element_result)
+
+        # does it contain sequence or all?
+        complex_type_child = element.find('{0}sequence'.format(LXML_SCHEMA_NAMESPACE))
         if complex_type_child is not None:
-            sequence_result = generate_sequence(request, complex_type_child, xml_tree, full_path=full_path,
-                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
+            sequence_result = self.generate_sequence(request, complex_type_child, xml_tree,
+                                                     full_path=full_path,
+                                                     edit_data_tree=edit_data_tree,
+                                                     schema_location=schema_location)
 
             extended_element.append(sequence_result)
         else:
-            # does it contain choice ?
-            complex_type_child = element.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
+            complex_type_child = element.find('{0}all'.format(LXML_SCHEMA_NAMESPACE))
             if complex_type_child is not None:
-                choice_result = generate_choice(request, complex_type_child, xml_tree, full_path=full_path,
-                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
+                sequence_result = self.generate_sequence(request, complex_type_child, xml_tree,
+                                                         full_path=full_path,
+                                                         edit_data_tree=edit_data_tree,
+                                                         schema_location=schema_location)
 
-                extended_element.append(choice_result)
+                extended_element.append(sequence_result)
+            else:
+                # does it contain choice ?
+                complex_type_child = element.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
+                if complex_type_child is not None:
+                    choice_result = self.generate_choice(request, complex_type_child, xml_tree,
+                                                         full_path=full_path,
+                                                         edit_data_tree=edit_data_tree,
+                                                         schema_location=schema_location)
 
-    request.session['implicit_extension'] = True
+                    extended_element.append(choice_result)
 
-    return db_element
+        self.implicit_extension = True
+
+        return db_element
