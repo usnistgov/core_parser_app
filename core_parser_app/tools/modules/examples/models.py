@@ -35,7 +35,7 @@ class PositiveIntegerInputModule(InputModule):
         return InputModule.get_module(self, request)
 
     @staticmethod
-    def is_data_valid(self, data):
+    def is_data_valid(data):
         """
 
         :param data:
@@ -58,7 +58,7 @@ class PositiveIntegerInputModule(InputModule):
         """
         if 'data' in request.GET:
             data = str(request.GET['data'])
-            return data + " is a positive integer" if self.is_data_valid(data) else \
+            return data + " is a positive integer" if PositiveIntegerInputModule.is_data_valid(data) else \
                 "<div style='color:red;'>This is not a positive integer</div>"
         return str(self.default_value) + ' is a positive integer'
 
@@ -79,7 +79,7 @@ class PositiveIntegerInputModule(InputModule):
         :return:
         """
         data = str(request.POST['data'])
-        return data + " is a positive integer" if self.is_data_valid(data) \
+        return data + " is a positive integer" if PositiveIntegerInputModule.is_data_valid(data) \
             else "<div style='color:red;'>This is not a positive integer</div>"
 
     def _post_result(self, request):
