@@ -1,0 +1,46 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="root">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="component" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="name" type="xs:string"/>
+                        </xs:sequence>
+                        <xs:attribute name="id" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="items">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="item" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="component">
+                                            <xs:complexType>
+                                                <xs:attribute name="id" type="xs:string"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:key name="componentKey">
+            <xs:annotation>
+                <xs:appinfo>
+                    <module>/examples/auto-key-seqint</module>
+                </xs:appinfo>
+            </xs:annotation>
+            <xs:selector xpath="component"/>
+            <xs:field xpath="@id"/>
+        </xs:key>
+        <xs:keyref name="componentKeyref" refer="componentKey">
+            <xs:selector xpath="items/item/component"/>
+            <xs:field xpath="@id"/>
+        </xs:keyref>
+    </xs:element>
+</xs:schema>

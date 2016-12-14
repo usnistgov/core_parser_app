@@ -6,7 +6,7 @@ import traceback
 import sys
 import re
 
-from urlparse import urlparse, parse_qsl
+from urlparse import parse_qsl
 
 
 from lxml import etree
@@ -17,12 +17,14 @@ from commons.constants import LXML_SCHEMA_NAMESPACE
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.components.module import api as module_api
+from core_parser_app.settings import MODULE_TAG_NAME
 from core_parser_app.tools.parser.exceptions import ParserError
 from core_parser_app.tools.parser.renderer.list import ListRenderer
 from core_parser_app.tools.parser.utils.rendering import format_tooltip
 from core_parser_app.tools.parser.utils.xml import get_app_info_options, get_xsd_types, get_target_namespace, \
     get_element_occurrences, get_attribute_occurrences, get_module_url
-from core_main_app.utils.xml import get_namespaces, get_default_prefix
+from core_main_app.utils.xml import get_namespaces, get_default_prefix, add_appinfo_element, \
+    add_appinfo_child_to_element
 
 from xsd_flattener.xsd_flattener_url import XSDFlattenerURL
 
@@ -214,21 +216,15 @@ def lookup_occurs(element, xml_tree, full_path, edit_data_tree, download_enabled
     return elements_found
 
 
-def is_module_multiple(request, element):
+def is_module_multiple(element):
     """ Checks if the module is multiple (means it manages the occurrences)
 
-    :param request:
     :param element:
     :return:
     """
-    # check if a module is set for this element
-    if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
-        # get the url of the module
-        url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
-
-        url = urlparse(url).path
-
-        module = module_api.get_by_url(url)
+    module_url = get_module_url(element)
+    if module_url is not None:
+        module = module_api.get_by_url(module_url.path)
         return module.multiple
 
     return False
@@ -450,8 +446,7 @@ def is_key(request, element, full_path):
     for key in request.session['keys'].keys():
         if request.session['keys'][key]['xpath'] == xpath:
             if request.session['keys'][key]['module'] is not None:
-                # FIXME: module not here anymore
-                element.attrib['{http://mdcs.ns}_mod_mdcs_'] = request.session['keys'][key]['module']
+                add_appinfo_child_to_element(element, MODULE_TAG_NAME, request.session['keys'][key]['module'])
                 return True
     return False
 
@@ -472,8 +467,7 @@ def is_key_ref(request, element, db_element, full_path):
         xpath = re.sub(r'{}:'.format(prefix), '', xpath)
     for keyref in request.session['keyrefs'].keys():
         if request.session['keyrefs'][keyref]['xpath'] == xpath:
-            # FIXME: modules not here anymore
-            element.attrib['{http://mdcs.ns}_mod_mdcs_'] = '/curator/auto-keyref?keyref={}'.format(keyref)
+            add_appinfo_child_to_element(element, MODULE_TAG_NAME, '/core/auto-keyref?keyref={}'.format(keyref))
             return True
     return False
 
@@ -516,15 +510,11 @@ def manage_key_keyref(request, element, full_path, xmlTree):
                 # print key_field
 
             # look if a module is attached to the key
-            module = None
-            # FIXME: module not here
-            if '{http://mdcs.ns}_mod_mdcs_' in key.attrib:
-                # get the url of the module
-                url = key.attrib['{http://mdcs.ns}_mod_mdcs_']
-                url = urlparse(url).path
-                # check that the url is registered in the system
-                if url in module_api.get_all_urls():
-                    module = "{0}?key={1}".format(url, key_name)
+            module_url = get_module_url(key)
+            if module_url is not None:
+                module = "{0}?key={1}".format(module_url.path, key_name)
+            else:
+                module = None
 
             request.session['keys'][key_name] = {'xpath': key_field, 'module_ids': [], 'module': module}
 
@@ -809,7 +799,7 @@ class XSDParser(object):
         module_url = get_module_url(element)
         _has_module = True if module_url is not None else False
         # checks if the module manage the occurrences by itself
-        _is_multiple = is_module_multiple(request, element)
+        _is_multiple = is_module_multiple(element)
 
         # FIXME see if we can avoid these basic initialization
         # FIXME this is not necessarily true (see attributes)
