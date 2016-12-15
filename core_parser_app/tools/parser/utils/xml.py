@@ -1,4 +1,4 @@
-from commons.constants import LXML_SCHEMA_NAMESPACE
+from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 from core_parser_app.settings import MODULE_TAG_NAME
 from urlparse import urlparse
 from core_parser_app.components.module import api as module_api
