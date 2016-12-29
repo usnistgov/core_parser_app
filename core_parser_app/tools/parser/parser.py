@@ -13,7 +13,6 @@ from lxml import etree
 from io import BytesIO
 import urllib2
 
-from commons.constants import LXML_SCHEMA_NAMESPACE
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.components.module import api as module_api
@@ -25,9 +24,8 @@ from core_parser_app.tools.parser.utils.xml import get_app_info_options, get_xsd
     get_element_occurrences, get_attribute_occurrences, get_module_url
 from core_main_app.utils.xml import get_namespaces, get_default_prefix, add_appinfo_element, \
     add_appinfo_child_to_element
-
-from xsd_flattener.xsd_flattener_url import XSDFlattenerURL
-
+from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
+from xml_utils.xsd_flattener.xsd_flattener_url import XSDFlattenerURL
 
 logger = logging.getLogger(__name__)
 
