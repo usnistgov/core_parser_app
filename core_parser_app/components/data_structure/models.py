@@ -19,6 +19,17 @@ class DataStructure(Document):
     name = fields.StringField(unique_with=['user', 'template'])
     data_structure_element_root = fields.ReferenceField(DataStructureElement, blank=True)
 
+    meta = {'allow_inheritance': True}
+
+    @staticmethod
+    def get_all():
+        """ Returns all objects
+
+        Returns:
+
+        """
+        return DataStructure.objects.all()
+
     @staticmethod
     def get_by_id(data_structure_id):
         """ Returns the object with the given id
@@ -36,3 +47,16 @@ class DataStructure(Document):
             raise exceptions.DoesNotExist(e.message)
         except Exception as ex:
             raise exceptions.ModelError(ex.message)
+
+    @staticmethod
+    def get_by_user_id_and_template_id(user_id, template_id):
+        """ Returns object with the given user id and template id
+
+        Args:
+            user_id:
+            template_id:
+
+        Returns:
+
+        """
+        return DataStructure.objects(user=str(user_id), template=str(template_id)).all()

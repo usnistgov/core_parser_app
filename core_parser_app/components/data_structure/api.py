@@ -24,3 +24,25 @@ def get_by_id(data_structure_id):
         Returns: DataStructureElement object
     """
     return DataStructure.get_by_id(data_structure_id)
+
+
+def get_all():
+    """ Returns all data structure object
+
+    Returns:
+
+    """
+    return DataStructure.get_all()
+
+
+def get_by_user_id_and_template_id(user_id, template_id):
+    """ Returns object with the given user id and template id
+
+    Args:
+        user_id:
+        template_id:
+
+    Returns:
+
+    """
+    return DataStructure.get_by_user_id_and_template_id(user_id, template_id)

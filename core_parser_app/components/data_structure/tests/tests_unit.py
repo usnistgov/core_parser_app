@@ -8,6 +8,20 @@ from unittest.case import TestCase
 from mock import patch
 
 
+class TestDataStructureGetAll(TestCase):
+
+    @patch.object(DataStructure, 'get_all')
+    def test_data_get_all_return_collection_of_data(self, mock_list):
+        # Arrange
+        mock_data_1 = DataStructure('1', _get_template(), 'name_title_1')
+        mock_data_2 = DataStructure('1', _get_template(), 'name_title_2')
+        mock_list.return_value = [mock_data_1, mock_data_2]
+        # Act
+        result = data_structure_api.get_all()
+        # Assert
+        self.assertTrue(all(isinstance(item, DataStructure) for item in result))
+
+
 class TestDataStructureGetById(TestCase):
 
     @patch.object(DataStructure, 'get_by_id')
@@ -45,3 +59,26 @@ class TestDataStructureUpsert(TestCase):
         result = data_structure_api.upsert(mock_data_structure)
         # Assert
         self.assertIsInstance(result, DataStructure)
+
+
+class TestDataStructureGetByUserIdAndTemplateId(TestCase):
+
+    @patch.object(DataStructure, 'get_by_user_id_and_template_id')
+    def test_data_structure_get_by_user_and_template_return_collection_of_data_structure(self, mock_list):
+        # Arrange
+        mock_data_1 = DataStructure('1', _get_template(), 'name_title_1')
+        mock_data_2 = DataStructure('1', _get_template(), 'name_title_2')
+        mock_list.return_value = [mock_data_1, mock_data_2]
+        # Act
+        result = data_structure_api.get_by_user_id_and_template_id(1, 1)
+        # Assert
+        self.assertTrue(all(isinstance(item, DataStructure) for item in result))
+
+
+def _get_template():
+    template = Template()
+    template.id_field = 1
+    xsd = '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">' \
+          '<xs:element name="tag"></xs:element></xs:schema>'
+    template.content = xsd
+    return template
