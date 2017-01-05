@@ -44,3 +44,33 @@ def get_by_id(data_structure_element_id):
         Returns: DataStructureElement object
     """
     return DataStructureElement.get_by_id(data_structure_element_id)
+
+
+# TODO: needs to be reworked
+def pull_children(data_structure_element, children):
+    """
+
+    Args:
+        data_structure_element:
+        children:
+
+    Returns:
+
+    """
+    data_structure_element.update(pull__children=children)
+    data_structure_element.reload()
+
+
+# TODO: needs to be reworked
+def add_to_set(data_structure_element, children):
+    """
+
+    Args:
+        data_structure_element:
+        children:
+
+    Returns:
+
+    """
+    data_structure_element.update(add_to_set__children=children)
+    data_structure_element.reload()

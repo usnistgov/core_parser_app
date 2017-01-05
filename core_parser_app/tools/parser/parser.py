@@ -83,6 +83,8 @@ def load_schema_data_in_db(xsd_data):
     return xsd_element
 
 
+# TODO: look into using delete cascade
+# FIXME: not removing all data structure elements
 def delete_branch_from_db(element_id):
     """
     Delete a branch from the database
@@ -109,6 +111,42 @@ def update_branch_xpath(element):
     for child in element.children:
         update_root_xpath(child, element_xpath, xpath_index)
         xpath_index += 1
+
+
+# TODO: needs to be reworked
+def remove_child_element(data_structure_element, to_remove):
+    """Removes a child element and its branch from db
+
+    Args:
+        data_structure_element:
+        to_remove:
+
+    Returns:
+
+    """
+    # remove child from element
+    data_structure_element_api.pull_children(data_structure_element, to_remove)
+    # update children xpaths
+    update_branch_xpath(data_structure_element)
+
+    # Deleting the branch from the database
+    delete_branch_from_db(str(to_remove.id))
+
+    # TODO: Sequence elem might not work
+    if len(data_structure_element.children) == 0:
+        elem_iter = DataStructureElement()
+
+        if data_structure_element.tag == 'element':
+            elem_iter.tag = 'elem-iter'
+        elif data_structure_element.tag == 'choice':
+            elem_iter.tag = 'choice-iter'
+        elif data_structure_element.tag == 'sequence':
+            elem_iter.tag = 'sequence-iter'
+
+        data_structure_element_api.upsert(elem_iter)
+        data_structure_element_api.add_to_set(data_structure_element, [elem_iter])
+
+    return data_structure_element
 
 
 def update_root_xpath(element, xpath, index):

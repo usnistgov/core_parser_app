@@ -9,9 +9,8 @@
         var inputId = $input.attr('id');
 
         console.log('Saving element ' + inputId + '...');
-
         $.ajax({
-            'url': '/curate/save_element',
+            'url': dataStructureElementUrl,
             'type': 'POST',
             'dataType': 'json',
             'data': {
@@ -22,7 +21,7 @@
                 console.log('Element ' + inputId + ' saved');
             },
             error: function() {
-                console.error('An error occured when saving element ' + inputId);
+                console.error('An error occurred when saving element ' + inputId);
             }
         });
     };

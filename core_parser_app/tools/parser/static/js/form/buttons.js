@@ -11,14 +11,14 @@
         $data.find('.' + buttonClass + ':first').addClass('hidden');
     };
 
-    // Add a new occurence of an unexisting element as a child
+    // Add a new occurrence of a non existing element as a child
     var addElement = function(event) {
         event.preventDefault();
 
         var $parents = $(this).parents('[id]');
 
         // The element has to have a parent
-        if ( $parents.size() === 0 ) {
+        if ( $parents.length === 0 ) {
             console.error('No element to duplicate');
             return;
         }
@@ -27,9 +27,8 @@
             elementId = $element.attr('id');
 
         console.log("Adding " + elementId + "...");
-
         $.ajax({
-            url : "/curate/generate-absent",
+            url : generateElementUrl,
             type : "POST",
             dataType: "html",
             data : {
@@ -63,19 +62,19 @@
                 console.log("Element " + elementId + " successfully created");
             },
             error: function() {
-                console.error("An error occured while generating a new element.");
+                console.error("An error occurred while generating a new element.");
             }
         });
     };
 
-    // Remove an occurence of a displayed element
+    // Remove an occurrence of a displayed element
     var removeElement = function(event) {
         event.preventDefault();
 
         var $parents = $(this).parents('[id]');
 
         // The element has to have a parent
-        if ( $parents.size() === 0 ) {
+        if ( $parents.length === 0 ) {
             console.error('No element to remove');
             return;
         }
@@ -84,9 +83,8 @@
             elementId = $element.attr('id');
 
         console.log("Removing " + elementId + "...");
-
         $.ajax({
-            url : "/curate/remove-element",
+            url : removeElementUrl,
             type : "POST",
             dataType: "json",
             data : {
@@ -109,7 +107,7 @@
                 console.log("Element " + elementId + " successfully removed");
             },
             error: function() {
-                console.error("An error occured while generating a new element.");
+                console.error("An error occurred while generating a new element.");
             }
         });
     };

@@ -5,9 +5,8 @@
     var saveCurrentChoiceValue = function($choice) {
         var choiceId = $choice.parent().attr('id');
         var choiceValue = $choice.val();
-
         $.ajax({
-            'url': '/curate/save_element',
+            'url': dataStructureElementUrl,
             'type': 'POST',
             'dataType': 'json',
             'data': {
@@ -34,7 +33,7 @@
         // --------------------------------------------------
         // Find previous element and hide it
         var $previousValueElementList = $choiceParent.find('#'+previousChoiceValue);
-        if ( $previousValueElementList.size() !== 0 ) {
+        if ( $previousValueElementList.length !== 0 ) {
             console.log('Previous element found, hiding it...');
 
             var $previousFormBranch = $($previousValueElementList[0]);
@@ -46,11 +45,11 @@
         // --------------------------------------------------
         // Update form with the new branch
         var $currentValueElementList = $choiceParent.find('#'+currentChoiceValue);
-        if ( $currentValueElementList.size() === 0 ) {  // Branch does not exist yet
+        if ( $currentValueElementList.length === 0 ) {  // Branch does not exist yet
             console.log('Element ' + currentChoiceValue + ' does not exist, generating it...');
 
             $.ajax({
-                'url': '/curate/generate_choice',
+                'url': generateChoiceUrl,
                 'type': 'POST',
                 'datatype': 'html',
                 'data': {
@@ -61,7 +60,7 @@
                     var $generatedForm = $(data);
                     var $choiceSiblings = $choice.siblings();
 
-                    if($choiceSiblings.size() > 1) {
+                    if($choiceSiblings.length > 1) {
                         var $sibling = $($choiceSiblings[1]);
                         $sibling.after($generatedForm);
                     } else {
@@ -101,13 +100,11 @@
         // --------------------------------------------------
         // Getting previous value for the choice
         console.log('Getting previous value of element ' + choiceId + '...');
-
         var getPreviousValue = $.ajax({
-            'url': '/curate/element_value',
-            'type': 'POST',
-            'dataType': 'json',
+            'url': dataStructureElementUrl,
+            'type': 'GET',
             'data': {
-                'id': choiceId
+                'id': choiceId,
             }
         });
 
@@ -123,7 +120,7 @@
         // --------------------------------------------------
         // Error case: Send error message
         var getPreviousValueError = function() {
-            console.error('An error occured when reading element ' + choiceId);
+            console.error('An error occurred when reading element ' + choiceId);
         };
 
         // --------------------------------------------------
