@@ -234,7 +234,7 @@ class AbstractModule(object):
     def render_module(template, params=None):
         """Renders the module in HTML using django template
 
-        :param template: path to HTML template to rende
+        :param template: path to HTML template to render
         :param params: parameters to create a context for the template
         :return:
         """
