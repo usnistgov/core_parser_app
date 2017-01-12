@@ -12,19 +12,19 @@ $(document).ready(function() {
  */
 insertModule = function(event){
 	// change the sequence style
-	parent = $(target).parent()
+	parent = $(target).parent();
 
 	insertButton = event.target;
 	moduleURL = $(insertButton).parent().siblings(':nth-of-type(2)').text();
 	moduleID = $(insertButton).parent().siblings(':first').attr('moduleID');
-    templateID = $("#templateid").html()
+    templateID = $("#templateid").html();
 
 	xpath = getXPath();
 
 	$( "#dialog-modules" ).dialog("close");
 
 	insert_module(moduleID, templateID, xpath, parent);
-}
+};
 
 
 /**
@@ -38,7 +38,7 @@ insert_module = function(moduleID, templateID, xpath, parent){
         data:{
         	moduleID: moduleID,
         	templateID: templateID,
-        	xpath: xpath,
+        	xpath: xpath
         },
         success: function(data){
             // add the module attribute
@@ -59,17 +59,17 @@ insert_module = function(moduleID, templateID, xpath, parent){
  * @param event
  */
 deleteModule = function(event){
-	parent = $(target).parent()
+	parent = $(target).parent();
 
 	insertButton = event.target;
 
 	xpath = getXPath();
-	templateID = $("#templateid").html()
+	templateID = $("#templateid").html();
 
 	$( "#dialog-modules" ).dialog("close");
 
 	delete_module(xpath, templateID, parent);
-}
+};
 
 
 /**
@@ -82,14 +82,14 @@ delete_module = function(xpath, templateID, parent){
         dataType: "json",
         data:{
         	xpath: xpath,
-        	templateID: templateID,
+        	templateID: templateID
         },
         success: function(data){
             // remove the module from the HTML
 	        $(parent).parent().find('.module').remove()
         }
     });
-}
+};
 
 
 var target;
@@ -122,7 +122,7 @@ hideAutoKeys = function(){
         $(this).hide();
       }
     });
-}
+};
 
 /**
  * Opens dialog with available auto keys modules
@@ -152,7 +152,7 @@ showAutoKeys = function(){
         $(this).hide();
       }
     });
-}
+};
 
 
 /**
@@ -173,7 +173,7 @@ getXPath = function(){
 		}		
 	}
 	return xpath;
-}
+};
 
 
 /**
@@ -188,4 +188,4 @@ manageXPath = function(){
 		  i += 1;
 	  }	  
 	})
-}
+};

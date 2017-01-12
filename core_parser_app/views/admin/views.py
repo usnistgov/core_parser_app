@@ -1,7 +1,10 @@
+"""Core parser app admin views
+"""
+
 from django.http.response import HttpResponseBadRequest
 
 from core_main_app.components.version_manager import api as version_manager_api
-from core_main_app.utils.rendering import render
+from core_main_app.utils.rendering import admin_render
 
 from core_parser_app.settings import MODULE_TAG_NAME, MODULES_ROOT
 from core_main_app.utils.xml import xsl_transform
@@ -24,19 +27,20 @@ def manage_template_modules(request, template_id):
     assets = {
         "js": [
             {
+                "path": 'core_main_app/common/js/XMLTree.js',
+                "is_raw": False
+            },
+            {
                 "path": 'core_parser_app/admin/js/module_manager.js',
-                "raw": False
+                "is_raw": False
             },
         ],
-        "css": ['core_parser_app/admin/css/XMLTree.css']
+        "css": ['core_main_app/common/css/XMLTree.css']
     }
 
     try:
+        # get the template
         template = template_api.get(template_id)
-    except Exception, e:
-        return HttpResponseBadRequest(e.message)
-
-    try:
         # Get path to XSLT file
         xslt_path = join(MODULES_ROOT, 'resources', 'xsl', 'xsd2html4modules.xsl')
 
@@ -54,10 +58,10 @@ def manage_template_modules(request, template_id):
             'version_manager': version_manager,
         }
 
-        return render(request,
-                      'core_parser_app/admin/module_manager.html',
-                      assets=assets,
-                      context=context)
+        return admin_render(request,
+                            'core_parser_app/admin/module_manager.html',
+                            assets=assets,
+                            context=context)
     except Exception, e:
         return HttpResponseBadRequest(e.message)
 

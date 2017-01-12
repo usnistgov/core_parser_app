@@ -4,15 +4,6 @@
     chosen module during the curation process.
 </p>
 
-<div class="right-side">
-<span class="ctx_menu">
-    <a href="{% url 'admin:core_main_app_manage_template_versions' data.version_manager.id%}">
-        <div class="icon legend long upload">Back to Versions</div>
-    </a>
-</span>
-</div>
-
-
 {% autoescape off %}	 
 <div>
 {{data.xsdTree}}
