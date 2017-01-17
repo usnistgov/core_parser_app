@@ -13,6 +13,7 @@ from lxml import etree
 from io import BytesIO
 import urllib2
 
+from core_main_app.commons.exceptions import CoreError
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.components.module import api as module_api
@@ -832,10 +833,13 @@ class XSDParser(object):
         app_info = get_app_info_options(element)
 
         # check if the element has a module
-        module_url = get_module_url(element)
-        _has_module = True if module_url is not None else False
-        # checks if the module manage the occurrences by itself
-        _is_multiple = is_module_multiple(element)
+        _has_module = False
+        _is_multiple = False
+        if not self.ignore_modules:
+            module_url = get_module_url(element)
+            _has_module = True if module_url is not None else False
+            # checks if the module manage the occurrences by itself
+            _is_multiple = is_module_multiple(element)
 
         # FIXME see if we can avoid these basic initialization
         # FIXME this is not necessarily true (see attributes)
@@ -887,8 +891,10 @@ class XSDParser(object):
                 text_capitalized = ref_element.attrib.get('name')
                 element = ref_element
                 # check if the element has a module
-                module_url = get_module_url(element)
-                _has_module = True if module_url is not None else False
+                _has_module = False
+                if not self.ignore_modules:
+                    module_url = get_module_url(element)
+                    _has_module = True if module_url is not None else False
             else:
                 # the element was not found where it was supposed to be
                 # could be a use case too complex for the current parser
@@ -1018,19 +1024,20 @@ class XSDParser(object):
             nb_occurrences = 1
             removed = False
 
-        # if auto key/keyref is True, go find keys/keyrefs in element scope
-        if self.auto_key_keyref:
-            # TODO: for now, support key/keyref for attributes only
-            if element_tag == 'attribute':
-                if is_key(request, element, full_path):
-                    _has_module = True
-                    db_element['options']['module'] = _has_module
-                elif is_key_ref(request, element, db_element, full_path):
-                    _has_module = True
-                    db_element['options']['module'] = _has_module
-            if element_tag == 'element':
-                # look if key/keyrefs are defined for the scope of this element
-                manage_key_keyref(request, element, full_path, xml_tree)
+        if not self.ignore_modules:
+            # if auto key/keyref is True, go find keys/keyrefs in element scope
+            if self.auto_key_keyref:
+                # TODO: for now, support key/keyref for attributes only
+                if element_tag == 'attribute':
+                    if is_key(request, element, full_path):
+                        _has_module = True
+                        db_element['options']['module'] = _has_module
+                    elif is_key_ref(request, element, db_element, full_path):
+                        _has_module = True
+                        db_element['options']['module'] = _has_module
+                elif element_tag == 'element':
+                    # look if key/keyrefs are defined for the scope of this element
+                    manage_key_keyref(request, element, full_path, xml_tree)
 
         for x in range(0, int(nb_occurrences)):
             db_elem_iter = {
@@ -1732,15 +1739,16 @@ class XSDParser(object):
                     break
         db_element['options']['ns_prefix'] = ns_prefix
 
-        if get_module_url(element) is not None:
-            # XSD xpath: /element/complexType/sequence
-            xsd_xpath = xml_tree.getpath(element)
-            module = self.generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
-                                          edit_data_tree=edit_data_tree)
+        if not self.ignore_modules:
+            if get_module_url(element) is not None:
+                # XSD xpath: /element/complexType/sequence
+                xsd_xpath = xml_tree.getpath(element)
+                module = self.generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
+                                              edit_data_tree=edit_data_tree)
 
-            db_element['children'].append(module)
+                db_element['children'].append(module)
 
-            return db_element
+                return db_element
 
         # TODO: check that it's not already extending a base
         # check if the type has a name (can be referenced by an extension)
@@ -1850,14 +1858,15 @@ class XSDParser(object):
 
         db_element['options']['ns_prefix'] = ns_prefix
 
-        if get_module_url(element) is not None:
-            # XSD xpath: /element/complexType/sequence
-            xsd_xpath = xml_tree.getpath(element)
-            module = self.generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
-                                          edit_data_tree=edit_data_tree)
-            db_element['children'].append(module)
+        if not self.ignore_modules:
+            if get_module_url(element) is not None:
+                # XSD xpath: /element/complexType/sequence
+                xsd_xpath = xml_tree.getpath(element)
+                module = self.generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
+                                              edit_data_tree=edit_data_tree)
+                db_element['children'].append(module)
 
-            return db_element
+                return db_element
 
         # TODO: check that it's not already extending a base
         # check if the type has a name (can be referenced by an extension)
@@ -2112,6 +2121,9 @@ class XSDParser(object):
         Returns:
             Module
         """
+        if self.ignore_modules:
+            raise CoreError("Modules are not getting ignored even though they are turned off")
+
         db_element = {
             'tag': 'module',
             'value': None,
