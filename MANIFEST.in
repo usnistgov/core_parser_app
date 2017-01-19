@@ -2,3 +2,5 @@ include README.rst
 include requirements.txt
 recursive-include core_parser_app/static *
 recursive-include core_parser_app/templates *
+recursive-include core_parser_app/tools/parser/static *
+recursive-include core_parser_app/tools/parser/templates *
