@@ -15,7 +15,7 @@
             'dataType': 'json',
             'data': {
                 'id': inputId,
-                'value': $input.val()
+                'value': $input.is(":checked")
             },
             success: function() {
                 console.log('Element ' + inputId + ' saved');
@@ -27,6 +27,6 @@
     };
 
     // Save events
-    $(document).on('blur', 'input.default', saveElement);
-    $(document).on('change', 'select.restriction', saveElement);
+    $(document).on('change', 'input:checkbox', saveElement);
 })();
+

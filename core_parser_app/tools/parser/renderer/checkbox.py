@@ -17,7 +17,11 @@ class CheckboxRenderer(ListRenderer):
         :param element
         :return:
         """
-        return self._load_template('checkbox')
+        data = {
+            'id': element.pk,
+            'selected': True if element.value == 'true' else False,
+        }
+        return self._load_template('checkbox', data)
 
     def render_restriction(self, element):
         """
@@ -25,4 +29,8 @@ class CheckboxRenderer(ListRenderer):
         :param element:
         :return:
         """
-        return self._load_template('checkbox')
+        data = {
+            'id': element.pk,
+            'selected': True if element.value == 'true' else False,
+        }
+        return self._load_template('checkbox', data)
