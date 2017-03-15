@@ -12,14 +12,12 @@ from core_parser_app.components.data_structure_element.models import DataStructu
 # FIXME: xml_data = dme_fields.StringField(default='')
 # FIXME: xml_data_id = dme_fields.StringField(blank=True)
 
-# FIXME: constraint on name only true at the sub class level (curate_data_structure, explore_data_structure)
-# FIXME: but not here to not prevent an explore form to have a name already in use in curate
 
 class DataStructure(Document):
     """Stores data being entered and not yet curated"""
     user = fields.StringField()
     template = fields.ReferenceField(Template)
-    name = fields.StringField(unique_with=['user', 'template'])
+    name = fields.StringField()
     data_structure_element_root = fields.ReferenceField(DataStructureElement, blank=True)
 
     meta = {'allow_inheritance': True}
