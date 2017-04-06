@@ -13,7 +13,7 @@ var loadModuleResources = function(moduleURLList) {
     }
 
     $.ajax({
-        url: '/modules/resources',
+        url: modulesResourcesUrl,
         type: "GET",
         dataType: "json",
         data: {
@@ -46,7 +46,7 @@ var saveModuleData = function($module, modData, asyncOpt) {
     var moduleURL = $module.find('.moduleURL').text();
 
     if(moduleURL === '') {
-        console.error('moduleURL is not defined')
+        console.error('moduleURL is not defined');
         return;
     }
 
@@ -56,10 +56,8 @@ var saveModuleData = function($module, modData, asyncOpt) {
         modData['module_id'] = moduleId;
     }
 
-    console.log(modData);
-
     var ajaxOptions = {
-        url : '/modules'+moduleURL,
+        url : modulesUrl + moduleURL.substring(1),
         type : "POST",
         dataType: "json",
         data: modData,
@@ -82,7 +80,7 @@ var saveModuleData = function($module, modData, asyncOpt) {
             }*/
         },
         error: function() {
-            console.error("An error occured when saving module data");
+            console.error("An error occurred when saving module data");
         }
     };
 
@@ -98,18 +96,13 @@ var saveModuleData = function($module, modData, asyncOpt) {
 var initModules = function() {
     var moduleList = $('.module');
     var moduleURLList = [];
-    console.log(moduleList);
 
     $.each(moduleList, function(index, value) {
-        // console.log($(value));
-        // loadModule($(value));
-
         var moduleURL = $(value).find('.moduleURL').text();
         if(moduleURL !== "" && moduleURLList.indexOf(moduleURL) === -1) {
             moduleURLList.push(moduleURL);
         }
     });
 
-    console.log(moduleURLList);
     loadModuleResources(moduleURLList);
 };

@@ -1,10 +1,30 @@
 """Views for the module system
 """
-
 import json
 from django.http.response import HttpResponseBadRequest, HttpResponse
+from core_main_app.utils.rendering import render
 from core_parser_app.tools.modules.sanitize import sanitize
 from core_parser_app.tools.modules.module import AbstractModule
+from core_parser_app.components.module import api as module_api
+
+
+def index(request):
+    """Modules index
+
+    Args:
+        request:
+
+    Returns:
+
+    """
+    # get list of modules
+    list_modules = module_api.get_all()
+    # set context
+    context = {'modules': list_modules}
+    # render template
+    return render(request,
+                  'core_parser_app/common/modules.html',
+                  context=context)
 
 
 def load_resources_view(request):

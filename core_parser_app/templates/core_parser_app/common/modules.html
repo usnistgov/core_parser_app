@@ -1,0 +1,22 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>Module Name</th>
+            <th>Module URL</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for module in data.modules %}
+    <tr>
+        <td moduleID="{{module.id}}"><b>{{module.name}}</b></td>
+        <td>{{module.url}}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td class="empty" colspan="2">
+            There are currently no Modules.
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>

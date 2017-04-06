@@ -18,11 +18,9 @@ var defaultPopUpOptions = {
     close: function(event, ui) {
         closePopUp();
     }
-}
+};
 
 configurePopUp = function(moduleURL, options, getDataFunction) {
-    console.log("configure popup");
-    console.log(moduleURL);
     var modulePopUpOptions = $.extend({}, defaultPopUpOptions, options);
 
     var saveButton = {
@@ -36,10 +34,7 @@ configurePopUp = function(moduleURL, options, getDataFunction) {
     modulePopUpOptions["buttons"] = $.extend({}, saveButton, modulePopUpOptions["buttons"]);
 
     popUpOptions[moduleURL] = modulePopUpOptions;
-    console.log(popUpOptions);
-    console.log("**********");
-
-}
+};
 
 $('body').on('click', '.mod_popup .open-popup', function(event) {
     event.preventDefault();
