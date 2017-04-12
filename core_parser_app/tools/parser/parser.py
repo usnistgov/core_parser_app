@@ -21,12 +21,13 @@ from core_parser_app.settings import MODULE_TAG_NAME
 from core_parser_app.tools.parser.exceptions import ParserError
 from core_parser_app.tools.parser.renderer.list import ListRenderer
 from core_parser_app.tools.parser.utils.rendering import format_tooltip
-from core_parser_app.tools.parser.utils.xml import get_app_info_options, get_xsd_types, get_target_namespace, \
+from core_parser_app.tools.parser.utils.xml import get_app_info_options, \
     get_element_occurrences, get_attribute_occurrences, get_module_url
-from core_main_app.utils.xml import get_namespaces, get_default_prefix, add_appinfo_element, \
-    add_appinfo_child_to_element
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 from xml_utils.xsd_flattener.xsd_flattener_url import XSDFlattenerURL
+from xml_utils.xsd_tree.operations.appinfo import add_appinfo_child_to_element
+from xml_utils.xsd_tree.operations.namespaces import get_namespaces, get_default_prefix, get_target_namespace
+from xml_utils.xsd_types.xsd_types import get_xsd_types
 
 logger = logging.getLogger(__name__)
 
@@ -240,7 +241,7 @@ def lookup_occurs(element, xml_tree, full_path, edit_data_tree, download_enabled
     # get target namespace prefix if one declared
     xml_tree_str = etree.tostring(xml_tree)
     namespaces = get_namespaces(xml_tree_str)
-    target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+    target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
     if target_namespace_prefix != '':
         target_namespace_prefix += ":"
 
@@ -444,7 +445,7 @@ def get_ref_element(xml_tree, ref, namespaces, element_tag, schema_location=None
         # get the element name
         ref_name = ref_split[1]
         # test if referencing element within the same schema (same target namespace)
-        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+        target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
         # ref is in the same file
         if target_namespace_prefix == ref_namespace_prefix:
             ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
@@ -907,7 +908,7 @@ class XSDParser(object):
 
         xml_tree_str = etree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
-        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+        target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
 
         # build xpath
         # XML xpath:/root/element
@@ -1563,7 +1564,7 @@ class XSDParser(object):
                     namespaces = get_namespaces(xml_tree_str)
                     # add the XSI prefix used by extensions
                     namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
-                    target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+                    target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
 
                     if self.editing:
                         # TODO: manage unbounded choices for sequences/choices as well
@@ -1730,7 +1731,7 @@ class XSDParser(object):
         # get namespace prefix to reference extension in xsi:type
         xml_tree_str = etree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
-        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+        target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
         ns_prefix = None
         if target_namespace is not None:
             for prefix, ns in namespaces.iteritems():
@@ -1847,7 +1848,7 @@ class XSDParser(object):
         # get namespace prefix to reference extension in xsi:type
         xml_tree_str = etree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
-        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+        target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
         ns_prefix = None
 
         if target_namespace is not None:
@@ -1990,7 +1991,7 @@ class XSDParser(object):
         namespaces = get_namespaces(xml_tree_str)
         # add the XSI prefix used by extensions
         namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
-        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+        target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
 
         # if root xsi:type
         if full_path == "":
@@ -2356,7 +2357,7 @@ class XSDParser(object):
             namespaces = get_namespaces(xml_tree_str)
             default_prefix = get_default_prefix(namespaces)
 
-            target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xml_tree)
+            target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
             download_enabled = self.download_dependencies
             base_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces, default_prefix,
                                                                     target_namespace_prefix, schema_location, 'base',
