@@ -71,13 +71,12 @@ class XmlRenderer(AbstractXmlRenderer):
             root_elem = data_structure_element_api.get_by_id(root_elem_id)
             root_name = root_elem.options['name']
 
-            if 'xmlns' in root_elem.options and root_elem.options['xmlns'] is not None:
-                xmlns = ' xmlns="{}"'.format(root_elem.options['xmlns'])
-                content[0] += xmlns
-
             if content[0] == "":  # Multi-root with element (no need for an element wrapper)
                 return content[1]
             else:  # Multi-root with complexType
+                if 'xmlns' in root_elem.options and root_elem.options['xmlns'] is not None:
+                    xml_ns = ' xmlns="{}"'.format(root_elem.options['xmlns'])
+                    content[0] += xml_ns
                 return self._render_xml(root_name, content[0], content[1])
         else:
             message = 'render: ' + self.data.tag + ' not handled'

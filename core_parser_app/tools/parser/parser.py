@@ -242,13 +242,14 @@ def lookup_occurs(element, xml_tree, full_path, edit_data_tree, download_enabled
     xml_tree_str = etree.tostring(xml_tree)
     namespaces = get_namespaces(xml_tree_str)
     target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
-    if target_namespace_prefix != '':
-        target_namespace_prefix += ":"
 
     # check if xpaths find a match in the document
     for xpath in xpaths:
         edit_elements = edit_data_tree.xpath(full_path + '/' + target_namespace_prefix + xpath['name'],
                                              namespaces=namespaces)
+        element_path = get_xml_xpath(xml_tree, full_path, "element", xpath['name'], target_namespace,
+                                     target_namespace_prefix)
+        edit_elements = edit_data_tree.xpath(element_path, namespaces=namespaces)
         elements_found.extend(edit_elements)
 
     return elements_found
@@ -283,7 +284,7 @@ def get_xml_element_data(xsd_element, xml_element):
     if xsd_element.tag == prefix + "element":
         # leaf: get the value
         if len(list(xml_element)) == 0:
-            if xml_element.text is not None:
+            if hasattr(xml_element, 'text') and xml_element.text is not None:
                 reload_data = xml_element.text
             else:  # if xml_element.text is None
                 reload_data = ''
@@ -294,7 +295,7 @@ def get_xml_element_data(xsd_element, xml_element):
     elif xsd_element.tag == prefix + "complexType" or xsd_element.tag == prefix + "simpleType":
         # leaf: get the value
         if len(list(xml_element)) == 0:
-            if xml_element.text is not None:
+            if hasattr(xml_element, 'text') and xml_element.text is not None:
                 reload_data = xml_element.text
             else:  # xml_element.text is None
                 reload_data = ''
@@ -683,6 +684,56 @@ def get_extensions(xml_doc_tree, base_type_name):
     return custom_type_extensions
 
 
+def get_xml_xpath(xml_tree, xml_xpath, element_tag, element_name, target_namespace=None, target_namespace_prefix=None,
+                  is_ref=False):
+    """Returns the xpath of an element
+
+    Args:
+        xml_tree:
+        xml_xpath:
+        element_tag:
+        element_name:
+        target_namespace:
+        target_namespace_prefix:
+        is_ref:
+
+    Returns:
+
+    """
+    # XML xpath:/root/element
+    if element_tag == 'element':
+        if target_namespace is not None:
+            if target_namespace_prefix != '':
+                if get_element_form_default(xml_tree) == "qualified":
+                    xml_xpath += '/{0}:{1}'.format(target_namespace_prefix, element_name)
+                elif is_ref:
+                    xml_xpath += '/{0}:{1}'.format(target_namespace_prefix, element_name)
+                elif "{0}:".format(target_namespace_prefix) in xml_xpath:
+                    xml_xpath += '/{0}'.format(element_name)
+                else:
+                    xml_xpath += '/{0}:{1}'.format(target_namespace_prefix, element_name)
+            else:
+                xml_xpath += '/*[local-name()="{0}"]'.format(element_name)
+        else:
+            xml_xpath += "/{0}".format(element_name)
+    elif element_tag == 'attribute':
+        if target_namespace is not None:
+            if target_namespace_prefix != '':
+                if get_attribute_form_default(xml_tree) == "qualified":
+                    xml_xpath += '/@{0}:{1}'.format(target_namespace_prefix, element_name)
+                elif is_ref:
+                    xml_xpath += '/@{0}:{1}'.format(target_namespace_prefix, element_name)
+                elif "{0}:".format(target_namespace_prefix) in xml_xpath:
+                    xml_xpath += '/@{0}'.format(element_name)
+                else:
+                    xml_xpath += '/@{0}:{1}'.format(target_namespace_prefix, element_name)
+            else:
+                xml_xpath += '/@*[local-name()="{0}"]'.format(element_name)
+        else:
+            xml_xpath += "/@{0}".format(element_name)
+
+    return xml_xpath
+
 ##################################################
 # Part II: Schema parsing
 ##################################################
@@ -698,7 +749,6 @@ class XSDParser(object):
         self.download_dependencies = download_dependencies
         self.store_type = store_type
 
-        self.implicit_extension = True
         self.editing = False
 
     def generate_form(self, request, xsd_doc_data, xml_doc_data=None):
@@ -881,8 +931,10 @@ class XSDParser(object):
             'children': []
         }
 
+        is_ref = False
         # get the name of the element, go find the reference if there's one
         if 'ref' in element.attrib:  # type is a reference included in the document
+            is_ref = True
             ref = element.attrib['ref']
             download_enabled = self.download_dependencies
             ref_element, xml_tree, schema_location = get_ref_element(xml_tree, ref, namespaces,
@@ -910,34 +962,8 @@ class XSDParser(object):
         namespaces = get_namespaces(xml_tree_str)
         target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
 
-        # build xpath
-        # XML xpath:/root/element
-        if element_tag == 'element':
-            if target_namespace is not None:
-                if target_namespace_prefix != '':
-                    if get_element_form_default(xml_tree) == "qualified":
-                        full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-                    elif "{0}:".format(target_namespace_prefix) in full_path:
-                        full_path += '/{0}'.format(text_capitalized)
-                    else:
-                        full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-                else:
-                    full_path += '/*[local-name()="{0}"]'.format(text_capitalized)
-            else:
-                full_path += "/{0}".format(text_capitalized)
-        elif element_tag == 'attribute':
-            if target_namespace is not None:
-                if target_namespace_prefix != '':
-                    if get_attribute_form_default(xml_tree) == "qualified":
-                        full_path += '/@{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-                    elif "{0}:".format(target_namespace_prefix) in full_path:
-                        full_path += '/@{0}'.format(text_capitalized)
-                    else:
-                        full_path += '/@{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-                else:
-                    full_path += '/@*[local-name()="{0}"]'.format(text_capitalized)
-            else:
-                full_path += "/@{0}".format(text_capitalized)
+        full_path = get_xml_xpath(xml_tree, full_path, element_tag, text_capitalized, target_namespace,
+                                  target_namespace_prefix, is_ref)
 
         # print full_path
 
@@ -1577,8 +1603,8 @@ class XSDParser(object):
 
                         else:
                             # TODO: create prefix if no prefix?
-                            ns_prefix = target_namespace_prefix + ":" if target_namespace is not None else ""
-                            element_path = '{0}/{1}{2}'.format(full_path, ns_prefix, opt_label)
+                            element_path = get_xml_xpath(xml_tree, full_path, "element", opt_label, target_namespace,
+                                                         target_namespace_prefix)
                             if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
                                 db_child['value'] = counter
                     element_result = self.generate_element(request, choiceChild, xml_tree,
@@ -1702,7 +1728,7 @@ class XSDParser(object):
         return html_form
 
     def generate_simple_type(self, request, element, xml_tree, full_path, edit_data_tree=None,
-                             default_value=None, schema_location=None):
+                             default_value=None, schema_location=None, implicit_extension=True):
         """Generates a section of the form that represents an XML simple type
 
         Parameters:
@@ -1713,6 +1739,7 @@ class XSDParser(object):
             edit_data_tree:
             default_value:
             schema_location:
+            implicit_extension: True if implicit extensions should be considered
 
         Returns:
             HTML string representing a simple type
@@ -1751,9 +1778,8 @@ class XSDParser(object):
 
                 return db_element
 
-        # TODO: check that it's not already extending a base
         # check if the type has a name (can be referenced by an extension)
-        if 'name' in element.attrib and self.implicit_extension:
+        if 'name' in element.attrib and implicit_extension:
             # check if types extend this one
             extensions = get_extensions(xml_tree, element.attrib['name'])
 
@@ -1764,6 +1790,7 @@ class XSDParser(object):
                 choice_content = self.generate_choice_extensions(request, extensions, xml_tree, None,
                                                                  full_path,
                                                                  edit_data_tree,
+                                                                 default_value,
                                                                  schema_location)
                 db_element['children'].append(choice_content)
                 return db_element
@@ -1807,7 +1834,7 @@ class XSDParser(object):
         return db_element
 
     def generate_complex_type(self, request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
-                              schema_location=None):
+                              schema_location=None, implicit_extension=True):
         """Generates a section of the form that represents an XML complexType
 
         Parameters:
@@ -1818,6 +1845,7 @@ class XSDParser(object):
             edit_data_tree:
             default_value:
             schema_location:
+            implicit_extension: True if implicit extensions should be considered
 
         Returns:
             HTML string representing a sequence
@@ -1869,9 +1897,8 @@ class XSDParser(object):
 
                 return db_element
 
-        # TODO: check that it's not already extending a base
         # check if the type has a name (can be referenced by an extension)
-        if 'name' in element.attrib and self.implicit_extension:
+        if 'name' in element.attrib and implicit_extension:
             # check if types extend this one
             extensions = get_extensions(xml_tree, element.attrib['name'])
 
@@ -1883,6 +1910,7 @@ class XSDParser(object):
 
                 choice_content = self.generate_choice_extensions(request, extensions, xml_tree, None, full_path,
                                                                  edit_data_tree,
+                                                                 default_value,
                                                                  schema_location)
                 db_element['children'].append(choice_content)
                 return db_element
@@ -1945,7 +1973,7 @@ class XSDParser(object):
         return db_element
 
     def generate_choice_extensions(self, request, element, xml_tree, choice_counter=None, full_path="",
-                                   edit_data_tree=None, schema_location=None):
+                                   edit_data_tree=None, default_value='', schema_location=None):
         """Generates a section of the form that represents an implicit extension
 
         Parameters:
@@ -1955,6 +1983,7 @@ class XSDParser(object):
             choice_counter: to keep track of branches to display (chosen ones) when going recursively down the tree
             full_path: XML xpath being built
             edit_data_tree: XML tree of data being edited
+            default_value:
             schema_location:
 
         Returns:       HTML string representing a sequence
@@ -2007,7 +2036,6 @@ class XSDParser(object):
                 'options': {},
             }
 
-            self.implicit_extension = False
             for (counter, choiceChild) in enumerate(list(element)):
 
                 if is_root:
@@ -2023,13 +2051,17 @@ class XSDParser(object):
                         result = self.generate_complex_type(request, choiceChild, xml_tree,
                                                             full_path=full_path,
                                                             edit_data_tree=edit_data_tree,
-                                                            schema_location=schema_location)
+                                                            default_value=default_value,
+                                                            schema_location=schema_location,
+                                                            implicit_extension=False)
 
                     elif choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
                         result = self.generate_simple_type(request, choiceChild, xml_tree,
                                                            full_path=full_path,
                                                            edit_data_tree=edit_data_tree,
-                                                           schema_location=schema_location)
+                                                           default_value=default_value,
+                                                           schema_location=schema_location,
+                                                           implicit_extension=False)
 
                     # Find the default element
                     if choiceChild.attrib.get('name') is not None:
@@ -2056,7 +2088,6 @@ class XSDParser(object):
 
             db_element['children'].append(db_child)
 
-        self.implicit_extension = True
         return db_element
 
     def generate_complex_content(self, request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
@@ -2345,8 +2376,6 @@ class XSDParser(object):
             'children': []
         }
 
-        self.implicit_extension = False
-
         ##################################################
         # Parsing attributes
         #
@@ -2377,7 +2406,8 @@ class XSDParser(object):
                                                                      full_path=full_path,
                                                                      edit_data_tree=edit_data_tree,
                                                                      default_value=default_value,
-                                                                     schema_location=schema_location)
+                                                                     schema_location=schema_location,
+                                                                     implicit_extension=False)
 
                     db_element['children'].append(complex_type_result)
                 elif base_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
@@ -2385,7 +2415,8 @@ class XSDParser(object):
                                                                    full_path=full_path,
                                                                    edit_data_tree=edit_data_tree,
                                                                    default_value=default_value,
-                                                                   schema_location=schema_location)
+                                                                   schema_location=schema_location,
+                                                                   implicit_extension=False)
 
                     db_element['children'].append(simple_type_result)
 
@@ -2437,7 +2468,5 @@ class XSDParser(object):
                                                          schema_location=schema_location)
 
                     extended_element.append(choice_result)
-
-        self.implicit_extension = True
 
         return db_element
