@@ -1,4 +1,5 @@
 <input type="text" id="{{ id }}" class="default{% if use %} {{ use | escape }}{% endif %}"
     {% if value %} value="{{ value | escape }}"{% else %} value=""{% endif %}
     {% if placeholder != "" %} placeholder="{{ placeholder }}"{% endif %}
-    {% if tooltip != "" %} title="{{ tooltip }}"{% endif %}/>
+    {% if tooltip != "" %} title="{{ tooltip }}"{% endif %}
+    {% if fixed %} disabled {% endif %}/>

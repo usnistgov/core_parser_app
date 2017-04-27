@@ -1,4 +1,4 @@
-<select {% if select_id %}id="{{ select_id }}"{% endif %} class="{{ select_class }}">
+<select {% if select_id %}id="{{ select_id }}"{% endif %} class="{{ select_class }} " {% if fixed %} disabled {% endif %}>
     {% for option in option_list %}
     <option value="{{ option.0 }}" {% if option.2 %}selected="selected"{% endif %}>{{ option.1 }}</option>
     {% endfor %}

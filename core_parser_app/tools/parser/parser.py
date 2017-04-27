@@ -821,6 +821,7 @@ class XSDParser(object):
                                                         xml_doc_tree,
                                                         edit_data_tree=edit_data_tree)
             else:  # len(elements) == 0 (no root element)
+                # fixed always false because fixed cannot be on the type
                 # TODO: does it make sense to get all simple types too?
                 complex_types = xml_doc_tree.findall("./{0}complexType".format(LXML_SCHEMA_NAMESPACE))
                 if len(complex_types) > 0:
@@ -889,8 +890,8 @@ class XSDParser(object):
         if not self.ignore_modules:
             module_url = get_module_url(element)
             _has_module = True if module_url is not None else False
-            # checks if the module manage the occurrences by itself
-            _is_multiple = is_module_multiple(element)
+            # check if the module manages the occurrences by itself
+            _is_multiple = is_module_multiple(element) if _has_module else False
 
         # FIXME see if we can avoid these basic initialization
         # FIXME this is not necessarily true (see attributes)
@@ -1120,6 +1121,13 @@ class XSDParser(object):
                         # if the default attribute is present
                         default_value = element.attrib['default']
 
+                    if 'fixed' in element.attrib:
+                        # if the fixed attribute is present
+                        is_fixed = True
+                        default_value = element.attrib['fixed']
+                    else:
+                        is_fixed = False
+
                     default_value = default_value.strip()
 
                     if element_type is None:  # no complex/simple type
@@ -1136,7 +1144,6 @@ class XSDParser(object):
                             },
                             'value': default_value
                         }
-                        db_elem_iter['children'].append(db_child)
                     else:  # complex/simple type
 
                         if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
@@ -1144,17 +1151,20 @@ class XSDParser(object):
                                                                              full_path=full_path + '[' + str(x + 1) + ']',
                                                                              edit_data_tree=edit_data_tree,
                                                                              default_value=default_value,
+                                                                             is_fixed=is_fixed,
                                                                              schema_location=schema_location)
-
-                            db_elem_iter['children'].append(complex_type_result)
+                            db_child = complex_type_result
                         elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
                             simple_type_result = self.generate_simple_type(request, element_type, xml_tree,
                                                                            full_path=full_path + '[' + str(x + 1) + ']',
                                                                            edit_data_tree=edit_data_tree,
                                                                            default_value=default_value,
+                                                                           is_fixed=is_fixed,
                                                                            schema_location=schema_location)
+                            db_child = simple_type_result
 
-                            db_elem_iter['children'].append(simple_type_result)
+                    db_child['options']['fixed'] = is_fixed
+                    db_elem_iter['children'].append(db_child)
 
             db_element['children'].append(db_elem_iter)
 
@@ -1728,7 +1738,7 @@ class XSDParser(object):
         return html_form
 
     def generate_simple_type(self, request, element, xml_tree, full_path, edit_data_tree=None,
-                             default_value=None, schema_location=None, implicit_extension=True):
+                             default_value=None, is_fixed=False, schema_location=None, implicit_extension=True):
         """Generates a section of the form that represents an XML simple type
 
         Parameters:
@@ -1738,6 +1748,7 @@ class XSDParser(object):
             full_path:
             edit_data_tree:
             default_value:
+            is_fixed:
             schema_location:
             implicit_extension: True if implicit extensions should be considered
 
@@ -1791,6 +1802,7 @@ class XSDParser(object):
                                                                  full_path,
                                                                  edit_data_tree,
                                                                  default_value,
+                                                                 is_fixed,
                                                                  schema_location)
                 db_element['children'].append(choice_content)
                 return db_element
@@ -1800,6 +1812,7 @@ class XSDParser(object):
             restriction = self.generate_restriction(request, restriction_child, xml_tree, full_path,
                                                     edit_data_tree=edit_data_tree,
                                                     default_value=default_value,
+                                                    is_fixed=is_fixed,
                                                     schema_location=schema_location)
             db_child = restriction
         else:
@@ -1834,7 +1847,7 @@ class XSDParser(object):
         return db_element
 
     def generate_complex_type(self, request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
-                              schema_location=None, implicit_extension=True):
+                              is_fixed=False, schema_location=None, implicit_extension=True):
         """Generates a section of the form that represents an XML complexType
 
         Parameters:
@@ -1844,6 +1857,7 @@ class XSDParser(object):
             full_path:
             edit_data_tree:
             default_value:
+            is_fixed:
             schema_location:
             implicit_extension: True if implicit extensions should be considered
 
@@ -1922,6 +1936,7 @@ class XSDParser(object):
                                                                  full_path=full_path,
                                                                  edit_data_tree=edit_data_tree,
                                                                  default_value=default_value,
+                                                                 is_fixed=is_fixed,
                                                                  schema_location=schema_location)
             db_element['children'].append(result_simple_content)
 
@@ -1973,7 +1988,7 @@ class XSDParser(object):
         return db_element
 
     def generate_choice_extensions(self, request, element, xml_tree, choice_counter=None, full_path="",
-                                   edit_data_tree=None, default_value='', schema_location=None):
+                                   edit_data_tree=None, default_value='', is_fixed=False, schema_location=None):
         """Generates a section of the form that represents an implicit extension
 
         Parameters:
@@ -1984,6 +1999,7 @@ class XSDParser(object):
             full_path: XML xpath being built
             edit_data_tree: XML tree of data being edited
             default_value:
+            is_fixed:
             schema_location:
 
         Returns:       HTML string representing a sequence
@@ -2052,6 +2068,7 @@ class XSDParser(object):
                                                             full_path=full_path,
                                                             edit_data_tree=edit_data_tree,
                                                             default_value=default_value,
+                                                            is_fixed=is_fixed,
                                                             schema_location=schema_location,
                                                             implicit_extension=False)
 
@@ -2060,6 +2077,7 @@ class XSDParser(object):
                                                            full_path=full_path,
                                                            edit_data_tree=edit_data_tree,
                                                            default_value=default_value,
+                                                           is_fixed=is_fixed,
                                                            schema_location=schema_location,
                                                            implicit_extension=False)
 
@@ -2223,7 +2241,7 @@ class XSDParser(object):
         return db_element
 
     def generate_simple_content(self, request, element, xml_tree, full_path='', edit_data_tree=None, default_value='',
-                                schema_location=None):
+                                is_fixed=False, schema_location=None):
         """Generates a section of the form that represents an XML simple content
 
         Parameters:
@@ -2233,6 +2251,7 @@ class XSDParser(object):
             full_path:
             edit_data_tree:
             default_value:
+            is_fixed:
             schema_location:
 
         Returns:
@@ -2253,6 +2272,7 @@ class XSDParser(object):
             restriction_result = self.generate_restriction(request, restriction_child, xml_tree, full_path,
                                                            edit_data_tree=edit_data_tree,
                                                            default_value=default_value,
+                                                           is_fixed=is_fixed,
                                                            schema_location=schema_location)
 
             db_element['children'].append(restriction_result)
@@ -2261,6 +2281,7 @@ class XSDParser(object):
             extension_result = self.generate_extension(request, extension_child, xml_tree, full_path,
                                                        edit_data_tree=edit_data_tree,
                                                        default_value=default_value,
+                                                       is_fixed=is_fixed,
                                                        schema_location=schema_location)
 
             db_element['children'].append(extension_result)
@@ -2268,7 +2289,7 @@ class XSDParser(object):
         return db_element
 
     def generate_restriction(self, request, element, xml_tree, full_path="", edit_data_tree=None, default_value=None,
-                             schema_location=None):
+                             is_fixed=False, schema_location=None):
         """Generates a section of the form that represents an XML restriction
 
         Parameters:
@@ -2278,6 +2299,7 @@ class XSDParser(object):
             full_path:
             edit_data_tree:
             default_value:
+            is_fixed:
             schema_location:
 
         Returns:
@@ -2288,7 +2310,8 @@ class XSDParser(object):
         db_element = {
             'tag': 'restriction',
             'options': {
-                'base': element.attrib.get('base')  # TODO Change it to avoid having the namespace with it
+                'base': element.attrib.get('base'),  # TODO Change it to avoid having the namespace with it
+                'fixed': is_fixed
             },
             'value': None,
             'children': []
@@ -2299,7 +2322,24 @@ class XSDParser(object):
         if len(enumeration) > 0:
             option_list = []
 
-            if self.editing:
+            if is_fixed:
+                # Fixed
+                for enum in enumeration:
+                    db_child = {
+                        'tag': 'enumeration',
+                        'value': enum.attrib.get('value')
+                    }
+
+                    if enum.attrib.get('value') == default_value:
+                        entry = (enum.attrib.get('value'), enum.attrib.get('value'), True)
+                        db_element['value'] = default_value
+                    else:
+                        entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
+
+                    option_list.append(entry)
+                    db_element['children'].append(db_child)
+            elif self.editing:
+                # Edition
                 default_value = default_value if default_value is not None else ''
 
                 for enum in enumeration:
@@ -2317,6 +2357,7 @@ class XSDParser(object):
                     option_list.append(entry)
                     db_element['children'].append(db_child)
             else:
+                # New document
                 for enum in enumeration:
                     db_child = {
                         'tag': 'enumeration',
@@ -2336,6 +2377,7 @@ class XSDParser(object):
                                                                full_path=full_path,
                                                                edit_data_tree=edit_data_tree,
                                                                default_value=default_value,
+                                                               is_fixed=is_fixed,
                                                                schema_location=schema_location)
 
                 db_child = simple_type_result
@@ -2354,7 +2396,7 @@ class XSDParser(object):
         return db_element
 
     def generate_extension(self, request, element, xml_tree, full_path="", edit_data_tree=None, default_value='',
-                           schema_location=None):
+                           is_fixed=False, schema_location=None):
         """Generates a section of the form that represents an XML extension
 
         Parameters:
@@ -2364,6 +2406,7 @@ class XSDParser(object):
             full_path:
             edit_data_tree:
             default_value:
+            is_fixed:
             schema_location:
 
         Returns:
@@ -2397,10 +2440,14 @@ class XSDParser(object):
                 db_element['children'].append(
                         {
                             'tag': 'input',
-                            'value': default_value
+                            'value': default_value,
+                            'options': {
+                                'fixed': is_fixed,
+                            }
                         }
                 )
             else:  # not a built-in data type
+                # fixed not allowed for extensions with base complex type
                 if base_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                     complex_type_result = self.generate_complex_type(request, base_type, xml_tree,
                                                                      full_path=full_path,
@@ -2415,6 +2462,7 @@ class XSDParser(object):
                                                                    full_path=full_path,
                                                                    edit_data_tree=edit_data_tree,
                                                                    default_value=default_value,
+                                                                   is_fixed=is_fixed,
                                                                    schema_location=schema_location,
                                                                    implicit_extension=False)
 

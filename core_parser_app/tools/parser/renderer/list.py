@@ -480,7 +480,7 @@ class ListRenderer(AbstractListRenderer):
                 if len(children[iter_element]) == 1:
                     html_content += options[0][1] + sub_content
                 else:  # Choice contains a list
-                    html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
+                    html_content += 'Choice ' + self._render_select(None, 'choice', options) + buttons
                     html_content += sub_content
 
             # FIXME temp fix, do it in a cleaner way
@@ -548,6 +548,8 @@ class ListRenderer(AbstractListRenderer):
                 html_content += self.render_attribute(child)
             elif child.tag == 'module':
                 html_content += self.render_module(child)
+            elif child.tag == 'choice':
+                html_content += self.render_choice(child)
             else:
                 message = 'render_simple_type: ' + child.tag + ' not handled'
                 self.warnings.append(message)
@@ -605,7 +607,7 @@ class ListRenderer(AbstractListRenderer):
                 self.warnings.append(message)
 
         if subhtml == '' or len(options) != 0:
-            return self._render_select(str(element.pk), 'restriction', options)
+            return self._render_select(element, 'restriction', options)
         else:
             return subhtml
 

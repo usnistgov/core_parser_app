@@ -274,7 +274,7 @@ class TableRenderer(AbstractTableRenderer):
                 print child['tag'] + ' not handled (rend_ext)'
 
         if subhtml == '' or len(options) != 0:
-            return self._render_select(str(element.pk), 'restriction', options)
+            return self._render_select(element, 'restriction', options)
         else:
             return subhtml
 

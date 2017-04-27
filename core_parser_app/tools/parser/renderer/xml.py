@@ -447,6 +447,8 @@ class XmlRenderer(AbstractXmlRenderer):
                     tmp_content[2] = self.render_module(child)[1]
                 else:
                     tmp_content[1] = self.render_module(child)[1]
+            elif child.tag == 'choice':
+                tmp_content = self.render_choice(child)
             else:
                 message = 'render_simple_type: ' + child.tag + ' not handled'
                 self.warnings.append(message)
