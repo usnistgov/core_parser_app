@@ -1,3 +1,5 @@
+"""XML utils
+"""
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 from core_parser_app.settings import MODULE_TAG_NAME
 from urlparse import urlparse
@@ -7,7 +9,7 @@ APP_INFO_OPTIONS = ['label', 'placeholder', 'tooltip', 'use', 'default', MODULE_
 
 
 def get_app_info_options(element):
-    """Get app info options of the element if present. Options are specific to the parser
+    """Gets app info options of the element if present. Options are specific to the parser
 
     Args:
         element:
@@ -36,7 +38,7 @@ def get_app_info_options(element):
 
 
 def get_element_occurrences(element):
-    """Get min/max occurrences information of the element
+    """Gets min/max occurrences information of the element
 
     Args:
         element:
@@ -63,7 +65,7 @@ def get_element_occurrences(element):
 
 
 def get_attribute_occurrences(element):
-    """Get min/max occurrences information of the attribute
+    """Gets min/max occurrences information of the attribute
 
     Args:
         element:
@@ -88,7 +90,7 @@ def get_attribute_occurrences(element):
 
 
 def get_module_url(element):
-    """
+    """Gets url of the module attached to element
 
     Args:
         element:
@@ -96,10 +98,6 @@ def get_module_url(element):
     Returns:
 
     """
-    # FIXME: session removed, explore will display modules
-    # if request.session['PARSER_IGNORE_MODULES']:
-    #     return False
-
     # get the app info of the element
     app_info = get_app_info_options(element)
 

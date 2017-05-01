@@ -11,8 +11,15 @@ from core_parser_app.tools.parser.renderer import DefaultRenderer
 
 
 class AbstractXmlRenderer(DefaultRenderer):
+    """Abstract XML renderer class
+    """
 
     def __init__(self, xsd_data):
+        """Initializes XML renderer object
+
+        Args:
+            xsd_data:
+        """
         xml_renderer_path = join('renderer', 'xml')
 
         templates = {
@@ -22,6 +29,16 @@ class AbstractXmlRenderer(DefaultRenderer):
         super(AbstractXmlRenderer, self).__init__(xsd_data, templates)
 
     def _render_xml(self, name, attributes, content):
+        """Renders form as XML
+
+        Args:
+            name:
+            attributes:
+            content:
+
+        Returns:
+
+        """
         data = {
             'name': name,
             'attributes': attributes,
@@ -32,10 +49,13 @@ class AbstractXmlRenderer(DefaultRenderer):
 
 
 def get_parent_element(element):
-    """Get the parent element (tag is element not direct parent) of the current element.
+    """Gets the parent element (tag is element not direct parent) of the current element
 
-    Parameters:
+    Args:
         element:
+
+    Returns:
+
     """
     try:
         parent = data_structure_element_api.get_all_by_child_id(ObjectId(element.id))
@@ -47,20 +67,23 @@ def get_parent_element(element):
 
 
 class XmlRenderer(AbstractXmlRenderer):
-    """
+    """XML Renderer class
     """
 
     def __init__(self, xsd_data):
+        """Initializes XML renderer object
+
+        Args:
+            xsd_data:
+        """
         self.isRoot = True
         super(XmlRenderer, self).__init__(xsd_data)
 
     def render(self):
-        """
+        """Renders form as XML
 
-        Parameters:
-            partial:
+        Returns:
 
-        :return:
         """
         if self.data.tag == 'element':
             return self.render_element(self.data)
@@ -84,10 +107,13 @@ class XmlRenderer(AbstractXmlRenderer):
             return ''
 
     def render_element(self, element):
-        """
+        """Renders an element
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         xml_string = ''
         children = {}
@@ -164,10 +190,13 @@ class XmlRenderer(AbstractXmlRenderer):
         return xml_string
 
     def render_attribute(self, element):
-        """
+        """Renders an attribute
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         attr_key = element.options["name"]
         attr_list = []
@@ -227,10 +256,13 @@ class XmlRenderer(AbstractXmlRenderer):
         return ' '.join(attr_list)
 
     def render_complex_type(self, element):
-        """
+        """Renders a complex type
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         # XML content: attributes, inner content, outer content
         content = ['', '', '']
@@ -270,10 +302,13 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_sequence(self, element):
-        """
+        """Renders a sequence
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         content = ['', '', '']
         children = []
@@ -305,10 +340,13 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_simple_content(self, element):
-        """
+        """Renders a simple type
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         content = ['', '', '']
 
@@ -330,10 +368,13 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_complex_content(self, element):
-        """
+        """Renders a complex content
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         content = ['', '', '']
 
@@ -355,10 +396,13 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_choice(self, element):
-        """
+        """Renders a choice
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         content = ['', '', '']
         children = {}
@@ -424,10 +468,13 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_simple_type(self, element):
-        """
+        """Renders a simple type
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         content = ['', '', '']
 
@@ -460,6 +507,14 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_restriction(self, element):
+        """Renders a restriction
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         content = ['', '', '']
         value = element.value
 
@@ -484,10 +539,13 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_extension(self, element):
-        """
+        """Renders an extension
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         content = ['', '', '']
 
@@ -513,6 +571,14 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_module(self, element):
+        """Renders a module
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         return [
             '',
             element.options['data'],

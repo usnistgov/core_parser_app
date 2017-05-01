@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 class AbstractListRenderer(DefaultRenderer):
 
     def __init__(self, xsd_data):
+        """Initializes renderer object
+
+        Args:
+            xsd_data:
+        """
         list_renderer_path = join('renderer', 'list')
 
         templates = {
@@ -24,6 +29,16 @@ class AbstractListRenderer(DefaultRenderer):
         super(AbstractListRenderer, self).__init__(xsd_data, templates)
 
     def _render_ul(self, content, element_id, is_hidden=False):
+        """Renders HTML ul element
+
+        Args:
+            content:
+            element_id:
+            is_hidden:
+
+        Returns:
+
+        """
         # FIXME Django SafeText type cause the test to fail
         # if type(content) not in [str, unicode]:
         #     raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
@@ -43,6 +58,16 @@ class AbstractListRenderer(DefaultRenderer):
         return self._load_template('ul', data)
 
     def _render_li(self, content, li_class, li_id):
+        """Renders HTML li element
+
+        Args:
+            content:
+            li_class:
+            li_id:
+
+        Returns:
+
+        """
         data = {
             'li_class': li_class,
             # 'tag_id': tag_id,
@@ -55,21 +80,28 @@ class AbstractListRenderer(DefaultRenderer):
 
 
 class ListRenderer(AbstractListRenderer):
-    """
+    """List Renderer class
     """
 
     def __init__(self, xsd_data, request):
+        """Initializes List renderer object
+
+        Args:
+            xsd_data:
+            request:
+        """
         super(ListRenderer, self).__init__(xsd_data)
         self.request = request  # FIXME Find a way to avoid the use of request
         self.partial = False
 
     def render(self, partial=False):
-        """
+        """Renders form as a list
 
-        Parameters:
+        Args:
             partial:
 
-        :return:
+        Returns:
+
         """
         html_content = ''
         self.partial = partial
@@ -92,10 +124,13 @@ class ListRenderer(AbstractListRenderer):
             return html_content
 
     def render_element(self, element):
-        """
+        """Renders an element
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         children = {}
         child_keys = []
@@ -188,10 +223,13 @@ class ListRenderer(AbstractListRenderer):
         return final_html
 
     def render_complex_type(self, element):
-        """
+        """Renders a complex type
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         html_content = ''
 
@@ -221,10 +259,13 @@ class ListRenderer(AbstractListRenderer):
         return html_content
 
     def render_attribute(self, element):
-        """
+        """Renders an attribute
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         children = {}
         child_keys = []
@@ -309,13 +350,14 @@ class ListRenderer(AbstractListRenderer):
         return final_html
 
     def render_sequence(self, element, force_full_display=False):
-        """
+        """Renders a sequence
 
-        Parameters:
+        Args:
             element:
             force_full_display:
 
-        :return:
+        Returns:
+
         """
         children = {}
         child_keys = []
@@ -399,10 +441,13 @@ class ListRenderer(AbstractListRenderer):
         return final_html
 
     def render_choice(self, element):
-        """
+        """Renders a choice
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         # html_content = ''
         children = {}
@@ -492,10 +537,13 @@ class ListRenderer(AbstractListRenderer):
         return final_html
 
     def render_simple_content(self, element):
-        """
+        """Renders a simple content
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         html_content = ''
 
@@ -511,10 +559,13 @@ class ListRenderer(AbstractListRenderer):
         return html_content
 
     def render_complex_content(self, element):
-        """
+        """Renders a complex type
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         html_content = ''
 
@@ -530,10 +581,13 @@ class ListRenderer(AbstractListRenderer):
         return html_content
 
     def render_simple_type(self, element):
-        """
+        """Renders a simple type
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         html_content = ''
 
@@ -557,10 +611,13 @@ class ListRenderer(AbstractListRenderer):
         return html_content
 
     def render_extension(self, element):
-        """
+        """Renders an extension
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         html_content = ''
 
@@ -587,10 +644,13 @@ class ListRenderer(AbstractListRenderer):
         return html_content
 
     def render_restriction(self, element):
-        """
+        """Renders a restriction
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         options = []
         subhtml = ''
@@ -612,6 +672,14 @@ class ListRenderer(AbstractListRenderer):
             return subhtml
 
     def render_module(self, element):
+        """Renders a module
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         module_options = element.options
         module_url = module_options['url']
 

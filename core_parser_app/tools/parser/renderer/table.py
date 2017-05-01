@@ -4,35 +4,15 @@ from os.path import join
 from django.template import loader
 from core_parser_app.tools.parser.renderer import DefaultRenderer
 
-# def render_table(content):
-#     data = {
-#         'content': content
-#     }
-#
-#     return load_template('table.html', data, 'table')
-#
-#
-# def render_tr(name, content):
-#     data = {
-#         'name': name,
-#         'content': content
-#     }
-#
-#     return load_template('tr.html', data, 'table')
-#
-#
-# def render_top(title, content):
-#     data = {
-#         'title': title,
-#         'content': content
-#     }
-#
-#     return load_template('wrap.html', data, 'table')
-
 
 class AbstractTableRenderer(DefaultRenderer):
 
     def __init__(self, xsd_data):
+        """Initializes table renderer object
+
+        Args:
+            xsd_data:
+        """
         table_renderer_path = join('renderer', 'table')
         table_templates = {
             'top': loader.get_template(join(table_renderer_path, 'wrap.html')),
@@ -43,6 +23,14 @@ class AbstractTableRenderer(DefaultRenderer):
         super(AbstractTableRenderer, self).__init__(xsd_data, table_templates)
 
     def _render_table(self, content):
+        """Renders table
+
+        Args:
+            content:
+
+        Returns:
+
+        """
         data = {
             'content': content
         }
@@ -50,6 +38,15 @@ class AbstractTableRenderer(DefaultRenderer):
         return self._load_template('table', data)
 
     def _render_tr(self, name, content):
+        """Renders table tr element
+
+        Args:
+            name:
+            content:
+
+        Returns:
+
+        """
         data = {
             'name': name,
             'content': content
@@ -58,6 +55,15 @@ class AbstractTableRenderer(DefaultRenderer):
         return self._load_template('tr', data)
 
     def _render_top(self, title, content):
+        """Renders table top element
+
+        Args:
+            title:
+            content:
+
+        Returns:
+
+        """
         data = {
             'title': title,
             'content': content
@@ -71,9 +77,19 @@ class TableRenderer(AbstractTableRenderer):
     """
 
     def __init__(self, xsd_data):
+        """Initializes table renderer
+
+        Args:
+            xsd_data:
+        """
         super(TableRenderer, self).__init__(xsd_data)
 
     def render(self):
+        """Renders the form as a table
+
+        Returns:
+
+        """
         html_content = ''
 
         if self.data.tag == 'element':
@@ -85,6 +101,15 @@ class TableRenderer(AbstractTableRenderer):
         return self._render_top(self.data.options['name'], html_content)
 
     def render_element(self, element, no_name=False):
+        """Renders an element
+
+        Args:
+            element:
+            no_name:
+
+        Returns:
+
+        """
         children = {}
         child_keys = []
         children_number = 0
@@ -153,19 +178,17 @@ class TableRenderer(AbstractTableRenderer):
 
             final_html += self._render_tr(element["options"]["name"] + buttons, html_content)
 
-        # if len(children) > 1 or (len(children) == 1 and children[0]['tag'] != 'input'):
-        #     html_content += self._render_table(subhtml)
-        # else:
-        #     # html_content += subhtml + buttons
-        #     html_content += subhtml
-        #
-        # # return render_li(html_content, '', '', None, element["options"]["name"])
-        # if no_name:
-        #     return html_content
-
         return final_html
 
     def render_complex_type(self, element):
+        """Renders a complex type
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         print "ct"
         html_content = ''
 
@@ -182,8 +205,15 @@ class TableRenderer(AbstractTableRenderer):
         return html_content
 
     def render_attribute(self, element):
+        """Renders an attribute
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         print "attr"
-        # html_content = element["options"]["name"]
         html_content = ''
         children = []
 
@@ -200,12 +230,18 @@ class TableRenderer(AbstractTableRenderer):
                 html_content += self._render_input(child)
             else:
                 print child['tag'] + ' not handled (rend_attr)'
-            # print child['tag'] + ' not handled (rend_attr)'
 
-        # return render_li(html_content, '', '')
         return self._render_tr(element['options']['name'], html_content)
 
     def render_sequence(self, element):
+        """Renders a sequence
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         print "seq"
         html_content = ''
 
@@ -218,6 +254,14 @@ class TableRenderer(AbstractTableRenderer):
         return html_content
 
     def render_simple_content(self, element):
+        """Renders a simple content
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         print "sc"
         html_content = ''
 
@@ -232,6 +276,14 @@ class TableRenderer(AbstractTableRenderer):
         return html_content
 
     def render_simple_type(self, element):
+        """Renders a simple type
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         print "st"
         html_content = ''
 
@@ -246,6 +298,14 @@ class TableRenderer(AbstractTableRenderer):
         return html_content
 
     def render_extension(self, element):
+        """Renders an extension
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         print "ext"
         html_content = ''
 
@@ -261,6 +321,14 @@ class TableRenderer(AbstractTableRenderer):
         return html_content
 
     def render_restriction(self, element):
+        """Renders a restriction
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         print "rest"
         options = []
         subhtml = ''
@@ -279,4 +347,12 @@ class TableRenderer(AbstractTableRenderer):
             return subhtml
 
     def render_module(self, element):
+        """Renders a module
+
+        Args:
+            element:
+
+        Returns:
+
+        """
         return ''

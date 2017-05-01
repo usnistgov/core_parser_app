@@ -8,14 +8,17 @@ logger = logging.getLogger(__name__)
 
 
 class CheckboxRenderer(ListRenderer):
-    """
+    """Checkbox renderer, makes elements selectable
     """
 
     def _render_input(self, element):
-        """
+        """Renders a selectable element
 
-        :param element
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         data = {
             'id': element.pk,
@@ -24,10 +27,13 @@ class CheckboxRenderer(ListRenderer):
         return self._load_template('checkbox', data)
 
     def render_restriction(self, element):
-        """
+        """Renders a selectable element
 
-        :param element:
-        :return:
+        Args:
+            element:
+
+        Returns:
+
         """
         data = {
             'id': element.pk,
