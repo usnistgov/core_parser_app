@@ -1,0 +1,9 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:element name="file" type="xsd:anyURI">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<module>/core/advanced-blob-host</module>
+			</xsd:appinfo>
+		</xsd:annotation>
+    </xsd:element>
+</xsd:schema>

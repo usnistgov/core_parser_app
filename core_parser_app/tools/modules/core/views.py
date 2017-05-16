@@ -1,7 +1,47 @@
+"""Core modules views
+"""
+from core_parser_app.components.data_structure_element import api as data_structure_element_api
+from core_parser_app.tools.modules.core.models import AutoKeyRefModule, BlobHostModule, RemoteBlobHostModule, \
+    AdvancedBlobHostModule
+
 from django.http.response import HttpResponse
 import json
-from core_parser_app.components.data_structure_element import api as data_structure_element_api
-from core_parser_app.tools.modules.core.models import AutoKeyRefModule
+
+
+def blob_host(request):
+    """ BLOB host module view
+
+    Args:
+        request:
+
+    Returns:
+
+    """
+    return BlobHostModule().render(request)
+
+
+def remote_blob_host(request):
+    """ Remote BLOB host view
+
+    Args:
+        request:
+
+    Returns:
+
+    """
+    return RemoteBlobHostModule().render(request)
+
+
+def advanced_blob_host(request):
+    """ Advanced BLOB host view
+
+    Args:
+        request:
+
+    Returns:
+
+    """
+    return AdvancedBlobHostModule().render(request)
 
 
 def auto_keyref(request):
@@ -21,7 +61,7 @@ def get_updated_keys(request):
         updated_keys[key] = {'ids': [],
                             'tagIDs': []}
         key = key name
-        ids = list of posssible values for a key
+        ids = list of possible values for a key
         tagIDs = HTML element that needs to be updated with the values (keyrefs)
     """
 
