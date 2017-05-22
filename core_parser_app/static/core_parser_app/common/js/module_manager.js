@@ -32,7 +32,7 @@ insertModule = function(event){
  */
 insert_module = function(moduleID, templateID, xpath, parent){
     $.ajax({
-        url : "/admin/template/module/insert",
+        url : templateModuleInsertUrl,
         type : "POST",
         dataType: "json",
         data:{
@@ -77,7 +77,7 @@ deleteModule = function(event){
  */
 delete_module = function(xpath, templateID, parent){
     $.ajax({
-        url : "/admin/template/module/delete",
+        url : templateModuleDeleteUrl,
         type : "POST",
         dataType: "json",
         data:{
