@@ -301,7 +301,7 @@ class CountriesModule(OptionsModule, XPathAccessor):
 
         value = str(request.POST['data'])
 
-        if value not in self.country_codes.keys():  # FIXME loose test, fix datastrcture
+        if value not in self.country_codes.keys():  # FIXME loose test, fix data structure
             return
         
         # get values to return for siblings
@@ -318,7 +318,8 @@ class CountriesModule(OptionsModule, XPathAccessor):
         idx = "[" + str(parent_xpath_idx) + "]"
          
         # set nodes with values
-        form_id = request.session['form_id']
+        # FIXME: find solution to access form root element
+        form_id = request.META['HTTP_REFERER'].split('/')[-1]
 
         self.set_xpath_value(form_id, '/Countries[1]/country' + idx + '/country_code', country_code)
         self.set_xpath_value(form_id, '/Countries[1]/country' + idx + '/details[1]/capital', capital)

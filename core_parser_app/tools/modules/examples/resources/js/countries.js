@@ -1,4 +1,3 @@
-// FIXME: update urls
 updateForm = function(event) {
     event.preventDefault();
 
@@ -8,8 +7,8 @@ updateForm = function(event) {
         var $input = $(item);
 
         $.ajax({
-            'url': '/data-structure-element/value',
-            'type': 'POST',
+            'url': dataStructureElementUrl,
+            'type': 'GET',
             'dataType': 'json',
             'data': {
                 'id': $input.attr('id')
@@ -28,8 +27,8 @@ updateForm = function(event) {
         var $select = $(item);
 
         $.ajax({
-            'url': '/data-structure-element/value',
-            'type': 'POST',
+            'url': dataStructureElementUrl,
+            'type': 'GET',
             'dataType': 'json',
             'data': {
                 'id': $select.attr('id')
@@ -51,8 +50,8 @@ updateForm = function(event) {
         }
 
         $.ajax({
-            'url': '/data-structure-element/value',
-            'type': 'POST',
+            'url': dataStructureElementUrl,
+            'type': 'GET',
             'dataType': 'json',
             'data': {
                 'id': $module.attr('id')

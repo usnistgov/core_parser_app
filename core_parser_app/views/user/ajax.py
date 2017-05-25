@@ -54,7 +54,7 @@ def save_data_structure_element_value(request):
 
     """
     if 'id' not in request.POST or 'value' not in request.POST:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("Error when trying to data structure element: id or value is missing.")
 
     input_element = data_structure_element_api.get_by_id(request.POST['id'])
 

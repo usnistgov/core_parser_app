@@ -3,6 +3,7 @@
 
 from abc import ABCMeta, abstractmethod
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
+from core_parser_app.components.data_structure import api as data_structure_api
 
 
 class XPathAccessor(object):
@@ -15,16 +16,16 @@ class XPathAccessor(object):
             self.xpath = element.options['xpath']['xml']
             self.values = {}
             self.set_XpathAccessor(request)
-        except:
-            message = 'Unable to get form data information. Please check session is still valid and that HTTP request'
-            message += ' is correctly sent to the Siblings Accessor system.'
-            raise XPathAccessorError(message)
+        except Exception, e:
+            message = 'XPathAccessor error: '
+            raise XPathAccessorError(message + e.message)
 
     def get_xpath(self):
         return self.xpath
 
     def set_xpath_value(self, form_id, xpath, value):
-        form_element = self._get_element(form_id, xpath)
+        root_id = data_structure_api.get_by_id(form_id).data_structure_element_root.id
+        form_element = self._get_element(root_id, xpath)
         input_element = self.get_input(form_element)
 
         if input_element.tag != 'module':
