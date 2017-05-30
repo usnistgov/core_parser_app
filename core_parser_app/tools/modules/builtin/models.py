@@ -437,6 +437,7 @@ class AutoKeyModule(SyncInputModule):
         # register the module id in the structure
         if str(module_id) not in request.session['keys'][keyId]['module_ids']:
             request.session['keys'][keyId]['module_ids'].append(str(module_id))
+            request.session.save()
 
         # get the list of values for this key
         values = []
@@ -474,7 +475,7 @@ class AutoKeyModule(SyncInputModule):
         """
         if 'data' in request.GET:
             return request.GET['data']
-        return self.default_value
+        return str(self.default_value)
 
     def _post_display(self, request):
         """
