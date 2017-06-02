@@ -4,9 +4,10 @@ recursive-include core_parser_app/static *
 recursive-include core_parser_app/templates *
 recursive-include core_parser_app/tools/parser/static *
 recursive-include core_parser_app/tools/parser/templates *
+recursive-include core_parser_app/tools/parser/tests *
+recursive-include core_parser_app/tools/modules/static *
+recursive-include core_parser_app/tools/modules/resources *
 recursive-include core_parser_app/tools/modules/builtin/resources *
 recursive-include core_parser_app/tools/modules/core/resources *
 recursive-include core_parser_app/tools/modules/diffusion/resources *
 recursive-include core_parser_app/tools/modules/examples/resources *
-recursive-include core_parser_app/tools/parser/tests *
-recursive-include core_parser_app/tools/modules/resources *
