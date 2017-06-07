@@ -28,6 +28,10 @@ def manage_template_modules(request, template_id):
                 "path": 'core_parser_app/common/js/module_manager.js',
                 "is_raw": False
             },
+            {
+                "path": 'core_main_app/common/js/backtoprevious.js',
+                "is_raw": True
+            }
         ],
         "css": ['core_main_app/common/css/XMLTree.css']
     }

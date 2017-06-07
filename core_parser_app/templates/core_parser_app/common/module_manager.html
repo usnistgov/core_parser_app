@@ -1,40 +1,7 @@
-<h1>Module Manager</h1>
-<p>
-    Click on an element from the following tree to associate it with a module. Elements will then be replaced by the
-    chosen module during the curation process.
-</p>
+<!--FIXME: use common section.html-->
+{% extends "core_main_app/_render/admin/theme/tools/section.html" %}
+{% block section_title %}Modules Manager{% endblock %}
 
-{% autoescape off %}	 
-<div>
-{{data.xsdTree}}
-</div>
-{% endautoescape %}
-
-<div id="dialog-modules" title="Manage Module" style="display:none;">
-	<p>
-		Select the module you want to associate with the selected element.
-	</p>
-	<table class="table table-bordered">
-		<tr>
-			<td><b>Default</b></td>
-			<td>Default behavior</td>
-			<td>
-				<button class="btn delete">
-					<i class="icon-plus-sign"></i>Restore
-				</button>
-			</td>
-		</tr>
-		{% for module in data.modules %}
-		<tr>
-			<td moduleID="{{module.id}}"><b>{{module.name}}</b></td>
-			<td>{{module.url}}</td>
-			<td>
-				<button class="btn insert">
-					<i class="icon-plus-sign"></i>Insert
-				</button>
-			</td>
-		</tr>
-		{% endfor %}
-	</table>	
-</div>
-<div id="templateid" style="display:none;">{{data.object.id}}</div>
+{% block section_content %}
+		{% include 'core_parser_app/common/module_manager_box.html' %}
+{% endblock %}
