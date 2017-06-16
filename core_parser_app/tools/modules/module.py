@@ -7,7 +7,6 @@ import importlib
 
 from django.http.response import HttpResponseBadRequest
 from django.template import Context, Template
-from django.utils import importlib
 from rest_framework.status import HTTP_200_OK
 from exceptions import ModuleError
 from abc import ABCMeta, abstractmethod
