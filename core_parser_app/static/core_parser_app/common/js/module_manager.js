@@ -1,16 +1,8 @@
 /**
- * Load controllers for module management
- */
-$(document).ready(function() {
-    $('.insert').on('click', insertModule);
-    $('.delete').on('click', deleteModule);
-});
-
-/**
  * Insert a module in the XML tree
  * @param event
  */
-insertModule = function(event){
+var insertModule = function(event){
 	// change the sequence style
 	parent = $(target).parent();
 
@@ -30,7 +22,8 @@ insertModule = function(event){
 /**
  * AJAX call, inserts a module
  */
-insert_module = function(moduleID, templateID, xpath, parent){
+var insert_module = function(moduleID, templateID, xpath, parent){
+    $("#add-module-modal").modal("hide");
     $.ajax({
         url : templateModuleInsertUrl,
         type : "POST",
@@ -51,14 +44,14 @@ insert_module = function(moduleID, templateID, xpath, parent){
             }
         }
     });
-}
+};
 
 
 /**
  * Remove a module
  * @param event
  */
-deleteModule = function(event){
+var deleteModule = function(event){
 	parent = $(target).parent();
 
 	insertButton = event.target;
@@ -75,7 +68,8 @@ deleteModule = function(event){
 /**
  * AJAX call, deletes a module
  */
-delete_module = function(xpath, templateID, parent){
+var delete_module = function(xpath, templateID, parent){
+    $("#add-module-modal").modal("hide");
     $.ajax({
         url : templateModuleDeleteUrl,
         type : "POST",
@@ -100,27 +94,18 @@ var target;
 var showModuleManager = function(event){
 	target = event.target;
 	hideAutoKeys();
-	$( "#dialog-modules" ).dialog({
-      modal: true,
-      width: 600,
-      height: 400,
-      buttons: {
-        Cancel: function() {
-          $( this ).dialog( "close" );
-        }
-      }
-    });
+	$("#add-module-modal").modal("show");
 };		
 
 /**
  * Hides modules for generation of automatic keys
  */
-hideAutoKeys = function(){
-    $("#dialog-modules").find("table").find("tr:not(:first)").each(function(){
-      $(this).show();
-      if ($($(this).children("td")[1]).html().indexOf('auto-key') > 0){
-        $(this).hide();
-      }
+var hideAutoKeys = function(){
+    $("#modules-table").find("tr:not(:first)").each(function(){
+        $(this).show();
+        if ($($(this).children("td")[1]).html().indexOf('auto-key') > 0){
+            $(this).hide();
+        }
     });
 };
 
@@ -130,27 +115,18 @@ hideAutoKeys = function(){
 var showAutoKeyManager=function(event){
 	target = event.target;
 	showAutoKeys();
-	$( "#dialog-modules" ).dialog({
-      modal: true,
-      width: 600,
-      height: 400,
-      buttons: {
-        Cancel: function() {
-          $( this ).dialog( "close" );
-        }
-      }
-    });
+	$("#add-module-modal").modal("show");
 };
 
 /**
  * Shows only modules for generation of automatic keys
  */
-showAutoKeys = function(){
-    $("#dialog-modules").find("table").find("tr:not(:first)").each(function(){
-      $(this).show();
-      if ($($(this).children("td")[1]).html().indexOf('auto-key') < 0){
-        $(this).hide();
-      }
+var showAutoKeys = function(){
+    $("#modules-table").find("tr:not(:first)").each(function(){
+        $(this).show();
+        if ($($(this).children("td")[1]).html().indexOf('auto-key') < 0){
+            $(this).hide();
+        }
     });
 };
 
@@ -159,33 +135,22 @@ showAutoKeys = function(){
  * Build xpath of selected element
  * @returns
  */
-getXPath = function(){
+var getXPath = function(){
 	current = $(target).parent().siblings('.path');
-	xpath = $(current).text();	
+	xpath = $(current).text();
 	current = $(current).parent().parent().parent().siblings('.path');
 	while(current != null){
 		current_path = $(current).text() ;
 		if (current_path.indexOf("schema") != -1){
 			current = null;
-		}else{			
-			xpath = current_path + "/" + xpath;	
+		}else{
+			xpath = current_path + "/" + xpath;
 			current = $(current).parent().parent().parent().siblings('.path');
-		}		
+		}
 	}
 	return xpath;
 };
 
 
-/**
- * Get the namespace with the correct index
- */
-manageXPath = function(){	
-	namespace = $(target).text().split(":")[0];
-	i = 1;
-	$(target).closest("ul").children().each(function(){
-	  if(!($(this).find(".path").html() == $(target).closest("li").find(".path").html() )){
-		  $(this).find(".path").html(namespace + ":element["+i+"]");
-		  i += 1;
-	  }	  
-	})
-};
+$(document).on('click', '.insert', insertModule);
+$(document).on('click', '.delete', deleteModule);

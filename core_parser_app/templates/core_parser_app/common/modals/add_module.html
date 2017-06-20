@@ -1,0 +1,33 @@
+{% extends 'core_main_app/_render/admin/theme/tools/modal.html' %}
+
+{% block modal_id %}add-module-modal{% endblock %}
+{% block modal_title %}Manage Module{% endblock %}
+
+{% block modal_body %}
+<p>
+    Select the module you want to associate with the selected element.
+</p>
+<table class="table table-bordered" id="modules-table">
+    <tbody>
+    <tr>
+        <td><b>Default</b></td>
+        <td>Default behavior</td>
+        <td>
+            <a class="btn btn-danger delete">Restore</a>
+        </td>
+    </tr>
+    {% for module in data.modules %}
+    <tr>
+        <td moduleID="{{module.id}}"><b>{{module.name}}</b></td>
+        <td>{{module.url}}</td>
+        <td>
+            <a class="btn btn-primary insert">Insert</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+{% block modal_footer %}
+<a class="btn btn-default pull-left" data-dismiss="modal" href="#"><i class="fa fa-times"></i> Cancel</a>
+{% endblock %}
