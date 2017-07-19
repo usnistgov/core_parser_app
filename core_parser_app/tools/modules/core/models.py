@@ -102,7 +102,7 @@ class BlobHostModule(PopupModule):
         # set blob file
         blob.blob = uploaded_file
         # save blob
-        blob_api.save(blob)
+        blob_api.insert(blob)
 
         # get download uri
         self.handle = get_blob_download_uri(blob, request)
@@ -301,7 +301,7 @@ class AdvancedBlobHostModule(PopupModule):
             # set blob file
             blob.blob = uploaded_file
             # save blob
-            blob_api.save(blob)
+            blob_api.insert(blob)
 
             # get download uri
             self.handle = get_blob_download_uri(blob, request)
