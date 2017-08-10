@@ -14,6 +14,7 @@ from io import BytesIO
 import urllib2
 
 from core_main_app.commons.exceptions import CoreError
+from core_main_app.utils.xsd_flattener.xsd_flattener_database_url import XSDFlattenerDatabaseOrURL
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.components.module import api as module_api
@@ -24,7 +25,6 @@ from core_parser_app.tools.parser.utils.rendering import format_tooltip
 from core_parser_app.tools.parser.utils.xml import get_app_info_options, \
     get_element_occurrences, get_attribute_occurrences, get_module_url
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
-from xml_utils.xsd_flattener.xsd_flattener_url import XSDFlattenerURL
 from xml_utils.xsd_tree.operations.appinfo import add_appinfo_child_to_element
 from xml_utils.xsd_tree.operations.namespaces import get_namespaces, get_default_prefix, get_target_namespace
 from xml_utils.xsd_types.xsd_types import get_xsd_types
@@ -412,7 +412,7 @@ def import_xml_tree(el_import, download_enabled=True):
         # if includes are present
         if len(includes) > 0:
             # create a flattener with the file content
-            flattener = XSDFlattenerURL(ref_xml_schema_content, download_enabled)
+            flattener = XSDFlattenerDatabaseOrURL(ref_xml_schema_content, download_enabled)
             # flatten the includes
             ref_xml_schema_content = flattener.get_flat()
             # build the tree
@@ -761,7 +761,7 @@ class XSDParser(object):
         """
 
         # flatten the includes
-        flattener = XSDFlattenerURL(xsd_doc_data, self.download_dependencies)
+        flattener = XSDFlattenerDatabaseOrURL(xsd_doc_data, self.download_dependencies)
         xml_doc_tree_str = flattener.get_flat()
         xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
 
@@ -1217,7 +1217,7 @@ class XSDParser(object):
 
         # flatten the includes
         download_enabled = self.download_dependencies
-        flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree), download_enabled)
+        flattener = XSDFlattenerDatabaseOrURL(etree.tostring(xml_doc_tree), download_enabled)
         xml_doc_tree_str = flattener.get_flat()
         xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
 
@@ -1696,7 +1696,7 @@ class XSDParser(object):
 
         # flatten the includes
         download_enabled = self.download_dependencies
-        flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree), download_enabled)
+        flattener = XSDFlattenerDatabaseOrURL(etree.tostring(xml_doc_tree), download_enabled)
         xml_doc_tree_str = flattener.get_flat()
         xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
 
