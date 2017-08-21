@@ -1170,12 +1170,13 @@ class XSDParser(object):
 
         return db_element
 
-    def generate_element_absent(self, request, element_id):
+    def generate_element_absent(self, request, element_id, renderer_class=ListRenderer):
         """
 
         Parameters:
             request:
             element_id:
+            renderer_class:
         :return:
         """
 
@@ -1279,7 +1280,7 @@ class XSDParser(object):
         tree_root.update(set__options=tree_root_options)
         tree_root.reload()
 
-        renderer = ListRenderer(tree_root, request)
+        renderer = renderer_class(tree_root, request)
         html_form = renderer.render(True)
 
         tree_root.delete()
@@ -1648,12 +1649,13 @@ class XSDParser(object):
 
         return db_element
 
-    def generate_choice_absent(self, request, element_id):
+    def generate_choice_absent(self, request, element_id, renderer_class=ListRenderer):
         """
 
         Args:
             request:
             element_id:
+            renderer_class:
 
         Returns:
 
@@ -1732,7 +1734,7 @@ class XSDParser(object):
 
         parent.reload()
 
-        renderer = ListRenderer(tree_root, request)
+        renderer = renderer_class(tree_root, request)
         html_form = renderer.render(False)
 
         return html_form
