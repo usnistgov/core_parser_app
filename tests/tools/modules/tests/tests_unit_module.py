@@ -11,12 +11,8 @@ from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.module import AbstractModule
 import json
 import os
-import unittest
-from core_parser_app.settings import MODULES_ROOT
 
-DATA_PATH = os.path.join(MODULES_ROOT, 'tests', 'data')
-
-# FIXME: restore test without using DjangoTemplates backend
+DATA_PATH = os.path.join(os.path.dirname(__file__), 'data')
 
 
 class TestGetResources(TestCase):
@@ -56,7 +52,6 @@ class TestGetResources(TestCase):
 
 class TestRenderModule(TestCase):
 
-    @unittest.skip("Needs DjangoTemplates backend to be configured")
     def test_render_module_returns_html_string(self):
         template_path = os.path.join(DATA_PATH, 'template.html')
 
@@ -69,7 +64,6 @@ class TestRenderModule(TestCase):
 
 
 class TestGet(TestCase):
-    @unittest.skip("Needs DjangoTemplates backend to be configured")
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
     def test_get_returns_http_response(self, data_structure_element_get_by_id):
         request = HttpRequest()
@@ -85,7 +79,6 @@ class TestGet(TestCase):
 
         self.assertTrue(isinstance(response, HttpResponse))
 
-    @unittest.skip("Needs DjangoTemplates backend to be configured")
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
     def test_get_http_response_contains_module_values(self, data_structure_element_get_by_id):
         request = HttpRequest()
@@ -128,7 +121,6 @@ class TestPost(TestCase):
 
         self.assertTrue(isinstance(response, HttpResponseBadRequest))
 
-    @unittest.skip("Needs DjangoTemplates backend to be configured")
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
     def test_post_returns_http_response(self, data_structure_element_get_by_id):
         request = HttpRequest()
@@ -144,7 +136,6 @@ class TestPost(TestCase):
 
         self.assertTrue(isinstance(response, HttpResponse))
 
-    @unittest.skip("Needs DjangoTemplates backend to be configured")
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
     def test_post_response_contains_module_values(self, data_structure_element_get_by_id):
         request = HttpRequest()
