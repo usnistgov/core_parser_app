@@ -798,6 +798,7 @@ class XSDParser(object):
         elements = xml_doc_tree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
 
         try:
+            form_content = ""
             if len(elements) == 1:  # One root
                 form_content = self.generate_element(request,
                                                      elements[0],
@@ -842,7 +843,15 @@ class XSDParser(object):
                                                                        xml_doc_tree,
                                                                        edit_data_tree=edit_data_tree)
                 else:  # len(complex_types) == 0
-                    raise Exception("No possible root element detected")
+                    simple_types = xml_doc_tree.findall("./{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
+                    if len(simple_types) == 1: # 1 simple type found
+                        form_content = self.generate_simple_type(request,
+                                                                 simple_types[0],
+                                                                 xml_doc_tree,
+                                                                 full_path="",
+                                                                 edit_data_tree=edit_data_tree)
+                    else:
+                        raise Exception("No possible root element detected")
 
             root_element = load_schema_data_in_db(form_content)
 
