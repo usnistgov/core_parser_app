@@ -30,7 +30,7 @@ def __assemble_endpoint_data__(pattern, prefix='', filter_path=None):
     
     return {
         'url': path,
-        'view': pattern._callback_str,
+        'view': pattern.lookup_str,
         'name': pattern.name,        
     }
 

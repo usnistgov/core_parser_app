@@ -1,11 +1,12 @@
 """Base Renderer class
 """
 import types
-from django.http.request import HttpRequest
-from django.template.backends.django import Template
-from django.template.context import RequestContext
-from django.template import loader
 from os.path import join
+
+from django.http.request import HttpRequest
+from django.template import loader
+from django.template.backends.django import Template
+
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 
 
@@ -36,7 +37,7 @@ class BaseRenderer(object):
 
         """
         add_context = {}
-        context = RequestContext(HttpRequest())
+        context = {}
 
         if tpl_data is not None:
             add_context.update(tpl_data)
@@ -83,7 +84,7 @@ class HtmlRenderer(BaseRenderer):
         Returns:
 
         """
-        context = RequestContext(HttpRequest())
+        context = {}
         data = {
             'message': err_message
         }
@@ -267,7 +268,7 @@ class DefaultRenderer(object):
         Returns:
 
         """
-        context = RequestContext(HttpRequest())
+        context = {}
 
         if tpl_key not in self.templates.keys():
             raise IndexError('Template "' + tpl_key + '" not found in registered templates ' +
@@ -293,7 +294,7 @@ class DefaultRenderer(object):
         if type(err_message) not in [str, unicode]:
             raise TypeError('Error message should be string or unicode (' + str(type(err_message)) + ' given)')
 
-        context = RequestContext(HttpRequest())
+        context = {}
         data = {
             'message': err_message
         }
