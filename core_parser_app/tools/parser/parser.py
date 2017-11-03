@@ -2,21 +2,18 @@
 """
 import logging
 import numbers
-import traceback
-import sys
 import re
-
+import sys
+import traceback
+import urllib2
 from urlparse import parse_qsl
 
-
 from lxml import etree
-from io import BytesIO
-import urllib2
 
 from core_main_app.commons.exceptions import CoreError
 from core_main_app.utils.xsd_flattener.xsd_flattener_database_url import XSDFlattenerDatabaseOrURL
-from core_parser_app.components.data_structure_element.models import DataStructureElement
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
+from core_parser_app.components.data_structure_element.models import DataStructureElement
 from core_parser_app.components.module import api as module_api
 from core_parser_app.settings import MODULE_TAG_NAME
 from core_parser_app.tools.parser.exceptions import ParserError
@@ -27,6 +24,7 @@ from core_parser_app.tools.parser.utils.xml import get_app_info_options, \
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.operations.appinfo import add_appinfo_child_to_element
 from xml_utils.xsd_tree.operations.namespaces import get_namespaces, get_default_prefix, get_target_namespace
+from xml_utils.xsd_tree.xsd_tree import XSDTree
 from xml_utils.xsd_types.xsd_types import get_xsd_types
 
 logger = logging.getLogger(__name__)
@@ -406,7 +404,7 @@ def import_xml_tree(el_import, download_enabled=True):
         # read the content of the file
         ref_xml_schema_content = ref_xml_schema_file.read()
         # build the tree
-        xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+        xml_tree = XSDTree.build_tree(ref_xml_schema_content)
         # look for includes
         includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
         # if includes are present
@@ -416,7 +414,7 @@ def import_xml_tree(el_import, download_enabled=True):
             # flatten the includes
             ref_xml_schema_content = flattener.get_flat()
             # build the tree
-            xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+            xml_tree = XSDTree.build_tree(ref_xml_schema_content)
         return xml_tree, schema_location
     else:
         raise ParserError('Dependency could not be downloaded')
@@ -763,7 +761,7 @@ class XSDParser(object):
         # flatten the includes
         flattener = XSDFlattenerDatabaseOrURL(xsd_doc_data, self.download_dependencies)
         xml_doc_tree_str = flattener.get_flat()
-        xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+        xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
         request.session['xmlDocTree'] = xml_doc_tree_str
 
@@ -1212,7 +1210,7 @@ class XSDParser(object):
                 # get the content of the file
                 ref_xml_schema_content = ref_xml_schema_file.read()
                 # build the XML tree
-                xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                xml_doc_tree = XSDTree.build_tree(ref_xml_schema_content)
                 # get the namespaces from the imported schema
                 namespaces = get_namespaces(ref_xml_schema_content)
             else:
@@ -1220,8 +1218,8 @@ class XSDParser(object):
         else:
             # get the content of the XML tree
             xml_doc_tree_str = request.session['xmlDocTree']
-            # # build the XML tree
-            xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
+            # build the XML tree
+            xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
             # get the namespaces
             namespaces = get_namespaces(xml_doc_tree_str)
 
@@ -1229,7 +1227,7 @@ class XSDParser(object):
         download_enabled = self.download_dependencies
         flattener = XSDFlattenerDatabaseOrURL(etree.tostring(xml_doc_tree), download_enabled)
         xml_doc_tree_str = flattener.get_flat()
-        xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+        xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
         xpath_element = schema_element.options['xpath']
         xsd_xpath = xpath_element['xsd']
@@ -1692,7 +1690,7 @@ class XSDParser(object):
                 # get the content of the file
                 ref_xml_schema_content = ref_xml_schema_file.read()
                 # build the XML tree
-                xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                xml_doc_tree = XSDTree.build_tree(ref_xml_schema_content)
                 # get the namespaces from the imported schema
                 namespaces = get_namespaces(ref_xml_schema_content)
             else:
@@ -1701,7 +1699,7 @@ class XSDParser(object):
             # get the content of the XML tree
             xml_doc_tree_str = request.session['xmlDocTree']
             # # build the XML tree
-            xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
+            xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
             # get the namespaces
             namespaces = get_namespaces(xml_doc_tree_str)
 
@@ -1709,7 +1707,7 @@ class XSDParser(object):
         download_enabled = self.download_dependencies
         flattener = XSDFlattenerDatabaseOrURL(etree.tostring(xml_doc_tree), download_enabled)
         xml_doc_tree_str = flattener.get_flat()
-        xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+        xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
         xpath_element = element.options['xpath']
         xsd_xpath = xpath_element['xsd']
