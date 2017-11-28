@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-import views
+from core_parser_app.tools.modules.core import views
 
 urlpatterns = [
     url(r'^blob-host', views.blob_host,

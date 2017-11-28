@@ -2,7 +2,7 @@
 """
 from django.conf.urls import url
 
-import views
+from core_parser_app.tools.modules.examples import views
 
 urlpatterns = [
     url(r'positive-integer', views.positive_integer,

@@ -1,6 +1,5 @@
 from django.conf.urls import url
-
-import views
+from core_parser_app.tools.modules.diffusion import views
 
 urlpatterns = [
     url(r'^periodic-table$', views.periodic_table_view,

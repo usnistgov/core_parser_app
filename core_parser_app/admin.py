@@ -3,7 +3,7 @@ Url router for the administration views
 """
 from django.contrib import admin
 from django.conf.urls import url
-from views.admin import views as admin_views
+from core_parser_app.views.admin import views as admin_views
 
 
 admin_urls = [

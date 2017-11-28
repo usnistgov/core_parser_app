@@ -1,7 +1,7 @@
 """Auto discovery of modules
 """
 from django.http.request import HttpRequest
-import urls
+from core_parser_app.tools.modules import urls
 import re
 from django.core.urlresolvers import RegexURLResolver, RegexURLPattern
 from django.contrib.admindocs.views import simplify_regex
