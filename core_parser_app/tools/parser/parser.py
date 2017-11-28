@@ -504,7 +504,7 @@ def is_key_ref(request, element, db_element, full_path):
         xpath = re.sub(r'{}:'.format(prefix), '', xpath)
     for keyref in request.session['keyrefs'].keys():
         if request.session['keyrefs'][keyref]['xpath'] == xpath:
-            add_appinfo_child_to_element(element, MODULE_TAG_NAME, '/core/auto-keyref?keyref={}'.format(keyref))
+            add_appinfo_child_to_element(element, MODULE_TAG_NAME, 'module-auto-keyref?keyref={}'.format(keyref))
             return True
     return False
 

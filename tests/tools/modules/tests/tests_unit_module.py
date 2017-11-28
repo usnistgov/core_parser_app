@@ -1,18 +1,16 @@
 """Module system unit testing
 """
+import json
 from unittest.case import TestCase
-from mock.mock import Mock, patch
+
 from bson.objectid import ObjectId
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBadRequest
+from mock.mock import Mock, patch
 
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 from core_parser_app.tools.modules.exceptions import ModuleError
-from core_parser_app.tools.modules.module import AbstractModule
-import json
-import os
-
-DATA_PATH = os.path.join(os.path.dirname(__file__), 'data')
+from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class TestGetResources(TestCase):
@@ -21,9 +19,9 @@ class TestGetResources(TestCase):
         scripts = ['script1.js', 'script2.js']
         styles = ['style1.css', 'style2.css']
 
-        module = ModuleImplementation(scripts=scripts, styles=styles)
+        module_object = ModuleImplementation(scripts=scripts, styles=styles)
 
-        response = module._get_resources()
+        response = module_object._get_resources()
 
         self.assertTrue(isinstance(response, HttpResponse))
 
@@ -31,9 +29,9 @@ class TestGetResources(TestCase):
         scripts = ['script1.js', 'script2.js']
         styles = ['style1.css', 'style2.css']
 
-        module = ModuleImplementation(scripts=scripts, styles=styles)
+        module_object = ModuleImplementation(scripts=scripts, styles=styles)
 
-        response = module._get_resources()
+        response = module_object._get_resources()
         response_scripts = json.loads(response.content)['scripts']
 
         self.assertEquals(response_scripts, scripts)
@@ -42,58 +40,49 @@ class TestGetResources(TestCase):
         scripts = ['script1.js', 'script2.js']
         styles = ['style1.css', 'style2.css']
 
-        module = ModuleImplementation(scripts=scripts, styles=styles)
+        module_object = ModuleImplementation(scripts=scripts, styles=styles)
 
-        response = module._get_resources()
+        response = module_object._get_resources()
         response_styles = json.loads(response.content)['styles']
 
         self.assertEquals(response_styles, styles)
 
 
-class TestRenderModule(TestCase):
-
-    def test_render_module_returns_html_string(self):
-        template_path = os.path.join(DATA_PATH, 'template.html')
-
-        html_string = AbstractModule.render_module(template_path)
-
-        with open(template_path, 'r') as template_file:
-            expected_string = template_file.read()
-
-        self.assertEquals(html_string, expected_string)
-
-
 class TestGet(TestCase):
+    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_module')
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
-    def test_get_returns_http_response(self, data_structure_element_get_by_id):
+    def test_get_returns_http_response(self, data_structure_element_get_by_id, render_module):
         request = HttpRequest()
         request.GET = {
             'module_id': str(ObjectId()),
             'url': '/url',
         }
-        module = ModuleImplementation()
+        module_object = ModuleImplementation()
 
         data_structure_element_get_by_id.return_value = _create_mock_data_structure_element()
+        render_module.return_value = ""
 
-        response = module._get(request)
+        response = module_object.get(request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
+    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_module')
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
-    def test_get_http_response_contains_module_values(self, data_structure_element_get_by_id):
+    def test_get_data_structure_element_contains_module_values(self, data_structure_element_get_by_id, render_module):
         request = HttpRequest()
         request.GET = {
             'module_id': str(ObjectId()),
             'url': '/url',
         }
-        module = ModuleImplementation()
+        module_object = ModuleImplementation()
 
-        data_structure_element_get_by_id.return_value = _create_mock_data_structure_element()
+        data_structure_element = _create_mock_data_structure_element()
+        data_structure_element_get_by_id.return_value = data_structure_element
+        render_module.return_value = ""
 
-        response = module._get(request)
+        module_object.get(request)
 
-        self.assertTrue(module._get_module(request) in response.content)
-        self.assertTrue(module._get_display(request) in response.content)
+        self.assertTrue(data_structure_element.options['data'] == "get module result")
 
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
     def test_get_http_response_raises_error_when_module_returns_None(self, data_structure_element_get_by_id):
@@ -102,12 +91,12 @@ class TestGet(TestCase):
             'module_id': str(ObjectId()),
             'url': '/url',
         }
-        module = ModuleImplementationNone()
+        module_object = ModuleImplementationNone()
 
         data_structure_element_get_by_id.return_value = _create_mock_data_structure_element()
 
         with self.assertRaises(ModuleError):
-            module._get(request)
+            module_object._get(request)
 
 
 class TestPost(TestCase):
@@ -116,41 +105,46 @@ class TestPost(TestCase):
         request = HttpRequest()
         request.POST = {}
 
-        module = ModuleImplementation()
-        response = module._post(request)
+        module_object = ModuleImplementation()
+        response = module_object.post(request)
 
         self.assertTrue(isinstance(response, HttpResponseBadRequest))
 
+    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_module')
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
-    def test_post_returns_http_response(self, data_structure_element_get_by_id):
+    def test_post_returns_http_response(self, data_structure_element_get_by_id, render_module):
         request = HttpRequest()
         request.POST = {
             'module_id': str(ObjectId()),
         }
 
-        module = ModuleImplementation()
+        module_object = ModuleImplementation()
 
         data_structure_element_get_by_id.return_value = _create_mock_data_structure_element()
+        render_module.return_value = ""
 
-        response = module._post(request)
+        response = module_object.post(request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
+    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_module')
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
-    def test_post_response_contains_module_values(self, data_structure_element_get_by_id):
+    def test_post_data_structure_element_contains_module_values(self, data_structure_element_get_by_id, render_module):
         request = HttpRequest()
         request.POST = {
             'module_id': str(ObjectId()),
         }
 
-        module = ModuleImplementation()
+        module_object = ModuleImplementation()
 
-        data_structure_element_get_by_id.return_value = _create_mock_data_structure_element()
+        data_structure_element = _create_mock_data_structure_element()
+        data_structure_element_get_by_id.return_value = data_structure_element
+        render_module.return_value = ""
 
-        response = module._post(request)
+        response = module_object.post(request)
         response_html = json.loads(response.content)['html']
 
-        self.assertTrue(module._post_display(request) in response_html)
+        self.assertTrue(data_structure_element.options['data'] == "post module result")
 
 
 def _create_mock_data_structure_element():

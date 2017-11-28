@@ -1,11 +1,13 @@
 """ Integration test of Data structure element
 """
-from core_parser_app.components.data_structure_element.models import DataStructureElement
-from core_parser_app.components.data_structure_element import api as api_data_structure_element
-from tests.components.data_structure_element.fixtures.fixtures import DataFixtures
-from core_main_app.utils.integration_tests.integration_base_test_case import MongoIntegrationBaseTestCase
-from core_main_app.commons import exceptions
 from bson.objectid import ObjectId
+
+from core_main_app.commons import exceptions
+from core_main_app.utils.integration_tests.integration_base_test_case import MongoIntegrationBaseTestCase
+from core_parser_app.components.data_structure_element import api as api_data_structure_element
+from core_parser_app.components.data_structure_element.models import DataStructureElement
+# TODO: see why can't use from tests.components.data_structure_element.fixtures.fixtures import DataFixtures
+from .fixtures.fixtures import DataFixtures
 
 fixture_data = DataFixtures()
 

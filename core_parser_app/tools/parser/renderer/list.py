@@ -1,10 +1,13 @@
 """List Renderer class
 """
 import logging
-from types import *
-from django.template import loader
 from os.path import join
-from core_parser_app.tools.modules.module import AbstractModule
+from types import *
+
+from django.template import loader
+
+from core_parser_app.components.module import api as module_api
+from core_parser_app.tools.modules.views.module import AbstractModule
 from core_parser_app.tools.parser.renderer import DefaultRenderer
 
 logger = logging.getLogger(__name__)
@@ -683,7 +686,8 @@ class ListRenderer(AbstractListRenderer):
         module_options = element.options
         module_url = module_options['url']
 
-        module_view = AbstractModule.get_module_view(module_url)
+        module = module_api.get_by_url(module_url)
+        module_view = AbstractModule.get_view_from_view_path(module.view).as_view()
 
         module_request = self.request
         module_request.method = 'GET'

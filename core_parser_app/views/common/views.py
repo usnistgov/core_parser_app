@@ -1,15 +1,15 @@
 """
     Common views
 """
+from django.contrib.staticfiles import finders
 from django.http.response import HttpResponseBadRequest
-from core_main_app.utils.rendering import render
-from core_main_app.components.version_manager import api as version_manager_api
 
-from core_parser_app.settings import MODULE_TAG_NAME, MODULES_ROOT
-from core_main_app.utils.xml import xsl_transform
 from core_main_app.components.template import api as template_api
+from core_main_app.components.version_manager import api as version_manager_api
+from core_main_app.utils.rendering import render
+from core_main_app.utils.xml import xsl_transform
 from core_parser_app.components.module import api as module_api
-from os.path import join
+from core_parser_app.settings import MODULE_TAG_NAME
 
 
 def manage_template_modules(request, template_id):
@@ -64,7 +64,7 @@ def get_context(template_id):
     # get the template
     template = template_api.get(template_id)
     # Get path to XSLT file
-    xslt_path = join(MODULES_ROOT, 'resources', 'xsl', 'xsd2html4modules.xsl')
+    xslt_path = finders.find('core_parser_app/xsl/xsd2html4modules.xsl')
     xsd_tree_html = xsl_transform(template.content, read_and_update_xslt_with_settings(xslt_path))
     # Get list of modules
     modules = module_api.get_all()

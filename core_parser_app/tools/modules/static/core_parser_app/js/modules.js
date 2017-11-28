@@ -57,7 +57,7 @@ var saveModuleData = function($module, modData, asyncOpt) {
     }
 
     var ajaxOptions = {
-        url : modulesUrl + moduleURL.substring(1),
+        url : '/' + moduleURL,
         type : "POST",
         dataType: "json",
         data: modData,

@@ -81,9 +81,9 @@ def add_module(template, module_id, xpath):
 
     """
     # get the module
-    module = get_by_id(module_id)
+    module_object = get_by_id(module_id)
 
-    template.content = add_appinfo_element(template.content, xpath, MODULE_TAG_NAME, module.url)
+    template.content = add_appinfo_element(template.content, xpath, MODULE_TAG_NAME, module_object.url)
     return template_api.upsert(template)
 
 
