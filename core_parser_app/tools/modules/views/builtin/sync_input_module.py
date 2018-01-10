@@ -8,14 +8,15 @@ class SyncInputModule(AbstractModule):
     """Synchronous input module
     """
     def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, modclass=None, disabled=False):
-        """Initializes the module
+        """ Initialize the module
 
-        :param scripts:
-        :param styles:
-        :param label:
-        :param default_value:
-        :param modclass:
-        :param disabled:
+        Args:
+            scripts:
+            styles:
+            label:
+            default_value:
+            modclass:
+            disabled:
         """
         scripts = ['core_parser_app/js/builtin/sync_input.js'] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
@@ -28,11 +29,14 @@ class SyncInputModule(AbstractModule):
         self.default_value = default_value
         self.disabled = disabled
 
-    def get_module(self, request):
-        """Returns the module
+    def _render_module(self, request):
+        """ Return module's rendering
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
 
         params = {'class': self.modclass}
@@ -42,4 +46,26 @@ class SyncInputModule(AbstractModule):
             params.update({"default_value": self.default_value})
         if self.disabled is not None:
             params.update({"disabled": self.disabled})
-        return AbstractModule.render_module('core_parser_app/builtin/sync_input.html', params)
+        return AbstractModule.render_template('core_parser_app/builtin/sync_input.html', params)
+
+    def _retrieve_data(self, request):
+        """ Retrieve module's data
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_retrieve_data method is not implemented.")
+
+    def _render_data(self, request):
+        """ Retrieve module's data rendering
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_render_data method is not implemented.")

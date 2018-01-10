@@ -7,18 +7,19 @@ from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class CheckboxesModule(AbstractModule):
-    """Checbox module
+    """ Checkboxes module
     """
 
     def __init__(self, scripts=list(), styles=list(), label=None, name=None, options=None, selected=list()):
-        """Initializes the module
+        """ Initialize the module
 
-        :param scripts:
-        :param styles:
-        :param label:
-        :param name:
-        :param options:
-        :param selected:
+        Args:
+            scripts:
+            styles:
+            label:
+            name:
+            options:
+            selected:
         """
         scripts = ['core_parser_app/js/builtin/checkboxes.js'] + scripts
         styles = ['core_parser_app/css/builtin/checkboxes.css'] + styles
@@ -34,11 +35,15 @@ class CheckboxesModule(AbstractModule):
     # FIXME: use a template to generate the HTML of the checkbox
     @staticmethod
     def _create_html_checkbox(input_key, input_value, checked=False):
-        """Returns the html of the checkbox
+        """ Return the html of the checkboxes
 
-        :param input_value:
-        :param checked:
-        :return:
+        Args:
+            input_key:
+            input_value:
+            checked:
+
+        Returns:
+
         """
         input_tag = '<input type="checkbox" '
         if checked:
@@ -47,11 +52,14 @@ class CheckboxesModule(AbstractModule):
 
         return '<span>' + input_tag + '</span>'
 
-    def get_module(self, request):
-        """Returns the module
+    def _render_module(self, request):
+        """ Return the module
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
         # Compute number of items in each columns
         col_nb = 3
@@ -85,4 +93,26 @@ class CheckboxesModule(AbstractModule):
         if self.label is not None:
             params.update({"label": self.label})
 
-        return AbstractModule.render_module('core_parser_app/builtin/checkboxes.html', params)
+        return AbstractModule.render_template('core_parser_app/builtin/checkboxes.html', params)
+
+    def _retrieve_data(self, request):
+        """ Retrieve module's data
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_retrieve_data method is not implemented.")
+
+    def _render_data(self, request):
+        """ Retrieve module's data rendering
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_render_data method is not implemented.")

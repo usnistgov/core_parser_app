@@ -8,70 +8,55 @@ class AutoCompleteModule(AbstractModule):
     """
 
     def __init__(self, scripts=list(), styles=list(), label=None):
-        """Initializes the module
+        """ Initialize the module
 
-        :param scripts:
-        :param styles:
-        :param label:
+        Args:
+            scripts:
+            styles:
+            label:
         """
         scripts = ['core_parser_app/js/builtin/autocomplete.js'] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
 
         self.label = label
 
-    def get_module(self, request):
-        """Returns the module
+    def _render_module(self, request):
+        """ Return the module
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
         params = {}
 
-        if 'data' in request.GET:
-            params['value'] = request.GET['data']
+        if self.data != '':
+            params['value'] = self.data
 
         if self.label is not None:
             params.update({"label": self.label})
 
-        return AbstractModule.render_module('core_parser_app/builtin/autocomplete.html', params)
+        return AbstractModule.render_template('core_parser_app/builtin/autocomplete.html', params)
 
-    # Unimplemented method (to be implemented by children classes)
-    def _get_module(self, request):
-        """
+    def _retrieve_data(self, request):
+        """ Retrieve module's data
 
-        :param request:
-        :return:
-        """
-        AbstractModule._get_module(self, request)
+        Args:
+            request:
 
-    def _get_display(self, request):
-        """
+        Returns:
 
-        :param request:
-        :return:
         """
-        AbstractModule._get_display(self, request)
+        raise NotImplementedError("_retrieve_data method is not implemented.")
 
-    def _get_result(self, request):
-        """
+    def _render_data(self, request):
+        """ Retrieve module's data rendering
 
-        :param request:
-        :return:
-        """
-        AbstractModule._get_result(self, request)
+        Args:
+            request:
 
-    def _post_display(self, request):
-        """
+        Returns:
 
-        :param request:
-        :return:
         """
-        AbstractModule._post_display(self, request)
-
-    def _post_result(self, request):
-        """
-
-        :param request:
-        :return:
-        """
-        AbstractModule._post_result(self, request)
+        raise NotImplementedError("_render_data method is not implemented.")

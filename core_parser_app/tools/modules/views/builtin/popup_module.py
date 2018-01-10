@@ -8,12 +8,13 @@ class PopupModule(AbstractModule):
     """Popup module
     """
     def __init__(self, scripts=list(), styles=list(), popup_content=None, button_label='Save'):
-        """Initializes the module
+        """ Initialize module
 
-        :param scripts:
-        :param styles:
-        :param popup_content:
-        :param button_label:
+        Args:
+            scripts:
+            styles:
+            popup_content:
+            button_label:
         """
         scripts = ['core_parser_app/js/builtin/popup.js'] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
@@ -23,15 +24,40 @@ class PopupModule(AbstractModule):
         self.popup_content = popup_content
         self.button_label = button_label
 
-    def get_module(self, request):
-        """Returns the module
+    def _render_module(self, request):
+        """ Return module's rendering
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
         params = {
             "popup_content": self.popup_content,
             "button_label": self.button_label
         }
 
-        return AbstractModule.render_module('core_parser_app/builtin/popup.html', params)
+        return AbstractModule.render_template('core_parser_app/builtin/popup.html', params)
+
+    def _retrieve_data(self, request):
+        """ Retrieve module's data
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_retrieve_data method is not implemented.")
+
+    def _render_data(self, request):
+        """ Retrieve module's data rendering
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_render_data method is not implemented.")

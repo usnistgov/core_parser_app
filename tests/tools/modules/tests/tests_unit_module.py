@@ -49,9 +49,9 @@ class TestGetResources(TestCase):
 
 
 class TestGet(TestCase):
-    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_module')
+    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_template')
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
-    def test_get_returns_http_response(self, data_structure_element_get_by_id, render_module):
+    def test_get_returns_http_response(self, data_structure_element_get_by_id, render_template):
         request = HttpRequest()
         request.GET = {
             'module_id': str(ObjectId()),
@@ -60,15 +60,15 @@ class TestGet(TestCase):
         module_object = ModuleImplementation()
 
         data_structure_element_get_by_id.return_value = _create_mock_data_structure_element()
-        render_module.return_value = ""
+        render_template.return_value = ""
 
         response = module_object.get(request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
-    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_module')
+    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_template')
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
-    def test_get_data_structure_element_contains_module_values(self, data_structure_element_get_by_id, render_module):
+    def test_get_data_structure_element_contains_module_values(self, data_structure_element_get_by_id, render_template):
         request = HttpRequest()
         request.GET = {
             'module_id': str(ObjectId()),
@@ -78,11 +78,11 @@ class TestGet(TestCase):
 
         data_structure_element = _create_mock_data_structure_element()
         data_structure_element_get_by_id.return_value = data_structure_element
-        render_module.return_value = ""
+        render_template.return_value = ""
 
         module_object.get(request)
 
-        self.assertTrue(data_structure_element.options['data'] == "get module result")
+        self.assertTrue(data_structure_element.options['data'] == "module result")
 
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
     def test_get_http_response_raises_error_when_module_returns_None(self, data_structure_element_get_by_id):
@@ -110,9 +110,9 @@ class TestPost(TestCase):
 
         self.assertTrue(isinstance(response, HttpResponseBadRequest))
 
-    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_module')
+    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_template')
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
-    def test_post_returns_http_response(self, data_structure_element_get_by_id, render_module):
+    def test_post_returns_http_response(self, data_structure_element_get_by_id, render_template):
         request = HttpRequest()
         request.POST = {
             'module_id': str(ObjectId()),
@@ -121,15 +121,16 @@ class TestPost(TestCase):
         module_object = ModuleImplementation()
 
         data_structure_element_get_by_id.return_value = _create_mock_data_structure_element()
-        render_module.return_value = ""
+        render_template.return_value = ""
 
         response = module_object.post(request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
-    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_module')
+    @patch('core_parser_app.tools.modules.views.module.AbstractModule.render_template')
     @patch('core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id')
-    def test_post_data_structure_element_contains_module_values(self, data_structure_element_get_by_id, render_module):
+    def test_post_data_structure_element_contains_module_values(self, data_structure_element_get_by_id,
+                                                                render_template):
         request = HttpRequest()
         request.POST = {
             'module_id': str(ObjectId()),
@@ -139,12 +140,12 @@ class TestPost(TestCase):
 
         data_structure_element = _create_mock_data_structure_element()
         data_structure_element_get_by_id.return_value = data_structure_element
-        render_module.return_value = ""
+        render_template.return_value = ""
 
         response = module_object.post(request)
         response_html = json.loads(response.content)['html']
 
-        self.assertTrue(data_structure_element.options['data'] == "post module result")
+        self.assertTrue(data_structure_element.options['data'] == "module result")
 
 
 def _create_mock_data_structure_element():
@@ -162,35 +163,23 @@ def _create_mock_data_structure_element():
 
 class ModuleImplementation(AbstractModule):
 
-    def _get_module(self, request):
-        return "get module content"
+    def _render_module(self, request):
+        return "module content"
 
-    def _get_display(self, request):
-        return "get module display"
+    def _retrieve_data(self, request):
+        return "module result"
 
-    def _get_result(self, request):
-        return "get module result"
-
-    def _post_display(self, request):
-        return "post module display"
-
-    def _post_result(self, request):
-        return "post module result"
+    def _render_data(self, request):
+        return "module display"
 
 
 class ModuleImplementationNone(AbstractModule):
 
-    def _get_module(self, request):
+    def _render_module(self, request):
         return None
 
-    def _get_display(self, request):
+    def _retrieve_data(self, request):
         return None
 
-    def _get_result(self, request):
-        return None
-
-    def _post_display(self, request):
-        return None
-
-    def _post_result(self, request):
+    def _render_data(self, request):
         return None

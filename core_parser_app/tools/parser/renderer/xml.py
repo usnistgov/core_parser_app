@@ -581,5 +581,5 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         return [
             '',
-            element.options['data'],
+            element.options['data'] if 'data' in element.options else '',
         ]

@@ -8,14 +8,15 @@ class OptionsModule(AbstractModule):
     """
 
     def __init__(self, scripts=list(), styles=list(), label=None, options=None, disabled=False, selected=None):
-        """Initializes the module
+        """ Initialize module
 
-        :param scripts:
-        :param styles:
-        :param label:
-        :param options:
-        :param disabled:
-        :param selected:
+        Args:
+            scripts:
+            styles:
+            label:
+            options:
+            disabled:
+            selected:
         """
         if options is None:
             options = {}
@@ -28,11 +29,14 @@ class OptionsModule(AbstractModule):
         self.disabled = disabled
         self.selected = selected
 
-    def get_module(self, request):
-        """Returns the module
+    def _render_module(self, request):
+        """ Return module's rendering
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
         options_html = ""
 
@@ -53,4 +57,26 @@ class OptionsModule(AbstractModule):
         if self.disabled is not None:
             params.update({"disabled": self.disabled})
 
-        return AbstractModule.render_module('core_parser_app/builtin/options.html', params)
+        return AbstractModule.render_template('core_parser_app/builtin/options.html', params)
+
+    def _retrieve_data(self, request):
+        """ Retrieve module's data
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_retrieve_data method is not implemented.")
+
+    def _render_data(self, request):
+        """ Retrieve module's data rendering
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_render_data method is not implemented.")

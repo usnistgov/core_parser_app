@@ -38,6 +38,9 @@ class AbstractModule(View):
         # Skeleton of the modules
         self.template_name = 'core_parser_app/module.html'
 
+        # initialize data
+        self.data = None
+
     def get(self, request, *args, **kwargs):
         """ Manage the GET requests
 
@@ -76,16 +79,19 @@ class AbstractModule(View):
         }
 
         try:
-            # get values from module
-            template_data['module'] = self._get_module(request)
-            template_data['display'] = self._get_display(request)
+            # retrieve module's data
+            self.data = self._retrieve_data(request)
+            # get module's rendering
+            template_data['module'] = self._render_module(request)
+            # get nodule's data rendering
+            template_data['display'] = self._render_data(request)
 
             # get module element
             module_element = data_structure_element_api.get_by_id(module_id)
             # get its options
             options = module_element.options
             # update module element data
-            options['data'] = self._get_result(request)
+            options['data'] = self.data
             # set updated options
             module_element.options = options
             # save module element
@@ -101,7 +107,7 @@ class AbstractModule(View):
         # TODO Add additional checks
 
         # Apply tags to the template
-        html_string = AbstractModule.render_module(self.template_name, template_data)
+        html_string = AbstractModule.render_template(self.template_name, template_data)
         return HttpResponse(html_string, status=HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
@@ -125,17 +131,17 @@ class AbstractModule(View):
                 return HttpResponseBadRequest({'error': 'No "module_id" parameter provided'})
 
             module_element = data_structure_element_api.get_by_id(request.POST['module_id'])
-            template_data['display'] = self._post_display(request)
+            # retrieve module's data
+            self.data = self._retrieve_data(request)
+            template_data['display'] = self._render_data(request)
             options = module_element.options
 
-            # TODO temporary solution
-            post_result = self._post_result(request)
-
-            if type(post_result) == dict:
-                options['data'] = self._post_result(request)['data']
-                options['attributes'] = self._post_result(request)['attributes']
+            # TODO: needs to be updated
+            if type(self.data) == dict:
+                options['data'] = self.data['data']
+                options['attributes'] = self.data['attributes']
             else:
-                options['data'] = post_result
+                options['data'] = self.data
 
             # TODO Implement this system instead
             # options['content'] = self._get_content(request)
@@ -146,7 +152,7 @@ class AbstractModule(View):
         except Exception, e:
             raise ModuleError('Something went wrong during module update: ' + e.message)
 
-        html_code = AbstractModule.render_module(self.template_name, template_data)
+        html_code = AbstractModule.render_template(self.template_name, template_data)
 
         response_dict = dict()
         response_dict['html'] = html_code
@@ -167,49 +173,40 @@ class AbstractModule(View):
         return HttpResponse(json.dumps(response), status=HTTP_200_OK)
 
     @abstractmethod
-    def _get_module(self, request):
-        """Returns the module content
+    def _render_module(self, request):
+        """ Render the module content
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
-        raise NotImplementedError("_get_module method is not implemented.")
+        raise NotImplementedError("_render_module method is not implemented.")
 
     @abstractmethod
-    def _get_display(self, request):
-        """Returns the results to display after a GET request
+    def _retrieve_data(self, request):
+        """ Retrieve module's data
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
-        raise NotImplementedError("_get_display method is not implemented.")
+        raise NotImplementedError("_retrieve_data method is not implemented.")
 
     @abstractmethod
-    def _get_result(self, request):
-        """Returns the results to store after a GET request
+    def _render_data(self, request):
+        """ Return the module's data representation
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
-        raise NotImplementedError("_get_result method is not implemented.")
-
-    @abstractmethod
-    def _post_display(self, request):
-        """Returns the results to display after a POST request
-
-        :param request:
-        :return:
-        """
-        raise NotImplementedError("_post_display method is not implemented.")
-
-    @abstractmethod
-    def _post_result(self, request):
-        """Returns the results to store after a GET request
-
-        :param request:
-        :return:
-        """
-        raise NotImplementedError("_post_result method is not implemented.")
+        raise NotImplementedError("_render_data method is not implemented.")
 
     @staticmethod
     def get_module_view(url):
@@ -238,7 +235,7 @@ class AbstractModule(View):
         return getattr(imported_pkgs, func)
 
     @staticmethod
-    def render_module(template_name, context=None):
+    def render_template(template_name, context=None):
         """ Renders the module in HTML using django template
 
         Args:

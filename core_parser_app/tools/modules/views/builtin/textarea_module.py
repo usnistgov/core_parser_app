@@ -8,12 +8,14 @@ class TextAreaModule(AbstractModule):
     """Text Area module
     """
     def __init__(self, scripts=list(), styles=list(), label=None, data=''):
-        """Initializes the module
+        """ Initialize module
 
-        :param scripts:
-        :param styles:
-        :param label:
-        :param data:
+        Args:
+
+            scripts:
+            styles:
+            label:
+            data:
         """
         scripts = ['core_parser_app/js/builtin/textarea.js'] + scripts
         styles = ['core_parser_app/css/builtin/textarea.css'] + styles
@@ -22,13 +24,38 @@ class TextAreaModule(AbstractModule):
         self.label = label
         self.data = data
 
-    def get_module(self, request):
-        """Returns the module
+    def _render_module(self, request):
+        """ Return module's rendering
 
-        :param request:
-        :return:
+        Args:
+            request:
+
+        Returns:
+
         """
         params = {"label": self.label,
                   'data': self.data}
 
-        return AbstractModule.render_module('core_parser_app/builtin/textarea.html', params)
+        return AbstractModule.render_template('core_parser_app/builtin/textarea.html', params)
+
+    def _retrieve_data(self, request):
+        """ Retrieve module's data
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_retrieve_data method is not implemented.")
+
+    def _render_data(self, request):
+        """ Retrieve module's data rendering
+
+        Args:
+            request:
+
+        Returns:
+
+        """
+        raise NotImplementedError("_render_data method is not implemented.")
