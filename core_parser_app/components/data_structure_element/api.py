@@ -1,5 +1,6 @@
 """API for Data Structure Element
 """
+from core_main_app.commons.exceptions import DoesNotExist
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 
 
@@ -74,3 +75,21 @@ def add_to_set(data_structure_element, children):
     """
     data_structure_element.update(add_to_set__children=children)
     data_structure_element.reload()
+
+
+def get_root_element(data_structure_element):
+    """ Return element's root
+
+    Args:
+        data_structure_element:
+
+    Returns:
+
+    """
+    current_element = data_structure_element
+    parent_list = get_all_by_child_id(current_element.id)
+    while len(parent_list) > 0:
+        current_element = parent_list[0]
+        parent_list = get_all_by_child_id(current_element.id)
+
+    return current_element

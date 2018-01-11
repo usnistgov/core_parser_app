@@ -65,3 +65,93 @@ class DataFixtures(FixtureInterface):
                                                   data_structure_element_1,
                                                   data_structure_element_2,
                                                   data_structure_element_3]
+
+
+class DataStructureElementMultipleLevelsFixture(FixtureInterface):
+    """ Represents Data structure element fixtures
+    """
+    data_structure_element_1_1_2_1 = None
+    data_structure_element_1_1_1 = None
+    data_structure_element_1_1_2 = None
+    data_structure_element_1_1_3 = None
+    data_structure_element_1_1 = None
+    data_structure_element_1 = None
+    data_structure_element_2 = None
+    data_structure_element_root = None
+    data_structure_element_test = None
+    data_structure_element_root_2 = None
+    data_structure_element_collection = None
+
+    def insert_data(self):
+        """ Insert a set of Data
+
+        Returns:
+
+        """
+        # Make a connexion with a mock database
+        self.generate_data_structure_element()
+
+    def generate_data_structure_element(self):
+        """ Insert data structure elements on multiple levels in mock database
+
+
+        Root -> 1 -> 1_1 -> 1_1_1
+                         -> 1_1_2 -> 1_1_2_1
+                         -> 1_1_3
+             -> 2
+
+
+        Root2 -> test
+
+        Returns:
+
+        """
+        # children build
+
+        self.data_structure_element_1_1_2_1 = DataStructureElement('tag_1_1_2_1',
+                                                                   'value_1_1_2_1').save()
+
+        self.data_structure_element_1_1_1 = DataStructureElement('tag_1_1_1',
+                                                                 'value_1_1_1').save()
+        self.data_structure_element_1_1_2 = DataStructureElement('tag_1_1_2',
+                                                                 'value_1_1_2',
+                                                                 children=[self.data_structure_element_1_1_2_1]).save()
+        self.data_structure_element_1_1_3 = DataStructureElement('tag_1_1_3',
+                                                                 'value_1_1_3').save()
+
+        self.data_structure_element_1_1 = DataStructureElement('tag_1_1',
+                                                               'value_1_1',
+                                                               children=[self.data_structure_element_1_1_1,
+                                                                         self.data_structure_element_1_1_2,
+                                                                         self.data_structure_element_1_1_3]).save()
+
+        self.data_structure_element_1 = DataStructureElement('tag_1',
+                                                             'value_1',
+                                                             children=[self.data_structure_element_1_1]).save()
+
+        self.data_structure_element_2 = DataStructureElement('tag_2',
+                                                             'value_2').save()
+
+        self.data_structure_element_root = DataStructureElement('root',
+                                                                'root',
+                                                                children=[self.data_structure_element_1,
+                                                                          self.data_structure_element_2]).save()
+
+        self.data_structure_element_test = DataStructureElement('test',
+                                                                'test').save()
+
+        self.data_structure_element_root_2 = DataStructureElement('root2',
+                                                                  'root2',
+                                                                  children=[self.data_structure_element_test]).save()
+
+        # build a collection of data structure element
+        self.data_structure_element_collection = [self.data_structure_element_root,
+                                                  self.data_structure_element_1,
+                                                  self.data_structure_element_2,
+                                                  self.data_structure_element_1_1,
+                                                  self.data_structure_element_1_1_1,
+                                                  self.data_structure_element_1_1_2,
+                                                  self.data_structure_element_1_1_3,
+                                                  self.data_structure_element_1_1_2_1,
+                                                  self.data_structure_element_root_2,
+                                                  self.data_structure_element_test]
