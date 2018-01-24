@@ -1,12 +1,15 @@
 """ Text area Module
 """
+from abc import ABCMeta
 
 from core_parser_app.tools.modules.views.module import AbstractModule
 
 
-class TextAreaModule(AbstractModule):
+class AbstractTextAreaModule(AbstractModule):
     """Text Area module
     """
+    __metaclass__ = ABCMeta
+
     def __init__(self, scripts=list(), styles=list(), label=None, data=''):
         """ Initialize module
 
@@ -38,24 +41,3 @@ class TextAreaModule(AbstractModule):
 
         return AbstractModule.render_template('core_parser_app/builtin/textarea.html', params)
 
-    def _retrieve_data(self, request):
-        """ Retrieve module's data
-
-        Args:
-            request:
-
-        Returns:
-
-        """
-        raise NotImplementedError("_retrieve_data method is not implemented.")
-
-    def _render_data(self, request):
-        """ Retrieve module's data rendering
-
-        Args:
-            request:
-
-        Returns:
-
-        """
-        raise NotImplementedError("_render_data method is not implemented.")

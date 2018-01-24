@@ -1,14 +1,16 @@
 """ Checkboxes Module
 """
+from abc import ABCMeta
 from math import ceil
 
 from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.views.module import AbstractModule
 
 
-class CheckboxesModule(AbstractModule):
+class AbstractCheckboxesModule(AbstractModule):
     """ Checkboxes module
     """
+    __metaclass__ = ABCMeta
 
     def __init__(self, scripts=list(), styles=list(), label=None, name=None, options=None, selected=list()):
         """ Initialize the module
@@ -94,25 +96,3 @@ class CheckboxesModule(AbstractModule):
             params.update({"label": self.label})
 
         return AbstractModule.render_template('core_parser_app/builtin/checkboxes.html', params)
-
-    def _retrieve_data(self, request):
-        """ Retrieve module's data
-
-        Args:
-            request:
-
-        Returns:
-
-        """
-        raise NotImplementedError("_retrieve_data method is not implemented.")
-
-    def _render_data(self, request):
-        """ Retrieve module's data rendering
-
-        Args:
-            request:
-
-        Returns:
-
-        """
-        raise NotImplementedError("_render_data method is not implemented.")

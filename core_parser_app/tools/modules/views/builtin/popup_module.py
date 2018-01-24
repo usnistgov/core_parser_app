@@ -1,12 +1,16 @@
 """ Pop up module
 """
+from abc import ABCMeta
+
 from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.views.module import AbstractModule
 
 
-class PopupModule(AbstractModule):
+class AbstractPopupModule(AbstractModule):
     """Popup module
     """
+    __metaclass__ = ABCMeta
+
     def __init__(self, scripts=list(), styles=list(), popup_content=None, button_label='Save'):
         """ Initialize module
 
@@ -39,25 +43,3 @@ class PopupModule(AbstractModule):
         }
 
         return AbstractModule.render_template('core_parser_app/builtin/popup.html', params)
-
-    def _retrieve_data(self, request):
-        """ Retrieve module's data
-
-        Args:
-            request:
-
-        Returns:
-
-        """
-        raise NotImplementedError("_retrieve_data method is not implemented.")
-
-    def _render_data(self, request):
-        """ Retrieve module's data rendering
-
-        Args:
-            request:
-
-        Returns:
-
-        """
-        raise NotImplementedError("_render_data method is not implemented.")

@@ -1,11 +1,15 @@
 """ Input Button Module
 """
+from abc import ABCMeta
+
 from core_parser_app.tools.modules.views.module import AbstractModule
 
 
-class InputButtonModule(AbstractModule):
+class AbstractInputButtonModule(AbstractModule):
     """ Input Button module
     """
+    __metaclass__ = ABCMeta
+
     def __init__(self, scripts=list(), styles=list(), button_label='Send', label=None, default_value=None):
         """ Initialize the module
 
@@ -37,24 +41,3 @@ class InputButtonModule(AbstractModule):
             params.update({"default_value": self.default_value})
         return AbstractModule.render_template('core_parser_app/builtin/input_button.html', params)
 
-    def _retrieve_data(self, request):
-        """ Retrieve module's data
-
-        Args:
-            request:
-
-        Returns:
-
-        """
-        raise NotImplementedError("_retrieve_data method is not implemented.")
-
-    def _render_data(self, request):
-        """ Retrieve module's data rendering
-
-        Args:
-            request:
-
-        Returns:
-
-        """
-        raise NotImplementedError("_render_data method is not implemented.")
