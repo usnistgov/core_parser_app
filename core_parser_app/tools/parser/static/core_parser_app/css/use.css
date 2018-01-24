@@ -1,0 +1,7 @@
+input.recommended{
+	box-shadow: 0 0 3px blue;
+}
+
+input.required{
+	box-shadow: 0 0 3px red;
+}

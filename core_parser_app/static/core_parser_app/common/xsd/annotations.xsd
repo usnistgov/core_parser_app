@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+    <xs:element name="contacts">
+        <xs:annotation>
+            <xs:appinfo>
+                <label>List of Contacts</label>
+            </xs:appinfo>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="contact"
+                            type="Person"
+                            maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:appinfo>
+                                <label>Contact</label>
+                            </xs:appinfo>
+                        </xs:annotation>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="Person">
+        <xs:sequence>
+            <xs:element name="first_name" type="xs:string">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <label>First Name: </label>
+                        <placeholder>Enter your contact's first name</placeholder>
+                        <use>required</use>
+                        <tooltip>First Name of your contact</tooltip>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="middle_name" type="xs:string">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <label>Middle Name: </label>
+                        <placeholder>Enter your contact's middle name</placeholder>
+                        <use>recommended</use>
+                        <tooltip>Middle Name of your contact</tooltip>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="last_name" type="xs:string">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <label>Last Name: </label>
+                        <placeholder>Enter your contact's last name</placeholder>
+                        <use>recommended</use>
+                        <tooltip>Last Name of your contact</tooltip>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
