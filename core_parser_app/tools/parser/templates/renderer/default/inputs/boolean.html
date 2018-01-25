@@ -1,0 +1,5 @@
+<select id="{{ id }}" class="{{ class }} " {% if fixed %} disabled {% endif %}>
+    <option value=""></option>
+    <option value="true" {% if value == "0" or value == "true" %} selected="selected"{% endif %}>True</option>
+    <option value="false" {% if value == "1" or value == "false" %} selected="selected"{% endif %}>False</option>
+</select>

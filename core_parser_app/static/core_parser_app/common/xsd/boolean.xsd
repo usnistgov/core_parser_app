@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+    <xs:element name="root">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="element"
+                            type="BooleanType"
+                            maxOccurs="unbounded">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="BooleanType">
+        <xs:sequence>
+            <xs:element name="bool1" type="xs:boolean"/>
+            <xs:element name="bool2" type="xs:boolean" fixed="true"/>
+            <xs:element name="bool3" type="xs:boolean">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <label>Boolean: </label>
+                        <tooltip>Select 'true' or 'false'</tooltip>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

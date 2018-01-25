@@ -340,12 +340,16 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
         if attr not in element.attrib:  # element with type declared below it
             for i in range(len(list(element))):
                 if element[i].tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
-                                element[i].tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                        element[i].tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                     element_type = element[i]
                     break
         else:  # element with type attribute
             if element.attrib.get(attr) in get_xsd_types(default_prefix):
-                element_type = None
+                element_type = element.attrib.get(attr)
+                # if default prefix in type name
+                if element_type.startswith(default_prefix):
+                    # remove default prefix and ':'
+                    element_type = element_type[len(default_prefix)+1:]
             elif element.attrib.get(attr) is not None:  # FIXME is it possible?
                 # TODO: manage namespaces
                 # test if type of the element is a simpleType
@@ -734,7 +738,7 @@ class XSDParser(object):
                                                                        edit_data_tree=edit_data_tree)
                 else:  # len(complex_types) == 0
                     simple_types = xml_doc_tree.findall("./{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
-                    if len(simple_types) == 1: # 1 simple type found
+                    if len(simple_types) == 1:  # 1 simple type found
                         form_content = self.generate_simple_type(simple_types[0],
                                                                  xml_doc_tree,
                                                                  full_path="",
@@ -992,7 +996,7 @@ class XSDParser(object):
                 if _has_module:
                     xml_path = full_path
                     if not _is_multiple:
-                        xml_path = '{0}[{1}]'.format(full_path, str(x+1))
+                        xml_path = '{0}[{1}]'.format(full_path, str(x + 1))
 
                     module = self.generate_module(element, xsd_xpath, xml_path, xml_tree=xml_tree,
                                                   edit_data_tree=edit_data_tree)
@@ -1032,7 +1036,7 @@ class XSDParser(object):
 
                     default_value = default_value.strip()
 
-                    if element_type is None:  # no complex/simple type
+                    if not isinstance(element_type, etree._Element):  # no complex/simple type
                         placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
                         tooltip = format_tooltip(app_info['tooltip']) if 'tooltip' in app_info else ''
                         use = app_info['use'] if 'use' in app_info else ''
@@ -1043,6 +1047,7 @@ class XSDParser(object):
                                 'placeholder': placeholder,
                                 'tooltip': tooltip,
                                 'use': use,
+                                'input_type': element_type
                             },
                             'value': default_value
                         }
@@ -1050,7 +1055,8 @@ class XSDParser(object):
 
                         if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                             complex_type_result = self.generate_complex_type(element_type, xml_tree,
-                                                                             full_path=full_path + '[' + str(x + 1) + ']',
+                                                                             full_path=full_path + '[' + str(
+                                                                                 x + 1) + ']',
                                                                              edit_data_tree=edit_data_tree,
                                                                              default_value=default_value,
                                                                              is_fixed=is_fixed,
@@ -1973,7 +1979,7 @@ class XSDParser(object):
                         full_path = "/{0}".format(choiceChild.attrib['name'])
 
                 if choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
-                                choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                        choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
 
                     if choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                         result = self.generate_complex_type(choiceChild, xml_tree,
@@ -2338,15 +2344,15 @@ class XSDParser(object):
                                                                     download_enabled=download_enabled)
 
             # test if base is a built-in data types
-            if base_type is None:
+            if not isinstance(base_type, etree._Element):
                 db_element['children'].append(
-                        {
-                            'tag': 'input',
-                            'value': default_value,
-                            'options': {
-                                'fixed': is_fixed,
-                            }
+                    {
+                        'tag': 'input',
+                        'value': default_value,
+                        'options': {
+                            'fixed': is_fixed,
                         }
+                    }
                 )
             else:  # not a built-in data type
                 # fixed not allowed for extensions with base complex type
