@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+    <xs:element name="root">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="element"
+                            type="DateType"
+                            maxOccurs="unbounded">
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="DateType">
+        <xs:sequence>
+            <xs:element name="date1" type="xs:date"/>
+            <xs:element name="date2" type="xs:date" fixed="2018-01-01"/>
+            <xs:element name="date3" type="xs:date">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <label>Date: </label>
+                        <tooltip>Use the date picker to select a date</tooltip>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

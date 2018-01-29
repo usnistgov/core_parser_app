@@ -43,6 +43,7 @@ class DefaultRenderer(object):
             'select': loader.get_template(join(default_renderer_path, 'inputs', 'select.html')),
             'checkbox': loader.get_template(join(default_renderer_path, 'inputs', 'checkbox.html')),
             'boolean': loader.get_template(join(default_renderer_path, 'inputs', 'boolean.html')),
+            'date': loader.get_template(join(default_renderer_path, 'inputs', 'date.html')),
 
             'btn_add': loader.get_template(join(default_renderer_path, 'buttons', 'add.html')),
             'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html')),
@@ -153,6 +154,8 @@ class DefaultRenderer(object):
                 if element.options['input_type'] == 'boolean':
                     data['class'] = 'restriction'
                     return self._load_template('boolean', data)
+                elif element.options['input_type'] == 'date':
+                    return self._load_template('date', data)
 
         return self._load_template('input', data)
 

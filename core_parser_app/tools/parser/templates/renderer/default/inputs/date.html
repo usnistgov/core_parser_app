@@ -1,0 +1,4 @@
+<input type="date" id="{{ id }}" class="default"
+    {% if value %} value="{{ value | escape }}"{% else %} value=""{% endif %}
+    {% if tooltip != "" %} title="{{ tooltip }}"{% endif %}
+    {% if fixed %} disabled {% endif %} />
