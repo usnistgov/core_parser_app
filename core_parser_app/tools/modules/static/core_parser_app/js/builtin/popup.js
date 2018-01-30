@@ -1,5 +1,6 @@
 var openModule = null;
 var openPopUp = null;
+var initialState = null;
 var popUpOptions = [];
 
 closePopUp = function() {
@@ -10,13 +11,18 @@ closePopUp = function() {
     openPopUp = null;
 };
 
+closeAndRestorePopup = function() {
+    openPopUp.html(initialState);
+    closePopUp();
+}
+
 var defaultPopUpOptions = {
     modal: true,
     buttons: {
-        Cancel: closePopUp
+        Cancel: closeAndRestorePopup
     },
     close: function(event, ui) {
-        closePopUp();
+        closeAndRestorePopup();
     }
 };
 
@@ -27,7 +33,6 @@ configurePopUp = function(moduleURL, options, getDataFunction) {
         Save: function() {
             data = getDataFunction();            
             saveModuleData(openModule, data);
-            
             closePopUp();
         }
     };
@@ -41,7 +46,9 @@ $('body').on('click', '.mod_popup .open-popup', function(event) {
     openModule = $(this).parent().parent().parent();
 
     openModule.find('.mod_dialog').addClass('active_dialog');
-
     openPopUp = $('.active_dialog');
+
+    // save the initial state in case of canceling or closing the popup
+    initialState = $(openPopUp).html();
     openPopUp.dialog(popUpOptions[openModule.find('.moduleURL').text()]);
 });
