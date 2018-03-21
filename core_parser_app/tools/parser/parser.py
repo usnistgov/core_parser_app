@@ -312,7 +312,7 @@ def get_xml_element_data(xsd_element, xml_element):
 
 def get_element_type(element, xml_tree, namespaces, default_prefix, target_namespace_prefix, schema_location=None,
                      attr='type', download_enabled=True):
-    """get XSD type to render. Returns the tree where the type was found.
+    """ Get XSD type to render. Returns the tree where the type was found.
 
     Parameters:
         element: XML element
@@ -327,9 +327,11 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
     Returns the type if found
         - complexType
         - simpleType
+
     Returns None otherwise:
         - type from default namespace (xsd:...)
         - no type
+
     Returns:
         - tree where the type has been found
         - schema location where the type has been found

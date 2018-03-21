@@ -73,11 +73,10 @@ class XPathAccessor(object):
     
     @abstractmethod
     def set_XpathAccessor(self, request):
-        """Sets Xpath accessor
-            Method:
-                Set values of siblings
-            Input:
-                http request
+        """ Set xpath accessor
+
+        Args:
+            request: HTTP request
         """
         raise NotImplementedError("This method is not implemented.")  
     

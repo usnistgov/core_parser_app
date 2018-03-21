@@ -94,14 +94,15 @@ class DataStructureElementMultipleLevelsFixture(FixtureInterface):
     def generate_data_structure_element(self):
         """ Insert data structure elements on multiple levels in mock database
 
+        Example::
 
-        Root -> 1 -> 1_1 -> 1_1_1
-                         -> 1_1_2 -> 1_1_2_1
-                         -> 1_1_3
-             -> 2
+            Root -> 1 -> 1_1 -> 1_1_1
+                             -> 1_1_2 -> 1_1_2_1
+                             -> 1_1_3
+                 -> 2
 
+            Root2 -> test
 
-        Root2 -> test
 
         Returns:
 

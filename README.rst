@@ -1,4 +1,5 @@
-core_parser_app
+===============
+Core Parser App
 ===============
 
 XSD parser, renderers and modules for the curator core project.
