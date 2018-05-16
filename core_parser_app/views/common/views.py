@@ -3,6 +3,7 @@
 """
 from django.contrib.staticfiles import finders
 from django.http.response import HttpResponseBadRequest
+from django.urls import reverse
 
 from core_main_app.components.template import api as template_api
 from core_main_app.components.version_manager import api as version_manager_api
@@ -49,12 +50,12 @@ def manage_template_modules(request, template_id):
                       'core_parser_app/common/module_manager.html',
                       modals=modals,
                       assets=assets,
-                      context=get_context(template_id))
+                      context=get_context(template_id, "core_main_app_manage_template_versions"))
     except Exception, e:
         return HttpResponseBadRequest(e.message)
 
 
-def get_context(template_id):
+def get_context(template_id, url_previous_button):
     """ Get the context to manage the template modules
 
     Args: template_id:
@@ -75,6 +76,7 @@ def get_context(template_id):
         'modules': modules,
         'object': template,
         'version_manager': version_manager,
+        'url_back_to': reverse(url_previous_button, kwargs={'version_manager_id': version_manager.id}),
     }
     return context
 
