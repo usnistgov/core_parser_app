@@ -181,7 +181,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
                 # content[2] has the value returned by a module (the entire tag, when multiple is True)
                 if content[2] != '':
-                    if content[0] != '' or content[1] != '':
+                    if content[1] != '':
                         raise RendererError('ERROR: More values than expected were returned (Module multiple).')
                     xml_string += content[2]
                 else:
