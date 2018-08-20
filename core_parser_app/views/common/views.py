@@ -2,6 +2,7 @@
     Common views
 """
 from django.urls import reverse
+from django.views.generic import View
 
 from core_main_app.components.template import api as template_api
 from core_main_app.components.version_manager import api as version_manager_api
@@ -10,48 +11,46 @@ from core_parser_app.components.module import api as module_api
 from utils.xml import transform_xsd_to_html_with_modules
 
 
-def manage_template_modules(request, template_id):
-    """View that allows module management
+class ManageModulesUserView(View):
+    back_to_previous_url = None
 
-    Args:
-        request:
-        template_id:
+    def get(self, request, pk):
+        """ View that allows module management
 
-    Returns:
+        Args:
+            request:
+            pk:
 
-    """
+        Returns:
 
-    assets = {
-        "js": [
-            {
-                "path": 'core_main_app/common/js/XMLTree.js',
-                "is_raw": True
-            },
-            {
-                "path": 'core_parser_app/common/js/module_manager.js',
-                "is_raw": False
-            },
-            {
-                "path": 'core_main_app/common/js/backtoprevious.js',
-                "is_raw": True
-            }
-        ],
-        "css": ['core_main_app/common/css/XMLTree.css',
-                'core_parser_app/common/css/modules.css']
-    }
+        """
+        assets = {
+            "js": [
+                {
+                    "path": 'core_main_app/common/js/XMLTree.js',
+                    "is_raw": True
+                },
+                {
+                    "path": 'core_parser_app/common/js/module_manager.js',
+                    "is_raw": False
+                }
+            ],
+            "css": ['core_main_app/common/css/XMLTree.css',
+                    'core_parser_app/common/css/modules.css']
+        }
 
-    modals = ["core_parser_app/common/modals/add_module.html"]
+        modals = ["core_parser_app/common/modals/add_module.html"]
 
-    try:
-        return render(request,
-                      'core_parser_app/common/module_manager.html',
-                      modals=modals,
-                      assets=assets,
-                      context=get_context(template_id, "core_main_app_manage_template_versions"))
-    except Exception, e:
-        return render(request,
-                      'core_main_app/common/commons/error.html',
-                      context={'error': e.message})
+        try:
+            return render(request,
+                          'core_parser_app/common/module_manager.html',
+                          modals=modals,
+                          assets=assets,
+                          context=get_context(pk, "core_main_app_manage_template_versions"))
+        except Exception, e:
+            return render(request,
+                          'core_main_app/common/commons/error.html',
+                          context={'error': e.message})
 
 
 def get_context(template_id, url_previous_button):
