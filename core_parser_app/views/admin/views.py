@@ -1,9 +1,6 @@
 """Core parser app admin views
 """
 
-from django.http.response import HttpResponseBadRequest
-from django.urls import reverse
-
 from core_main_app.utils.rendering import admin_render
 from core_parser_app.views.common.views import get_context
 
@@ -43,4 +40,6 @@ def manage_template_modules(request, template_id):
                             assets=assets,
                             context=get_context(template_id, "admin:core_main_app_manage_template_versions"))
     except Exception, e:
-        return HttpResponseBadRequest(e.message)
+        return admin_render(request,
+                            'core_main_app/common/commons/error.html',
+                            context={'error': e.message})

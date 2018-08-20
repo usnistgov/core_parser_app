@@ -1,16 +1,13 @@
 """
     Common views
 """
-from django.contrib.staticfiles import finders
-from django.http.response import HttpResponseBadRequest
 from django.urls import reverse
 
 from core_main_app.components.template import api as template_api
 from core_main_app.components.version_manager import api as version_manager_api
 from core_main_app.utils.rendering import render
-from core_main_app.utils.xml import xsl_transform
 from core_parser_app.components.module import api as module_api
-from core_parser_app.settings import MODULE_TAG_NAME
+from utils.xml import transform_xsd_to_html_with_modules
 
 
 def manage_template_modules(request, template_id):
@@ -52,7 +49,9 @@ def manage_template_modules(request, template_id):
                       assets=assets,
                       context=get_context(template_id, "core_main_app_manage_template_versions"))
     except Exception, e:
-        return HttpResponseBadRequest(e.message)
+        return render(request,
+                      'core_main_app/common/commons/error.html',
+                      context={'error': e.message})
 
 
 def get_context(template_id, url_previous_button):
@@ -64,9 +63,10 @@ def get_context(template_id, url_previous_button):
 
     # get the template
     template = template_api.get(template_id)
-    # Get path to XSLT file
-    xslt_path = finders.find('core_parser_app/xsl/xsd2html4modules.xsl')
-    xsd_tree_html = xsl_transform(template.content, read_and_update_xslt_with_settings(xslt_path))
+
+    # get template content as HTML
+    xsd_tree_html = transform_xsd_to_html_with_modules(template.content)
+
     # Get list of modules
     modules = module_api.get_all()
     # Get version manager
@@ -79,18 +79,3 @@ def get_context(template_id, url_previous_button):
         'url_back_to': reverse(url_previous_button, kwargs={'version_manager_id': version_manager.id}),
     }
     return context
-
-
-def read_and_update_xslt_with_settings(xslt_file_path):
-    """Read the content of a file, and update it with the settings
-
-    Args:
-        xslt_file_path:
-
-    Returns:
-
-    """
-    with open(xslt_file_path) as xslt_file:
-        xslt_file_content = xslt_file.read()
-        xslt_file_content = xslt_file_content.replace("module_tag_name", MODULE_TAG_NAME)
-        return xslt_file_content
