@@ -9,7 +9,7 @@ urlpatterns = [
         name='core_parser_app_data_structure_element_value'),
     url(r'^template/modules/(?P<pk>\w+)',
         common_views.ManageModulesUserView.as_view(
-            back_to_previous_url="core_main_app_manage_template_versions"
+            back_to_previous_url="core_main_app_manage_template_versions",
         ),
         name='core_parser_app_template_modules'),
     url(r'^template/module/delete', common_ajax.delete_module,

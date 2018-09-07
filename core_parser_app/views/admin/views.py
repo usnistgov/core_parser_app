@@ -41,7 +41,9 @@ class ManageModulesAdminView(View):
                                 'core_parser_app/common/module_manager.html',
                                 modals=modals,
                                 assets=assets,
-                                context=get_context(pk, "admin:core_main_app_manage_template_versions"))
+                                context=get_context(pk, "admin:core_main_app_manage_template_versions",
+                                                    False,
+                                                    "Modules Manager"))
         except Exception, e:
             return admin_render(request,
                                 'core_main_app/common/commons/error.html',

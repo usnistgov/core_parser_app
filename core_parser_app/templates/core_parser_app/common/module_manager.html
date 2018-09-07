@@ -1,6 +1,6 @@
 <!--FIXME: use common section.html-->
 {% extends "core_main_app/_render/admin/theme/tools/section.html" %}
-{% block section_title %}Modules Manager{% endblock %}
+{% block section_title %}{{data.title}}{% endblock %}
 
 {% block section_content %}
 	{% include 'core_parser_app/common/module_manager_box.html' %}
