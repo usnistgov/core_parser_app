@@ -27,6 +27,7 @@
             elementId = $element.attr('id');
 
         console.log("Adding " + elementId + "...");
+        block_buttons();
         $.ajax({
             url : generateElementUrl,
             type : "POST",
@@ -63,6 +64,9 @@
             },
             error: function() {
                 console.error("An error occurred while generating a new element.");
+            },
+            complete: function () {
+                unblock_buttons();
             }
         });
     };
@@ -83,6 +87,7 @@
             elementId = $element.attr('id');
 
         console.log("Removing " + elementId + "...");
+        block_buttons();
         $.ajax({
             url : removeElementUrl,
             type : "POST",
@@ -108,6 +113,9 @@
             },
             error: function() {
                 console.error("An error occurred while generating a new element.");
+            },
+            complete: function () {
+                unblock_buttons();
             }
         });
     };
@@ -116,3 +124,13 @@
     $(document).on('click', '.add', addElement);
     $(document).on('click', '.remove', removeElement);
 })();
+
+block_buttons = function(){
+    $("span.icon.add").each(function(){$(this).css("pointer-events", "none");});
+    $("span.icon.remove").each(function(){$(this).css("pointer-events", "none");});
+}
+
+unblock_buttons = function(){
+    $("span.icon.add").each(function(){$(this).css("pointer-events", "auto");});
+    $("span.icon.remove").each(function(){$(this).css("pointer-events", "auto");});
+}
