@@ -1,5 +1,9 @@
 <input type="text" id="{{ id }}" class="default{% if use %} {{ use | escape }}{% endif %}"
     {% if value %} value="{{ value | escape }}"{% else %} value=""{% endif %}
     {% if placeholder != "" %} placeholder="{{ placeholder }}"{% endif %}
-    {% if tooltip != "" %} title="{{ tooltip }}"{% endif %}
     {% if fixed %} disabled {% endif %}/>
+{% if tooltip != "" %}
+<div class="tooltip-use"><i class="fa fa-question-circle"></i>
+  <span class="tooltip-text">{{tooltip}}</span>
+</div>
+{% endif %}
