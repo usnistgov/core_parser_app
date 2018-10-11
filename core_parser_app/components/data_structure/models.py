@@ -1,10 +1,11 @@
 """ Data structure model
 """
 from django_mongoengine import fields, Document
+
+from core_main_app.commons import exceptions
 from core_main_app.components.template.models import Template
 from core_parser_app.components.data_structure_element.models import DataStructureElement
-from mongoengine import errors as mongoengine_errors
-from core_main_app.commons import exceptions
+from core_parser_app.tasks import delete_branch_task
 
 
 class DataStructure(Document):
@@ -48,3 +49,21 @@ class DataStructure(Document):
             # raise exception
             raise exceptions.DoesNotExist("No data structure found for the given id.")
 
+    @classmethod
+    def pre_delete(cls, sender, document, **kwargs):
+        """ Pre delete operations
+
+        Returns:
+
+        """
+        # Delete data structure elements
+        document.delete_data_structure_elements_from_root()
+
+    def delete_data_structure_elements_from_root(self):
+        """ Delete all data structure elements from the root
+
+        Returns:
+
+        """
+        if self.data_structure_element_root is not None:
+            delete_branch_task.apply_async((str(self.data_structure_element_root.id),))
