@@ -23,6 +23,7 @@
           "tag": "simple_type",
           "options": {
             "name": "",
+            "fixed": false,
             "ns_prefix": null,
             "xmlns": null
           },
@@ -30,7 +31,8 @@
             {
               "tag": "restriction",
               "options": {
-                "base": "xs:string"
+                "base": "xs:string",
+                "fixed": false
               },
               "value": "child1",
               "children": [
@@ -57,6 +59,7 @@
           "tag": "simple_type",
           "options": {
             "name": "",
+            "fixed": false,
             "ns_prefix": null,
             "xmlns": null
           },
@@ -64,7 +67,8 @@
             {
               "tag": "restriction",
               "options": {
-                "base": "xs:string"
+                "base": "xs:string",
+                "fixed": false
               },
               "value": "child1",
               "children": [
@@ -91,6 +95,7 @@
           "tag": "simple_type",
           "options": {
             "name": "",
+            "fixed": false,
             "ns_prefix": null,
             "xmlns": null
           },
@@ -98,7 +103,8 @@
             {
               "tag": "restriction",
               "options": {
-                "base": "xs:string"
+                "base": "xs:string",
+                "fixed": false
               },
               "value": "child0",
               "children": [

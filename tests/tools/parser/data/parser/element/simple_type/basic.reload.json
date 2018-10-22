@@ -24,15 +24,17 @@
           "options": {
             "name": "",
             "ns_prefix": null,
-            "xmlns": null
+            "xmlns": null,
+            "fixed": false
           },
           "children": [
             {
               "tag": "restriction",
               "options": {
-                "base": "string"
+                "base": "string",
+                "fixed": false
               },
-              "value": "child0",
+              "value": "child1",
               "children": [
                 {
                   "tag": "enumeration",

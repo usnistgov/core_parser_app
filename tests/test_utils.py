@@ -1,6 +1,5 @@
 """ Testing utils
 """
-
 import collections
 import json
 from os.path import join
@@ -56,7 +55,7 @@ class DataHandler:
 
         """
         filename = join(self.dir_name, filename + '.xml')
-        return etree.ElementTree(DataHandler.get_xml_file(filename))
+        return etree.ElementTree(self.get_xml_file(filename))
 
     def get_xsd(self, filename):
         """ Get XSD
@@ -68,7 +67,7 @@ class DataHandler:
 
         """
         filename = join(self.dir_name, filename + '.xsd')
-        return etree.ElementTree(DataHandler.get_xml_file(filename))
+        return etree.ElementTree(self.get_xml_file(filename))
 
     def get_html(self, filename):
         """ Get HTML
@@ -80,7 +79,7 @@ class DataHandler:
 
         """
         filename = join(self.dir_name, filename + '.html')
-        return DataHandler.get_xml(filename)
+        return self.get_xml(filename)
 
     def get_json(self, filename):
         """ Get JSON
