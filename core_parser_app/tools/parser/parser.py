@@ -349,7 +349,7 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
             if element.attrib.get(attr) in get_xsd_types(default_prefix):
                 element_type = element.attrib.get(attr)
                 # if default prefix in type name
-                if element_type.startswith(default_prefix):
+                if element_type.startswith(default_prefix) and default_prefix != "":
                     # remove default prefix and ':'
                     element_type = element_type[len(default_prefix)+1:]
             elif element.attrib.get(attr) is not None:  # FIXME is it possible?

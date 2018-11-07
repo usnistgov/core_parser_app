@@ -1,16 +1,18 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:element name="root" type="complex"/>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:ex="http://example.com"
+        targetNamespace="http://example.com">
+    <element name="root" type="ex:complex2"/>
 
-    <xs:complexType name="complex">
-        <xs:sequence>
-            <xs:element name="child" minOccurs="2" maxOccurs="unbounded">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="child0"/>
-                        <xs:enumeration value="child1"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-</xs:schema>
+    <complexType name="complex2">
+        <sequence>
+            <element name="child" minOccurs="2" maxOccurs="unbounded">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="child0"/>
+                        <enumeration value="child1"/>
+                    </restriction>
+                </simpleType>
+            </element>
+        </sequence>
+    </complexType>
+</schema>

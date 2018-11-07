@@ -1,5 +1,6 @@
-<root>
-    <child>child1</child>
-    <child>child1</child>
-    <child>child0</child>
+<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://example.com">
+    <child xmlns="">child1</child>
+    <child xmlns="">child1</child>
+    <child xmlns="">child0</child>
 </root>

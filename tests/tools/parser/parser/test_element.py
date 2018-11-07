@@ -2,9 +2,7 @@
 """
 from os.path import join, dirname, abspath
 from lxml import etree
-
 from unittest.case import TestCase
-
 from tests.test_utils import DataHandler
 from core_parser_app.tools.parser.parser import XSDParser
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
@@ -16,16 +14,15 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), '..', 'data')
 
 
 class ParserGenerateElementTestSuite(TestCase):
-
     def setUp(self):
         element_data = join(RESOURCES_PATH, 'parser', 'element')
         self.element_data_handler = DataHandler(element_data)
 
-        # set default namespace
+        # Set default namespace
         self.namespace = LXML_SCHEMA_NAMESPACE
         self.namespaces = {'xs': SCHEMA_NAMESPACE}
 
-        # get an instance of the XSDParser
+        # Get an instance of the XSDParser
         self.parser = XSDParser()
 
     def test_create_simple_type_basic(self):
@@ -34,7 +31,21 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element',
                                      namespaces=self.namespaces)[0]
 
-        # generate result dict
+        # Generate result dict
+        result_dict = self.parser.generate_element(xsd_element, xsd_tree,
+                                                   full_path='')
+
+        # Load expected dictionary and compare with result
+        expected_dict = self.element_data_handler.get_json(xsd_files)
+        self.assertDictEqual(expected_dict, result_dict)
+
+    def test_create_simple_type_basic_ns(self):
+        xsd_files = join('simple_type', 'basic_ns')
+        xsd_tree = self.element_data_handler.get_xsd(xsd_files)
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element',
+                                     namespaces=self.namespaces)[0]
+
+        # Generate result dict
         result_dict = self.parser.generate_element(xsd_element, xsd_tree,
                                                    full_path='')
 
@@ -45,12 +56,30 @@ class ParserGenerateElementTestSuite(TestCase):
     def test_create_simple_type_unbounded(self):
         xsd_files = join('simple_type', 'unbounded')
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element',
-                                     namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            '/xs:schema/xs:complexType/xs:sequence/xs:element',
+            namespaces=self.namespaces
+        )[0]
 
-        # generate result dict
+        # Generate result dict
         result_dict = self.parser.generate_element(xsd_element, xsd_tree,
-                                                   full_path='')
+                                                   full_path='/ex:root[1]')
+
+        # Load expected dictionary and compare with result
+        expected_dict = self.element_data_handler.get_json(xsd_files)
+        self.assertDictEqual(expected_dict, result_dict)
+
+    def test_create_simple_type_unbounded_ns(self):
+        xsd_files = join('simple_type', 'unbounded_ns')
+        xsd_tree = self.element_data_handler.get_xsd(xsd_files)
+        xsd_element = xsd_tree.xpath(
+            '/xs:schema/xs:complexType/xs:sequence/xs:element',
+            namespaces=self.namespaces
+        )[0]
+
+        # Generate result dict
+        result_dict = self.parser.generate_element(xsd_element, xsd_tree,
+                                                   full_path='/root[1]')
 
         # Load expected dictionary and compare with result
         expected_dict = self.element_data_handler.get_json(xsd_files)
@@ -58,6 +87,7 @@ class ParserGenerateElementTestSuite(TestCase):
 
 
 class ParserReloadElementTestSuite(TestCase):
+    maxDiff = None
 
     def setUp(self):
         # Init data path
@@ -82,7 +112,27 @@ class ParserReloadElementTestSuite(TestCase):
         xml_data = etree.tostring(xml_tree)
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        # generate result dict
+        # Generate result dict
+        result_dict = self.parser.generate_element(
+            xsd_element, xsd_tree, full_path='',
+            edit_data_tree=edit_data_tree
+        )
+
+        # Load expected dictionary and compare with result
+        expected_dict = self.element_data_handler.get_json(xsd_files+".reload")
+        self.assertDictEqual(expected_dict, result_dict)
+
+    def test_reload_simple_type_basic_ns(self):
+        xsd_files = join('simple_type', 'basic_ns')
+        xsd_tree = self.element_data_handler.get_xsd(xsd_files)
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element',
+                                     namespaces=self.namespaces)[0]
+
+        xml_tree = self.element_data_handler.get_xml(xsd_files.replace("_ns", ""))
+        xml_data = etree.tostring(xml_tree)
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+
+        # Generate result dict
         result_dict = self.parser.generate_element(
             xsd_element, xsd_tree, full_path='',
             edit_data_tree=edit_data_tree
@@ -95,16 +145,18 @@ class ParserReloadElementTestSuite(TestCase):
     def test_reload_simple_type_unbounded(self):
         xsd_files = join('simple_type', 'unbounded')
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element',
-                                     namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            '/xs:schema/xs:complexType/xs:sequence/xs:element',
+            namespaces=self.namespaces
+        )[0]
 
         xml_tree = self.element_data_handler.get_xml(xsd_files)
         xml_data = etree.tostring(xml_tree)
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        # generate result dict
+        # Generate result dict
         result_dict = self.parser.generate_element(
-            xsd_element, xsd_tree, full_path='/root',
+            xsd_element, xsd_tree, full_path='/ex:root[1]',
             edit_data_tree=edit_data_tree
         )
 
@@ -112,3 +164,24 @@ class ParserReloadElementTestSuite(TestCase):
         expected_dict = self.element_data_handler.get_json(xsd_files+".reload")
         self.assertDictEqual(expected_dict, result_dict)
 
+    def test_reload_simple_type_unbounded_ns(self):
+        xsd_files = join('simple_type', 'unbounded_ns')
+        xsd_tree = self.element_data_handler.get_xsd(xsd_files)
+        xsd_element = xsd_tree.xpath(
+            '/xs:schema/xs:complexType/xs:sequence/xs:element',
+            namespaces=self.namespaces
+        )[0]
+
+        xml_tree = self.element_data_handler.get_xml(xsd_files)
+        xml_data = etree.tostring(xml_tree)
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+
+        # Generate result dict
+        result_dict = self.parser.generate_element(
+            xsd_element, xsd_tree, full_path='/root[1]',
+            edit_data_tree=edit_data_tree
+        )
+
+        # Load expected dictionary and compare with result
+        expected_dict = self.element_data_handler.get_json(xsd_files+".reload")
+        self.assertDictEqual(expected_dict, result_dict)

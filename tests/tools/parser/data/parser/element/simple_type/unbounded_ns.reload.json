@@ -2,8 +2,8 @@
   "tag": "element",
   "options": {
     "xpath": {
-      "xml": "/ex:root[1]/child",
-      "xsd": "/*/*[2]/*/*"
+      "xml": "/root[1]/child",
+      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:element"
     },
     "max": -1,
     "name": "child",
@@ -11,7 +11,7 @@
     "module": null,
     "min": 2,
     "ns_prefix": null,
-    "xmlns": "",
+    "xmlns": null,
     "schema_location": null
   },
   "value": null,
@@ -24,14 +24,14 @@
           "options": {
             "name": "",
             "fixed": false,
-            "ns_prefix": "ex",
-            "xmlns": ""
+            "ns_prefix": null,
+            "xmlns": null
           },
           "children": [
             {
               "tag": "restriction",
               "options": {
-                "base": "string",
+                "base": "xs:string",
                 "fixed": false
               },
               "value": "child1",
@@ -60,14 +60,14 @@
           "options": {
             "name": "",
             "fixed": false,
-            "ns_prefix": "ex",
-            "xmlns": ""
+            "ns_prefix": null,
+            "xmlns": null
           },
           "children": [
             {
               "tag": "restriction",
               "options": {
-                "base": "string",
+                "base": "xs:string",
                 "fixed": false
               },
               "value": "child1",
@@ -96,14 +96,14 @@
           "options": {
             "name": "",
             "fixed": false,
-            "ns_prefix": "ex",
-            "xmlns": ""
+            "ns_prefix": null,
+            "xmlns": null
           },
           "children": [
             {
               "tag": "restriction",
               "options": {
-                "base": "string",
+                "base": "xs:string",
                 "fixed": false
               },
               "value": "child0",

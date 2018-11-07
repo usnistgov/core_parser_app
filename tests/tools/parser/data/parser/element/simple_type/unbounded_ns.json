@@ -2,8 +2,8 @@
   "tag": "element",
   "options": {
     "xpath": {
-      "xml": "/ex:root[1]/child",
-      "xsd": "/*/*[2]/*/*"
+      "xml": "/root[1]/child",
+      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:element"
     },
     "max": -1,
     "name": "child",
@@ -11,7 +11,7 @@
     "module": null,
     "min": 2,
     "ns_prefix": null,
-    "xmlns": "",
+    "xmlns": null,
     "schema_location": null
   },
   "value": null,
@@ -23,18 +23,18 @@
           "tag": "simple_type",
           "options": {
             "name": "",
-            "fixed": false,
-            "ns_prefix": "ex",
-            "xmlns": ""
+            "ns_prefix": null,
+            "xmlns": null,
+            "fixed": false
           },
           "children": [
             {
               "tag": "restriction",
               "options": {
-                "base": "string",
+                "base": "xs:string",
                 "fixed": false
               },
-              "value": "child1",
+              "value": "child0",
               "children": [
                 {
                   "tag": "enumeration",
@@ -59,51 +59,15 @@
           "tag": "simple_type",
           "options": {
             "name": "",
-            "fixed": false,
-            "ns_prefix": "ex",
-            "xmlns": ""
+            "ns_prefix": null,
+            "xmlns": null,
+            "fixed": false
           },
           "children": [
             {
               "tag": "restriction",
               "options": {
-                "base": "string",
-                "fixed": false
-              },
-              "value": "child1",
-              "children": [
-                {
-                  "tag": "enumeration",
-                  "value": "child0"
-                },
-                {
-                  "tag": "enumeration",
-                  "value": "child1"
-                }
-              ]
-            }
-          ],
-          "value": null
-        }
-      ],
-      "value": null
-    },
-    {
-      "tag": "elem-iter",
-      "children": [
-        {
-          "tag": "simple_type",
-          "options": {
-            "name": "",
-            "fixed": false,
-            "ns_prefix": "ex",
-            "xmlns": ""
-          },
-          "children": [
-            {
-              "tag": "restriction",
-              "options": {
-                "base": "string",
+                "base": "xs:string",
                 "fixed": false
               },
               "value": "child0",
