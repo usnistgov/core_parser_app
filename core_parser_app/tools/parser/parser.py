@@ -5,12 +5,12 @@ import numbers
 import re
 import sys
 import traceback
-import urllib2
 from urlparse import parse_qsl
 
 from lxml import etree
 
 from core_main_app.commons.exceptions import CoreError
+from core_main_app.utils.requests_utils.requests_utils import send_get_request
 from core_main_app.utils.xsd_flattener.xsd_flattener_database_url import XSDFlattenerDatabaseOrURL
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.components.data_structure_element.models import DataStructureElement
@@ -406,9 +406,9 @@ def import_xml_tree(el_import, download_enabled=True):
     schema_location = ref_xml_schema_url
     # download the file
     if download_enabled:
-        ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
+        ref_xml_schema_file = send_get_request(ref_xml_schema_url)
         # read the content of the file
-        ref_xml_schema_content = ref_xml_schema_file.read()
+        ref_xml_schema_content = ref_xml_schema_file.content
         # build the tree
         xml_tree = XSDTree.build_tree(ref_xml_schema_content)
         # look for includes
@@ -1115,9 +1115,9 @@ class XSDParser(object):
             # open the imported file
             download_enabled = self.download_dependencies
             if download_enabled:
-                ref_xml_schema_file = urllib2.urlopen(schema_element.options['schema_location'])
+                ref_xml_schema_file = send_get_request(schema_element.options['schema_location'])
                 # get the content of the file
-                ref_xml_schema_content = ref_xml_schema_file.read()
+                ref_xml_schema_content = ref_xml_schema_file.content
                 # build the XML tree
                 xml_doc_tree = XSDTree.build_tree(ref_xml_schema_content)
                 # get the namespaces from the imported schema
@@ -1601,9 +1601,9 @@ class XSDParser(object):
             # open the imported file
             download_enabled = self.download_dependencies
             if download_enabled:
-                ref_xml_schema_file = urllib2.urlopen(element.options['schema_location'])
+                ref_xml_schema_file = send_get_request(element.options['schema_location'])
                 # get the content of the file
-                ref_xml_schema_content = ref_xml_schema_file.read()
+                ref_xml_schema_content = ref_xml_schema_file.content
                 # build the XML tree
                 xml_doc_tree = XSDTree.build_tree(ref_xml_schema_content)
                 # get the namespaces from the imported schema
