@@ -1,5 +1,7 @@
 """Auto discovery of modules
 """
+import logging
+
 from mongoengine.errors import ValidationError
 
 from core_parser_app.components.module import api as module_api
@@ -7,12 +9,16 @@ from core_parser_app.components.module.models import Module
 from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.views.module import AbstractModule
 
+logger = logging.getLogger(__name__)
+
 
 def discover_modules(urls):
     """
 
     :return:
     """
+    logger.info("START discover modules.")
+
     # Remove all existing modules
     module_api.delete_all()
 
@@ -37,8 +43,13 @@ def discover_modules(urls):
         error_msg = 'A validation error occurred during the module discovery. ' \
                     'Please provide a name to all modules urls using the name argument.'
 
+        logger.error("Discover modules failed with %s." % error_msg)
+
         raise ModuleError(error_msg)
     except Exception, e:
         # something went wrong, delete already added modules
         module_api.delete_all()
+        logger.error("Discover modules failed with %s." % e.message)
         raise e
+
+    logger.info("FINISH discover modules.")
