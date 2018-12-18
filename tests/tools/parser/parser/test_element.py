@@ -14,7 +14,6 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), '..', 'data')
 
 
 class ParserGenerateElementTestSuite(TestCase):
-    maxDiff = None
 
     def setUp(self):
         element_data = join(RESOURCES_PATH, 'parser', 'element')
@@ -119,7 +118,6 @@ class ParserGenerateElementTestSuite(TestCase):
 
 
 class ParserReloadElementTestSuite(TestCase):
-    maxDiff = None
 
     def setUp(self):
         # Init data path
