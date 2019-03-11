@@ -8,7 +8,7 @@ from core_main_app.components.template import api as template_api
 from core_main_app.components.version_manager import api as version_manager_api
 from core_main_app.utils.rendering import render
 from core_parser_app.components.module import api as module_api
-from utils.xml import transform_xsd_to_html_with_modules
+from core_parser_app.utils.xml import transform_xsd_to_html_with_modules
 
 
 class ManageModulesUserView(View):
