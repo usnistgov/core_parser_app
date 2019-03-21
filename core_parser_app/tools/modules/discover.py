@@ -2,6 +2,7 @@
 """
 import logging
 
+from mongoengine import NotUniqueError
 from mongoengine.errors import ValidationError
 
 from core_parser_app.components.module import api as module_api
@@ -35,7 +36,11 @@ def discover_modules(urls):
                                                    name=url_pattern.name,
                                                    view=module_view_name,
                                                    multiple=module_view.is_managing_occurrences)
-                            module_api.upsert(module_object)
+                            try:
+                                module_api.upsert(module_object)
+                            except NotUniqueError:
+                                logger.error("The module %s is already present in the database."
+                                             "Please check the list of urls for duplicates." % url_pattern.name)
     except ValidationError:
         # something went wrong, delete already added modules
         module_api.delete_all()
