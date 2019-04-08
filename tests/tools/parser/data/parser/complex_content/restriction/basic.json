@@ -1,0 +1,20 @@
+{
+  "value": null,
+  "tag": "complex_content",
+  "children": [
+    {
+      "value": null,
+      "tag": "restriction",
+      "options": {
+        "base": "rootBase",
+        "fixed": false
+      },
+      "children": [
+        {
+          "tag": "input",
+          "value": ""
+        }
+      ]
+    }
+  ]
+}
