@@ -5,9 +5,11 @@ from os.path import join
 from bson.objectid import ObjectId
 import numbers
 
+from  core_parser_app.settings import AUTO_ESCAPE_XML_ENTITIES
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.tools.parser.exceptions import RendererError
 from core_parser_app.tools.parser.renderer import DefaultRenderer
+from xml_utils.xsd_tree.operations.xml_entities import XmlEntities
 
 
 class AbstractXmlRenderer(DefaultRenderer):
@@ -150,7 +152,7 @@ class XmlRenderer(AbstractXmlRenderer):
                     content[2] += tmp_content[2]
                 elif child.tag == 'input':
                     tmp_content = child.value if child.value is not None else ''
-                    content[1] += tmp_content
+                    content[1] += XmlEntities().escape_xml_entities(tmp_content) if AUTO_ESCAPE_XML_ENTITIES else tmp_content
                 elif child.tag == 'simple_type':
                     tmp_content = self.render_simple_type(child)
                     content[0] += tmp_content[0]
@@ -217,6 +219,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 attr_value = content[1]
             elif child.tag == 'input':
                 attr_value = child.value if child.value is not None else ''
+                if AUTO_ESCAPE_XML_ENTITIES:
+                    attr_value = XmlEntities().escape_xml_entities(attr_value)
             elif child.tag == 'module':
                 attr_value = self.render_module(child)[1]
             else:
@@ -526,6 +530,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 value = None  # Avoid to copy the value several times
             elif child.tag == 'input':
                 tmp_content[1] = child.value if child.value is not None else ''
+                if AUTO_ESCAPE_XML_ENTITIES:
+                    tmp_content[1] = XmlEntities().escape_xml_entities(tmp_content[1])
             elif child.tag == 'simple_type':
                 tmp_content = self.render_simple_type(child)
             else:
@@ -554,6 +560,8 @@ class XmlRenderer(AbstractXmlRenderer):
 
             if child.tag == 'input':
                 tmp_content[1] = child.value if child.value is not None else ''
+                if AUTO_ESCAPE_XML_ENTITIES:
+                    tmp_content[1] = XmlEntities().escape_xml_entities(tmp_content[1])
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
             elif child.tag == 'simple_type':
