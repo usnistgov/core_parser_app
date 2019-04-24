@@ -199,7 +199,7 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True):
                     element_tag = 'attribute'
 
                 # get schema namespaces
-                xml_tree_str = etree.tostring(xml_tree)
+                xml_tree_str = XSDTree.tostring(xml_tree)
                 namespaces = get_namespaces(xml_tree_str)
                 ref = element.attrib['ref']
                 ref_element, ref_tree, schema_location = get_ref_element(xml_tree, ref, namespaces,
@@ -237,7 +237,7 @@ def lookup_occurs(element, xml_tree, full_path, edit_data_tree, download_enabled
     elements_found = []
 
     # get target namespace prefix if one declared
-    xml_tree_str = etree.tostring(xml_tree)
+    xml_tree_str = XSDTree.tostring(xml_tree)
     namespaces = get_namespaces(xml_tree_str)
     target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
 
@@ -287,7 +287,7 @@ def get_xml_element_data(xsd_element, xml_element):
             else:  # if xml_element.text is None
                 reload_data = ''
         else:  # branch: get the whole branch
-            reload_data = etree.tostring(xml_element)
+            reload_data = XSDTree.tostring(xml_element)
     elif xsd_element.tag == prefix + "attribute":
         return str(xml_element)
     elif xsd_element.tag == prefix + "complexType" or xsd_element.tag == prefix + "simpleType":
@@ -302,7 +302,7 @@ def get_xml_element_data(xsd_element, xml_element):
                 if list(xml_element) > 0:
                     reload_data = ''
                     for child in list(xml_element):
-                        reload_data += etree.tostring(child)
+                        reload_data += XSDTree.tostring(child)
             except:
                 # FIXME in which case would we need that?
                 reload_data = str(xml_element)
@@ -689,7 +689,7 @@ class XSDParser(object):
                 # TODO: check from curate that editing works
                 self.editing = True
                 # load the XML tree from the text
-                edit_data_tree = etree.XML(str(xml_doc_data.encode('utf-8')))
+                edit_data_tree = XSDTree.transform_to_xml(xml_doc_data)
             else:
                 self.editing = False
         else:  # no data found, not editing
@@ -820,7 +820,7 @@ class XSDParser(object):
             element_tag = 'attribute'
 
         # get schema namespaces
-        xml_tree_str = etree.tostring(xml_tree)
+        xml_tree_str = XSDTree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
 
         db_element = {
@@ -867,7 +867,7 @@ class XSDParser(object):
         else:
             text_capitalized = element.attrib.get('name')
 
-        xml_tree_str = etree.tostring(xml_tree)
+        xml_tree_str = XSDTree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
         target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
 
@@ -1132,7 +1132,7 @@ class XSDParser(object):
 
         # flatten the includes
         download_enabled = self.download_dependencies
-        flattener = XSDFlattenerDatabaseOrURL(etree.tostring(xml_doc_tree), download_enabled)
+        flattener = XSDFlattenerDatabaseOrURL(XSDTree.tostring(xml_doc_tree), download_enabled)
         xml_doc_tree_str = flattener.get_flat()
         xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
@@ -1515,7 +1515,7 @@ class XSDParser(object):
                             opt_label = opt_label.split(':')[1]
 
                     # get the schema namespaces
-                    xml_tree_str = etree.tostring(xml_tree)
+                    xml_tree_str = XSDTree.tostring(xml_tree)
                     namespaces = get_namespaces(xml_tree_str)
                     # add the XSI prefix used by extensions
                     namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
@@ -1618,7 +1618,7 @@ class XSDParser(object):
 
         # flatten the includes
         download_enabled = self.download_dependencies
-        flattener = XSDFlattenerDatabaseOrURL(etree.tostring(xml_doc_tree), download_enabled)
+        flattener = XSDFlattenerDatabaseOrURL(XSDTree.tostring(xml_doc_tree), download_enabled)
         xml_doc_tree_str = flattener.get_flat()
         xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
@@ -1688,7 +1688,7 @@ class XSDParser(object):
         }
 
         # get namespace prefix to reference extension in xsi:type
-        xml_tree_str = etree.tostring(xml_tree)
+        xml_tree_str = XSDTree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
         target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
         ns_prefix = None
@@ -1808,7 +1808,7 @@ class XSDParser(object):
         }
 
         # get namespace prefix to reference extension in xsi:type
-        xml_tree_str = etree.tostring(xml_tree)
+        xml_tree_str = XSDTree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
         target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
         ns_prefix = None
@@ -1952,7 +1952,7 @@ class XSDParser(object):
                         return db_element
 
         # get the schema namespaces
-        xml_tree_str = etree.tostring(xml_tree)
+        xml_tree_str = XSDTree.tostring(xml_tree)
         namespaces = get_namespaces(xml_tree_str)
         # add the XSI prefix used by extensions
         namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
@@ -2124,14 +2124,14 @@ class XSDParser(object):
 
                 if self.editing:
                     # get the schema namespaces
-                    xml_tree_str = etree.tostring(xml_tree)
+                    xml_tree_str = XSDTree.tostring(xml_tree)
                     namespaces = get_namespaces(xml_tree_str)
                     edit_elements = edit_data_tree.xpath(xml_xpath, namespaces=namespaces)
 
                     if module.multiple:
                         reload_data = ""
                         for edit_element in edit_elements:
-                            reload_data += etree.tostring(edit_element)
+                            reload_data += XSDTree.tostring(edit_element)
                     else:
                         if len(edit_elements) > 0:
                             if len(edit_elements) == 1:
@@ -2335,7 +2335,7 @@ class XSDParser(object):
         # 'base' (required) is the only attribute to parse
         ##################################################
         if 'base' in element.attrib:
-            xml_tree_str = etree.tostring(xml_tree)
+            xml_tree_str = XSDTree.tostring(xml_tree)
             namespaces = get_namespaces(xml_tree_str)
             default_prefix = get_default_prefix(namespaces)
 

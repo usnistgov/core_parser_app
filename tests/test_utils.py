@@ -6,6 +6,8 @@ from os.path import join
 
 from lxml import etree
 
+from xml_utils.xsd_tree.xsd_tree import XSDTree
+
 
 class DataHandler:
     def __init__(self, dir_name):
@@ -43,7 +45,7 @@ class DataHandler:
 
                 # In any other cases the tag flag doesn't change
 
-        return etree.fromstring(file_string)
+        return XSDTree.fromstring(file_string)
 
     def get_xml(self, filename):
         """ Get XML

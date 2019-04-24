@@ -1,10 +1,12 @@
-from lxml import etree
-from unittest.case import TestCase
+""" Tests for XSDParser - choice
+"""
 from os.path import join, dirname, abspath
+from unittest.case import TestCase
 
 from core_parser_app.tools.parser.parser import XSDParser
 from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
+from xml_utils.xsd_tree.xsd_tree import XSDTree
 
 # FIXME: use django finder
 RESOURCES_PATH = join(dirname(abspath(__file__)), '..', 'data')
@@ -97,8 +99,8 @@ class ParserReloadChoiceTestSuite(TestCase):
                                      namespaces=self.namespaces)[0]
 
         xml_tree = self.choice_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         result_string = self.parser.generate_choice(xsd_element, xsd_tree, full_path='/root',
                                                     edit_data_tree=edit_data_tree)
@@ -114,8 +116,8 @@ class ParserReloadChoiceTestSuite(TestCase):
                                      namespaces=self.namespaces)[0]
 
         xml_tree = self.choice_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         result_string = self.parser.generate_choice(xsd_element, xsd_tree, full_path='/root',
                                                     edit_data_tree=edit_data_tree)
@@ -131,8 +133,8 @@ class ParserReloadChoiceTestSuite(TestCase):
                                      namespaces=self.namespaces)[0]
 
         xml_tree = self.choice_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         result_string = self.parser.generate_choice(xsd_element, xsd_tree, full_path='/root',
                                                     edit_data_tree=edit_data_tree)
@@ -148,8 +150,8 @@ class ParserReloadChoiceTestSuite(TestCase):
                                      namespaces=self.namespaces)[0]
 
         xml_tree = self.choice_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         result_string = self.parser.generate_choice(xsd_element, xsd_tree, full_path='/root',
                                                     edit_data_tree=edit_data_tree)

@@ -1,9 +1,12 @@
 """Sanitize util
 """
 import json
-from lxml import etree
+
 from django.utils.html import escape
-from lxml.etree import XMLSyntaxError
+from lxml import etree
+
+from xml_utils.commons.exceptions import XMLError
+from xml_utils.xsd_tree.xsd_tree import XSDTree
 
 
 def sanitize(input_value):
@@ -30,10 +33,10 @@ def sanitize(input_value):
         try:
             # XML cleaning
             xml_cleaner_parser = etree.XMLParser(remove_blank_text=True)
-            xml_data = etree.fromstring(input_value, parser=xml_cleaner_parser)
+            xml_data = XSDTree.fromstring(input_value, parser=xml_cleaner_parser)
 
-            input_value = etree.tostring(xml_data)
-        except XMLSyntaxError:
+            input_value = XSDTree.tostring(xml_data)
+        except XMLError:
             # input is not XML, pass
             pass
         finally:

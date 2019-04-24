@@ -1,11 +1,13 @@
 """ Tests for XSDParser - element
 """
 from os.path import join, dirname, abspath
-from lxml import etree
 from unittest.case import TestCase
-from tests.test_utils import DataHandler
+
 from core_parser_app.tools.parser.parser import XSDParser
+from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
+
+from xml_utils.xsd_tree.xsd_tree import XSDTree
 
 # FIXME: use django finder
 RESOURCES_PATH = join(dirname(abspath(__file__)), '..', 'data')
@@ -139,8 +141,8 @@ class ParserReloadElementTestSuite(TestCase):
                                      namespaces=self.namespaces)[0]
 
         xml_tree = self.element_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         # Generate result dict
         result_dict = self.parser.generate_element(
@@ -159,8 +161,8 @@ class ParserReloadElementTestSuite(TestCase):
                                      namespaces=self.namespaces)[0]
 
         xml_tree = self.element_data_handler.get_xml(xsd_files.replace("_ns", ""))
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         # Generate result dict
         result_dict = self.parser.generate_element(
@@ -181,8 +183,8 @@ class ParserReloadElementTestSuite(TestCase):
         )[0]
 
         xml_tree = self.element_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         # Generate result dict
         result_dict = self.parser.generate_element(
@@ -203,8 +205,8 @@ class ParserReloadElementTestSuite(TestCase):
         )[0]
 
         xml_tree = self.element_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         # Generate result dict
         result_dict = self.parser.generate_element(
@@ -223,8 +225,8 @@ class ParserReloadElementTestSuite(TestCase):
                                      namespaces=self.namespaces)[0]
 
         xml_tree = self.element_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         # Generate result dict
         result_dict = self.parser.generate_element(
@@ -247,8 +249,8 @@ class ParserReloadElementTestSuite(TestCase):
         )[0]
 
         xml_tree = self.element_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        xml_data = XSDTree.tostring(xml_tree)
+        edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         # Generate result dict
         result_dict = self.parser.generate_element(
