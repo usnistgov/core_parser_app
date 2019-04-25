@@ -2,5 +2,5 @@
 	{% if label %}
 	<label>{{label}}</label>
 	{% endif %}
-	<textarea>{{data}}</textarea>
+	<textarea>{{data | safe}}</textarea>
 </div>
