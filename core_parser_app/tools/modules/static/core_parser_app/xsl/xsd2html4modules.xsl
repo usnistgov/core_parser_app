@@ -4,12 +4,12 @@
 				version="1.0">
 	<xsl:output method="html" indent="yes" encoding="UTF-8" />
 	<xsl:preserve-space elements="*" />
-	<xsl:template match="/">	 	
+	<xsl:template match="/">
 		<ul class="tree">
 			<xsl:apply-templates />
 		</ul>
 	</xsl:template>
-	<xsl:template match="*">		
+	<xsl:template match="*">
 		<xsl:choose>
 			<!-- Nothing to do for these elements -->
 			<xsl:when test="contains(name(.),'include')">
@@ -17,14 +17,14 @@
 			<xsl:when test="contains(name(.),'import')">
 			</xsl:when>
 			<xsl:when test="contains(name(.),'annotation')">
-			</xsl:when>			
+			</xsl:when>
 			<xsl:otherwise>
 				<li>
 				<div class="element-wrapper">
 					<!-- no left indent for root element -->
 					<xsl:if test="not(ancestor::*)">
 						<xsl:attribute name="style">left:0</xsl:attribute>
-					</xsl:if>	
+					</xsl:if>
 					<span class="path">
 						<xsl:value-of select="name(.)"/>
 				        <xsl:variable name="vnumPrecSiblings" select="count(preceding-sibling::*[name()=name(current())])"/>
@@ -34,14 +34,14 @@
 					</span>
 					<xsl:choose>
 						<!-- Element with children -->
-						<xsl:when test="*">
+						<xsl:when test="* and not(contains(name(child::*),'annotation') and count(child::*)=1)">
 							<span class="collapse" style="cursor:pointer;" onclick="showhide(event);"></span>
-							<span class="category">	
+							<span class="category">
 								<xsl:choose>
-									<xsl:when test="contains(name(.),'element') 
+									<xsl:when test="contains(name(.),'element')
 													or contains(name(.),'complexType')
-													or contains(name(.),'simpleType')">																		
-										<span onclick="showModuleManager(event)" style="cursor:pointer;">																								
+													or contains(name(.),'simpleType')">
+										<span onclick="showModuleManager(event)" style="cursor:pointer;">
 											<xsl:value-of select="name(.)" />
 										</span>
 									</xsl:when>
@@ -54,8 +54,8 @@
 										<span>
 											<xsl:value-of select="name(.)" />
 										</span>
-									</xsl:otherwise>						
-								</xsl:choose>														
+									</xsl:otherwise>
+								</xsl:choose>
 							</span>
 							<xsl:choose>
 								<xsl:when test="./@name">
@@ -84,16 +84,16 @@
 									<xsl:value-of select="./xsd:annotation/xsd:appinfo/module_tag_name" />
 								</span>
 								</xsl:when>
-							</xsl:choose>							
+							</xsl:choose>
 						</xsl:when>
-						<!-- Element without children -->					
+						<!-- Element without children -->
 						<xsl:otherwise>
 							<span class="element">
 								<xsl:choose>
-									<xsl:when test="contains(name(.),'element') 
+									<xsl:when test="contains(name(.),'element')
 													or contains(name(.),'complexType')
-													or contains(name(.),'simpleType')">																		
-										<span onclick="showModuleManager(event)" style="cursor:pointer;">																								
+													or contains(name(.),'simpleType')">
+										<span onclick="showModuleManager(event)" style="cursor:pointer;">
 											<xsl:value-of select="name(.)" />
 										</span>
 									</xsl:when>
@@ -108,20 +108,20 @@
 											<xsl:text> : </xsl:text>
 											<span class="text">
 												<xsl:value-of select="@value" />
-											</span>											
+											</span>
 										</span>
 									</xsl:when>
 									<xsl:otherwise>
 										<span>
 											<xsl:value-of select="name(.)" />
 										</span>
-									</xsl:otherwise>						
-								</xsl:choose>						
+									</xsl:otherwise>
+								</xsl:choose>
 							</span>
 						</xsl:otherwise>
 					</xsl:choose>
 					<xsl:choose>
-						<xsl:when test="not(*)">					
+						<xsl:when test="not(*) or (contains(name(child::*),'annotation') and count(child::*)=1)">
 							<xsl:choose>
 								<xsl:when test="./@name">
 								<span class="name">
@@ -150,17 +150,17 @@
 								</span>
 								</xsl:when>
 							</xsl:choose>
-							<xsl:if test="contains(name(.),'element')"> 
+							<xsl:if test="contains(name(.),'element')">
 								<span class="occurs">(
 								<xsl:choose>
 									<xsl:when test="./@minOccurs">
-										<xsl:value-of select="@minOccurs" />								
+										<xsl:value-of select="@minOccurs" />
 									</xsl:when>
 									<xsl:otherwise>
-									1								
+									1
 									</xsl:otherwise>
 								</xsl:choose>
-								, 
+								,
 								<xsl:choose>
 									<xsl:when test="./@maxOccurs">
 										<xsl:choose>
@@ -169,7 +169,7 @@
 											</xsl:when>
 											<xsl:otherwise>
 												<xsl:value-of select="@maxOccurs" />
-											</xsl:otherwise> 
+											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>
 									<xsl:otherwise>
@@ -184,12 +184,12 @@
 							<ul>
 								<xsl:apply-templates />
 							</ul>
-						</xsl:otherwise>				
+						</xsl:otherwise>
 					</xsl:choose>
 				</div>
 				</li>
 			</xsl:otherwise>
-		</xsl:choose>		
+		</xsl:choose>
 	</xsl:template>
 </xsl:stylesheet>
 
