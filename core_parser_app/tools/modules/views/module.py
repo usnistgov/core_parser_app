@@ -96,7 +96,7 @@ class AbstractModule(View):
             module_element.options = options
             # save module element
             data_structure_element_api.upsert(module_element)
-        except Exception, e:
+        except Exception as e:
             raise ModuleError('Something went wrong during module initialization: ' + e.message)
 
         # Check that values are not None
@@ -149,7 +149,7 @@ class AbstractModule(View):
 
             module_element.options = options
             data_structure_element_api.upsert(module_element)
-        except Exception, e:
+        except Exception as e:
             raise ModuleError('Something went wrong during module update: ' + e.message)
 
         html_code = AbstractModule.render_template(self.template_name, template_data)

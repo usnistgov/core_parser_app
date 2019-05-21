@@ -52,7 +52,7 @@ class ManageModulesUserView(View):
                           modals=modals,
                           assets=assets,
                           context=get_context(pk, self.back_to_previous_url, self.read_only, self.title))
-        except Exception, e:
+        except Exception as e:
             return render(request,
                           'core_main_app/common/commons/error.html',
                           context={'error': e.message})

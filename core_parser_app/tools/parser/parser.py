@@ -2148,7 +2148,7 @@ class XSDParser(object):
                 db_element['options']['url'] = module_url.path
                 db_element['options']['data'] = reload_data
                 db_element['options']['attributes'] = reload_attrib
-            except Exception, e:
+            except Exception as e:
                 raise ParserError('Module not found.')
 
         return db_element

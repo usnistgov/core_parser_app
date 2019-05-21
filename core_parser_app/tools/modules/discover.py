@@ -51,7 +51,7 @@ def discover_modules(urls):
         logger.error("Discover modules failed with %s." % error_msg)
 
         raise ModuleError(error_msg)
-    except Exception, e:
+    except Exception as e:
         # something went wrong, delete already added modules
         module_api.delete_all()
         logger.error("Discover modules failed with %s." % e.message)

@@ -16,7 +16,7 @@ class XPathAccessor(object):
             self.xpath = element.options['xpath']['xml']
             self.values = {}
             self.set_XpathAccessor(request)
-        except Exception, e:
+        except Exception as e:
             message = 'XPathAccessor error: '
             raise XPathAccessorError(message + e.message)
 

@@ -44,7 +44,7 @@ class ManageModulesAdminView(View):
                                 context=get_context(pk, self.back_to_previous_url,
                                                     False,
                                                     "Modules Manager"))
-        except Exception, e:
+        except Exception as e:
             return admin_render(request,
                                 'core_main_app/common/commons/error.html',
                                 context={'error': e.message})

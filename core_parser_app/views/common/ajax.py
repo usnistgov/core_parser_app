@@ -22,7 +22,7 @@ def delete_module(request):
 
         # delete the module
         module_api.delete_module(template, xpath)
-    except Exception, e:
+    except Exception as e:
         return HttpResponseBadRequest(e.message, content_type='application/javascript')
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
@@ -45,7 +45,7 @@ def insert_module(request):
 
         # add the module
         module_api.add_module(template, module_id, xpath)
-    except Exception, e:
+    except Exception as e:
         return HttpResponseBadRequest(e.message, content_type='application/javascript')
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')

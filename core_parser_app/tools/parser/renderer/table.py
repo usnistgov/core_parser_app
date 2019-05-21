@@ -1,5 +1,6 @@
 """Table Renderer class
 """
+from __future__ import print_function
 from os.path import join
 from django.template import loader
 from core_parser_app.tools.parser.renderer import DefaultRenderer
@@ -189,7 +190,7 @@ class TableRenderer(AbstractTableRenderer):
         Returns:
 
         """
-        print "ct"
+        print("ct")
         html_content = ''
 
         for child in element['children']:
@@ -200,7 +201,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child['tag'] == 'attribute':
                 html_content += self.render_attribute(child)
             else:
-                print child['tag'] + ' not handled (rend_ct)'
+                print(child['tag'] + ' not handled (rend_ct)')
 
         return html_content
 
@@ -213,7 +214,7 @@ class TableRenderer(AbstractTableRenderer):
         Returns:
 
         """
-        print "attr"
+        print("attr")
         html_content = ''
         children = []
 
@@ -221,7 +222,7 @@ class TableRenderer(AbstractTableRenderer):
             if child['tag'] == 'elem-iter':
                 children += child['children']
             else:
-                print child['tag'] + 'not handled (rend_attr base)'
+                print(child['tag'] + 'not handled (rend_attr base)')
 
         for child in children:
             if child['tag'] == 'simple_type':
@@ -229,7 +230,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child['tag'] == 'input':
                 html_content += self._render_input(child)
             else:
-                print child['tag'] + ' not handled (rend_attr)'
+                print(child['tag'] + ' not handled (rend_attr)')
 
         return self._render_tr(element['options']['name'], html_content)
 
@@ -242,14 +243,14 @@ class TableRenderer(AbstractTableRenderer):
         Returns:
 
         """
-        print "seq"
+        print("seq")
         html_content = ''
 
         for child in element['children']:
             if child['tag'] == 'element':
                 html_content += self.render_element(child)
             else:
-                print child['tag'] + '  not handled (rend_seq)'
+                print(child['tag'] + '  not handled (rend_seq)')
 
         return html_content
 
@@ -262,7 +263,7 @@ class TableRenderer(AbstractTableRenderer):
         Returns:
 
         """
-        print "sc"
+        print("sc")
         html_content = ''
 
         for child in element['children']:
@@ -271,7 +272,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child['tag'] == 'extension':
                 html_content += self.render_extension(child)
             else:
-                print child['tag'] + '  not handled (rend_scont)'
+                print(child['tag'] + '  not handled (rend_scont)')
 
         return html_content
 
@@ -284,7 +285,7 @@ class TableRenderer(AbstractTableRenderer):
         Returns:
 
         """
-        print "st"
+        print("st")
         html_content = ''
 
         for child in element['children']:
@@ -293,7 +294,7 @@ class TableRenderer(AbstractTableRenderer):
             if child['tag'] == 'restriction':
                 html_content += self.render_restriction(child)
             else:
-                print child['tag'] + '  not handled (rend_stype)'
+                print(child['tag'] + '  not handled (rend_stype)')
 
         return html_content
 
@@ -306,7 +307,7 @@ class TableRenderer(AbstractTableRenderer):
         Returns:
 
         """
-        print "ext"
+        print("ext")
         html_content = ''
 
         for child in element['children']:
@@ -315,7 +316,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child['tag'] == 'attribute':
                 html_content += self.render_attribute(child)
             else:
-                print child['tag'] + ' not handled (rend_ext)'
+                print(child['tag'] + ' not handled (rend_ext)')
             # print child['tag'] + '  not handled (rend_ext)'
 
         return html_content
@@ -329,7 +330,7 @@ class TableRenderer(AbstractTableRenderer):
         Returns:
 
         """
-        print "rest"
+        print("rest")
         options = []
         subhtml = ''
 
@@ -339,7 +340,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child['tag'] == 'input':
                 subhtml += self._render_input(child)
             else:
-                print child['tag'] + ' not handled (rend_ext)'
+                print(child['tag'] + ' not handled (rend_ext)')
 
         if subhtml == '' or len(options) != 0:
             return self._render_select(element, 'restriction', options)
