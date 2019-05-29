@@ -3,12 +3,12 @@
 from abc import ABCMeta
 
 from core_parser_app.tools.modules.views.module import AbstractModule
+from future.utils import with_metaclass
 
 
-class AbstractOptionsModule(AbstractModule):
+class AbstractOptionsModule(with_metaclass(ABCMeta, AbstractModule)):
     """Options Modules
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, scripts=list(), styles=list(), label=None, options=None, disabled=False, selected=None):
         """ Initialize module
@@ -43,10 +43,10 @@ class AbstractOptionsModule(AbstractModule):
         """
         options_html = ""
 
-        if self.selected not in self.options.keys():
+        if self.selected not in list(self.options.keys()):
             self.selected = None
 
-        for key, val in self.options.items():
+        for key, val in list(self.options.items()):
             if self.selected is not None and key == self.selected:
                 options_html += "<option value='" + key + "' selected>" + val + "</option>"
             else:

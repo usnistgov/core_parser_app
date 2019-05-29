@@ -1,5 +1,6 @@
 """XML Renderer class
 """
+from builtins import str
 from django.template import loader
 from os.path import join
 from bson.objectid import ObjectId

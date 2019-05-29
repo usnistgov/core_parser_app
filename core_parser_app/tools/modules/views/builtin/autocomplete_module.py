@@ -3,12 +3,12 @@
 from abc import ABCMeta
 
 from core_parser_app.tools.modules.views.module import AbstractModule
+from future.utils import with_metaclass
 
 
-class AbstractAutoCompleteModule(AbstractModule):
+class AbstractAutoCompleteModule(with_metaclass(ABCMeta, AbstractModule)):
     """ AutoCompleteModule class
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, scripts=list(), styles=list(), label=None):
         """ Initialize the module

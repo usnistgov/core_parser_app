@@ -55,7 +55,7 @@ class ManageModulesUserView(View):
         except Exception as e:
             return render(request,
                           'core_main_app/common/commons/error.html',
-                          context={'error': e.message})
+                          context={'error': str(e)})
 
 
 def get_context(template_id, url_previous_button, read_only, title):

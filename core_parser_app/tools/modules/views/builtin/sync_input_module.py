@@ -4,12 +4,12 @@ from abc import ABCMeta
 
 from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.views.module import AbstractModule
+from future.utils import with_metaclass
 
 
-class AbstractSyncInputModule(AbstractModule):
+class AbstractSyncInputModule(with_metaclass(ABCMeta, AbstractModule)):
     """Synchronous input module
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, modclass=None, disabled=False):
         """ Initialize the module

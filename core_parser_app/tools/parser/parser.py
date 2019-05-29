@@ -1,11 +1,16 @@
 """Parser class
 """
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
 import logging
 import numbers
 import re
 import sys
 import traceback
-from urlparse import parse_qsl
+from urllib.parse import parse_qsl
 
 from lxml import etree
 
@@ -928,7 +933,7 @@ class XSDParser(object):
         # tag_ns = ' xmlns="{0}" '.format(element_ns) if element_ns is not None else ''
         ns_prefix = None
         if element_tag == "attribute" and target_namespace is not None:
-            for prefix, ns in namespaces.iteritems():
+            for prefix, ns in namespaces.items():
                 if ns == target_namespace:
                     ns_prefix = prefix
                     break
@@ -1693,7 +1698,7 @@ class XSDParser(object):
         target_namespace, target_namespace_prefix = get_target_namespace(xml_tree, namespaces)
         ns_prefix = None
         if target_namespace is not None:
-            for prefix, ns in namespaces.iteritems():
+            for prefix, ns in namespaces.items():
                 if ns == target_namespace:
                     ns_prefix = prefix
                     break
@@ -1814,7 +1819,7 @@ class XSDParser(object):
         ns_prefix = None
 
         if target_namespace is not None:
-            for prefix, ns in namespaces.iteritems():
+            for prefix, ns in namespaces.items():
                 if ns == target_namespace:
                     ns_prefix = prefix
                     break
@@ -2442,9 +2447,9 @@ class XSDParser(object):
         # remove indexes from the xpath
         xpath = re.sub(r'\[[0-9]+\]', '', full_path)
         # remove namespaces
-        for prefix in element.nsmap.keys():
+        for prefix in list(element.nsmap.keys()):
             xpath = re.sub(r'{}:'.format(prefix), '', xpath)
-        for key in self.keys.keys():
+        for key in list(self.keys.keys()):
             if self.keys[key]['xpath'] == xpath:
                 if self.keys[key]['module'] is not None:
                     add_appinfo_child_to_element(element, MODULE_TAG_NAME, self.keys[key]['module'])
@@ -2464,9 +2469,9 @@ class XSDParser(object):
         # remove indexes from the xpath
         xpath = re.sub(r'\[[0-9]+\]', '', full_path)
         # remove namespaces
-        for prefix in element.nsmap.keys():
+        for prefix in list(element.nsmap.keys()):
             xpath = re.sub(r'{}:'.format(prefix), '', xpath)
-        for keyref in self.keyrefs.keys():
+        for keyref in list(self.keyrefs.keys()):
             if self.keyrefs[keyref]['xpath'] == xpath:
                 add_appinfo_child_to_element(element, MODULE_TAG_NAME, 'module-auto-keyref?keyref={}'.format(keyref))
                 return True
@@ -2499,7 +2504,7 @@ class XSDParser(object):
                 selector_xpath = selector.attrib['xpath']
                 key_selector = full_path + '/' + selector_xpath
                 # remove namespaces
-                for prefix in selector.nsmap.keys():
+                for prefix in list(selector.nsmap.keys()):
                     key_selector = re.sub(r'{}:'.format(prefix), '', key_selector)
                 # print key_selector
 
@@ -2531,7 +2536,7 @@ class XSDParser(object):
                 selector_xpath = selector.attrib['xpath']
                 keyref_selector = full_path + '/' + selector_xpath
                 # remove namespaces
-                for prefix in selector.nsmap.keys():
+                for prefix in list(selector.nsmap.keys()):
                     keyref_selector = re.sub(r'{}:'.format(prefix), '', keyref_selector)
 
                 # FIXME: manage multiple fields

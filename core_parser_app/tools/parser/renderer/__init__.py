@@ -1,5 +1,7 @@
 """Base Renderer class
 """
+from builtins import str
+from builtins import object
 import types
 from os.path import join
 
@@ -26,7 +28,7 @@ class DefaultRenderer(object):
             if type(template_list) != dict:
                 raise TypeError("template_list type is wrong (" + str(type(template_list)) + " received, dict needed")
 
-            for template in template_list.values():
+            for template in list(template_list.values()):
                 if not isinstance(template, Template):
                     template_type = str(type(template_list))
                     raise TypeError("template value type is wrong (" + template_type + " received, dict needed")
@@ -65,9 +67,9 @@ class DefaultRenderer(object):
         """
         context = {}
 
-        if tpl_key not in self.templates.keys():
+        if tpl_key not in list(self.templates.keys()):
             raise IndexError('Template "' + tpl_key + '" not found in registered templates ' +
-                             str(self.templates.keys()))
+                             str(list(self.templates.keys())))
 
         if tpl_data is not None and type(tpl_data) != dict:
             raise TypeError('Data parameter should be a dict (' + str(type(tpl_data)) + ' given)')
@@ -86,8 +88,8 @@ class DefaultRenderer(object):
         Returns:
 
         """
-        if type(err_message) not in [str, unicode]:
-            raise TypeError('Error message should be string or unicode (' + str(type(err_message)) + ' given)')
+        if type(err_message) is not str:
+            raise TypeError('Error message should be string (' + str(type(err_message)) + ' given)')
 
         context = {}
         data = {
@@ -186,10 +188,10 @@ class DefaultRenderer(object):
             if len(option) != 3:
                 raise TypeError('Malformed param (option_list): Length of item not good')
 
-            if type(option[0]) not in [str, unicode]:
+            if type(option[0]) is not str:
                 raise TypeError('Malformed param (option_list): item[0] should be a str')
 
-            if type(option[1]) not in [str, unicode]:
+            if type(option[1]) is not str:
                 raise TypeError('Malformed param (option_list): item[1] should be a str')
 
             if type(option[2]) != bool:

@@ -1,6 +1,7 @@
 """ Data structure element model
 """
 
+from builtins import str
 from django_mongoengine import fields, Document
 from mongoengine import errors as mongoengine_errors
 from core_main_app.commons import exceptions
@@ -36,7 +37,7 @@ class DataStructureElement(Document):
         try:
             return DataStructureElement.objects(children=ObjectId(child_id)).all()
         except Exception as ex:
-            raise exceptions.ModelError(ex.message)
+            raise exceptions.ModelError(str(ex))
 
     @staticmethod
     def get_by_id(data_structure_element_id):
@@ -52,6 +53,6 @@ class DataStructureElement(Document):
         try:
             return DataStructureElement.objects.get(pk=str(data_structure_element_id))
         except mongoengine_errors.DoesNotExist as e:
-            raise exceptions.DoesNotExist(e.message)
+            raise exceptions.DoesNotExist(str(e))
         except Exception as ex:
-            raise exceptions.ModelError(ex.message)
+            raise exceptions.ModelError(str(ex))

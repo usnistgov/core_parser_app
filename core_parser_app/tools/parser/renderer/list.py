@@ -1,5 +1,7 @@
 """List Renderer class
 """
+from builtins import str
+from builtins import range
 import logging
 from os.path import join
 from types import *
@@ -46,7 +48,7 @@ class AbstractListRenderer(DefaultRenderer):
         # if type(content) not in [str, unicode]:
         #     raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
 
-        if type(element_id) not in [str, unicode, NoneType]:
+        if type(element_id) not in [str, NoneType]:
             raise TypeError('Second param (element_id) should be a str or None (' + str(type(element_id)) + ' given)')
 
         if type(is_hidden) != bool:
@@ -205,7 +207,7 @@ class ListRenderer(AbstractListRenderer):
             else:
                 li_class = str(element.pk)
                 html_content = ''
-                for child_index in xrange(len(sub_elements)):
+                for child_index in range(len(sub_elements)):
                     html_buttons = buttons
 
                     if not sub_buttons[child_index]:
@@ -333,7 +335,7 @@ class ListRenderer(AbstractListRenderer):
             else:
                 li_class = str(element.pk)
                 html_content = ''
-                for child_index in xrange(len(sub_elements)):
+                for child_index in range(len(sub_elements)):
                     html_buttons = buttons
                     if not sub_buttons[child_index]:
                         html_buttons = self._render_buttons(False, del_button)
@@ -422,7 +424,7 @@ class ListRenderer(AbstractListRenderer):
             else:
                 li_class = str(element.pk)
 
-                for child_index in xrange(len(sub_elements)):
+                for child_index in range(len(sub_elements)):
                     if children_number != 1 or element.options["min"] != 1 or force_full_display:
                         html_content += self._render_ul(sub_elements[child_index], None)
                     else:

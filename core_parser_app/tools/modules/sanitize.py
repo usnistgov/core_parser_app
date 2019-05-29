@@ -1,5 +1,6 @@
 """Sanitize util
 """
+from builtins import str
 import json
 
 from django.utils.html import escape
@@ -27,9 +28,9 @@ def sanitize(input_value):
         return clean_value
     # input is a dict
     elif input_type == dict:
-        return {sanitize(key): sanitize(val) for key, val in input_value.items()}
+        return {sanitize(key): sanitize(val) for key, val in list(input_value.items())}
     # input is a string of characters
-    elif input_type == str or input_type == unicode:
+    elif input_type == str:
         try:
             # XML cleaning
             xml_cleaner_parser = etree.XMLParser(remove_blank_text=True)

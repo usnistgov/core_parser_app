@@ -1,8 +1,10 @@
 """XML utils
 """
+from future import standard_library
+standard_library.install_aliases()
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 from core_parser_app.settings import MODULE_TAG_NAME
-from urlparse import urlparse
+from urllib.parse import urlparse
 from core_parser_app.components.module import api as module_api
 
 APP_INFO_OPTIONS = ['label', 'placeholder', 'tooltip', 'use', 'default', MODULE_TAG_NAME]

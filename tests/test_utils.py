@@ -1,5 +1,9 @@
 """ Testing utils
 """
+from builtins import str
+from builtins import map
+from past.builtins import basestring
+from builtins import object
 import collections
 import json
 from os.path import join
@@ -9,7 +13,7 @@ from lxml import etree
 from xml_utils.xsd_tree.xsd_tree import XSDTree
 
 
-class DataHandler:
+class DataHandler(object):
     def __init__(self, dir_name):
         """ Init data handler
         """
@@ -45,7 +49,7 @@ class DataHandler:
 
                 # In any other cases the tag flag doesn't change
 
-        return XSDTree.fromstring(file_string)
+        return XSDTree.transform_to_xml(file_string)
 
     def get_xml(self, filename):
         """ Get XML
@@ -111,8 +115,8 @@ def convert(data):
     if isinstance(data, basestring):
         return str(data)
     elif isinstance(data, collections.Mapping):
-        return dict(map(convert, data.iteritems()))
+        return dict(list(map(convert, iter(data.items()))))
     elif isinstance(data, collections.Iterable):
-        return type(data)(map(convert, data))
+        return type(data)(list(map(convert, data)))
     else:
         return data

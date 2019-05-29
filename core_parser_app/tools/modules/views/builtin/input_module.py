@@ -3,12 +3,12 @@
 from abc import ABCMeta
 
 from core_parser_app.tools.modules.views.module import AbstractModule
+from future.utils import with_metaclass
 
 
-class AbstractInputModule(AbstractModule):
+class AbstractInputModule(with_metaclass(ABCMeta, AbstractModule)):
     """Input module
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, disabled=False):
         """ Initialize the module

@@ -1,5 +1,6 @@
 """ Data structure model
 """
+from builtins import str
 from django_mongoengine import fields, Document
 
 from core_main_app.commons import exceptions

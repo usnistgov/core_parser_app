@@ -3,12 +3,12 @@
 from abc import ABCMeta, abstractmethod
 
 from core_parser_app.tools.modules.views.module import AbstractModule
+from future.utils import with_metaclass
 
 
-class AbstractPopupModule(AbstractModule):
+class AbstractPopupModule(with_metaclass(ABCMeta, AbstractModule)):
     """Popup module
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, scripts=list(), styles=list(), button_label=''):
         """ Initialize module

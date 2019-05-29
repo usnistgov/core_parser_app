@@ -3,12 +3,12 @@
 from abc import ABCMeta
 
 from core_parser_app.tools.modules.views.module import AbstractModule
+from future.utils import with_metaclass
 
 
-class AbstractInputButtonModule(AbstractModule):
+class AbstractInputButtonModule(with_metaclass(ABCMeta, AbstractModule)):
     """ Input Button module
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, scripts=list(), styles=list(), button_label='Send', label=None, default_value=None):
         """ Initialize the module

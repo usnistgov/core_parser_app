@@ -13,12 +13,12 @@ from rest_framework.status import HTTP_200_OK
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.components.module import api as module_api
 from core_parser_app.tools.modules.exceptions import ModuleError
+from future.utils import with_metaclass
 
 
-class AbstractModule(View):
+class AbstractModule(with_metaclass(ABCMeta, View)):
     """Abstract module class
     """
-    __metaclass__ = ABCMeta
 
     # Is the module managing occurrences by its own? (False by default)
     # NOTE: needs to be redefined in subclasses
@@ -97,10 +97,10 @@ class AbstractModule(View):
             # save module element
             data_structure_element_api.upsert(module_element)
         except Exception as e:
-            raise ModuleError('Something went wrong during module initialization: ' + e.message)
+            raise ModuleError('Something went wrong during module initialization: ' + str(e))
 
         # Check that values are not None
-        for key, val in template_data.items():
+        for key, val in list(template_data.items()):
             if val is None:
                 raise ModuleError('Variable '+key+' cannot be None. Module initialization cannot be completed.')
 
@@ -150,7 +150,7 @@ class AbstractModule(View):
             module_element.options = options
             data_structure_element_api.upsert(module_element)
         except Exception as e:
-            raise ModuleError('Something went wrong during module update: ' + e.message)
+            raise ModuleError('Something went wrong during module update: ' + str(e))
 
         html_code = AbstractModule.render_template(self.template_name, template_data)
 

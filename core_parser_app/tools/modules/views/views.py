@@ -71,7 +71,7 @@ def load_resources_view(request):
         mod_resources = json.loads(mod_resources)
 
         # Append resource to the list
-        for key in resources.keys():
+        for key in list(resources.keys()):
             if mod_resources[key] is None:
                 continue
 
@@ -88,7 +88,7 @@ def load_resources_view(request):
         mod_resources = json.loads(mod_resources)
 
         # Remove resources already loaded
-        for key in resources.keys():
+        for key in list(resources.keys()):
             if mod_resources[key] is None:
                 continue
 

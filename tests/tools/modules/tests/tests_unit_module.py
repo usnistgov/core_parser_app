@@ -1,5 +1,6 @@
 """Module system unit testing
 """
+from builtins import str
 import json
 from unittest.case import TestCase
 

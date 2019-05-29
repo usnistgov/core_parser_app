@@ -1,6 +1,7 @@
 """Table Renderer class
 """
 from __future__ import print_function
+from builtins import range
 from os.path import join
 from django.template import loader
 from core_parser_app.tools.parser.renderer import DefaultRenderer
@@ -170,7 +171,7 @@ class TableRenderer(AbstractTableRenderer):
                 # li_class = 'removed'
             else:
                 html_content = ''
-                for child_index in xrange(len(sub_elements)):
+                for child_index in range(len(sub_elements)):
                     if sub_inputs[child_index]:  # Element is an input
                         html_content += element.options["name"] + sub_elements[child_index] + buttons
                     else:  # Element is not an input

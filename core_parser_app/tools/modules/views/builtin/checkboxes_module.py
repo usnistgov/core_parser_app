@@ -1,16 +1,19 @@
 """ Checkboxes Module
 """
+from __future__ import division
+from builtins import str
+from past.utils import old_div
 from abc import ABCMeta
 from math import ceil
 
 from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.views.module import AbstractModule
+from future.utils import with_metaclass
 
 
-class AbstractCheckboxesModule(AbstractModule):
+class AbstractCheckboxesModule(with_metaclass(ABCMeta, AbstractModule)):
     """ Checkboxes module
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, scripts=list(), styles=list(), label=None, name=None, options=None, selected=list()):
         """ Initialize the module
@@ -66,7 +69,7 @@ class AbstractCheckboxesModule(AbstractModule):
         # Compute number of items in each columns
         col_nb = 3
         opt_nb = len(self.options)
-        max_item_nb = int(ceil(opt_nb / col_nb))
+        max_item_nb = int(ceil(old_div(opt_nb, col_nb)))
 
         # Parameters initialization
         params = {
@@ -79,7 +82,7 @@ class AbstractCheckboxesModule(AbstractModule):
         checkboxes_html = ""
 
         # Filling the parameters
-        for key, val in self.options.items():
+        for key, val in list(self.options.items()):
             if item_nb == max_item_nb:
                 params['column' + str(col_id)] = checkboxes_html
 
