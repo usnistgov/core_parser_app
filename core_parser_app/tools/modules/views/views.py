@@ -65,7 +65,7 @@ def load_resources_view(request):
     for url in mod_urls:
         module = module_api.get_by_url(url)
         module_view = AbstractModule.get_view_from_view_path(module.view).as_view()
-        mod_resources = module_view(request).content
+        mod_resources = module_view(request).content.decode('utf-8')
 
         mod_resources = sanitize(mod_resources)
         mod_resources = json.loads(mod_resources)
@@ -82,7 +82,7 @@ def load_resources_view(request):
     # Remove possible dependencies form already loaded modules
     for url in mod_urls_loaded:
         module_view = AbstractModule.get_module_view(url)
-        mod_resources = module_view(request).content
+        mod_resources = module_view(request).content.decode('utf-8')
 
         mod_resources = sanitize(mod_resources)
         mod_resources = json.loads(mod_resources)
