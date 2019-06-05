@@ -1,8 +1,7 @@
 """Base Renderer class
 """
-from builtins import str
 from builtins import object
-import types
+from builtins import str
 from os.path import join
 
 from django.template import loader
@@ -20,18 +19,23 @@ class DefaultRenderer(object):
             xsd_data:
             template_list:
         """
-
+        # FIXME remove parameter type-checking
         if not isinstance(xsd_data, DataStructureElement):
             raise TypeError("xsd_data type should be a SchemaElement")
 
         if template_list is not None:
             if type(template_list) != dict:
-                raise TypeError("template_list type is wrong (" + str(type(template_list)) + " received, dict needed")
+                raise TypeError(
+                    "template_list type is wrong (%s received, dict needed" %
+                    str(type(template_list))
+                )
 
-            for template in list(template_list.values()):
+            for template in template_list.values():
                 if not isinstance(template, Template):
                     template_type = str(type(template_list))
-                    raise TypeError("template value type is wrong (" + template_type + " received, dict needed")
+                    raise TypeError(
+                        "template value type is wrong (%s received, dict needed" % template_type
+                    )
 
         self.data = xsd_data
         self.warnings = []
@@ -49,7 +53,8 @@ class DefaultRenderer(object):
 
             'btn_add': loader.get_template(join(default_renderer_path, 'buttons', 'add.html')),
             'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html')),
-            'btn_collapse': loader.get_template(join(default_renderer_path, 'buttons', 'collapse.html'))
+            'btn_collapse': loader.get_template(join(default_renderer_path, 'buttons',
+                                                     'collapse.html'))
         }
 
         if template_list is not None:
@@ -67,10 +72,11 @@ class DefaultRenderer(object):
         """
         context = {}
 
-        if tpl_key not in list(self.templates.keys()):
+        if tpl_key not in self.templates.keys():
             raise IndexError('Template "' + tpl_key + '" not found in registered templates ' +
                              str(list(self.templates.keys())))
 
+        # FIXME remove parameter type-checking
         if tpl_data is not None and type(tpl_data) != dict:
             raise TypeError('Data parameter should be a dict (' + str(type(tpl_data)) + ' given)')
 
@@ -88,6 +94,7 @@ class DefaultRenderer(object):
         Returns:
 
         """
+        # FIXME remove parameter type-checking
         if type(err_message) is not str:
             raise TypeError('Error message should be string (' + str(type(err_message)) + ' given)')
 
@@ -178,24 +185,6 @@ class DefaultRenderer(object):
         else:
             select_id = select.pk
             is_fixed = select.options['fixed'] if 'fixed' in select.options else False
-        if not isinstance(option_list, types.ListType):
-            raise TypeError('First param (option_list) should be a list (' + str(type(option_list)) + ' given)')
-
-        for option in option_list:
-            if not isinstance(option, types.TupleType):
-                raise TypeError('Malformed param (option_list): type of item not good')
-
-            if len(option) != 3:
-                raise TypeError('Malformed param (option_list): Length of item not good')
-
-            if type(option[0]) is not str:
-                raise TypeError('Malformed param (option_list): item[0] should be a str')
-
-            if type(option[1]) is not str:
-                raise TypeError('Malformed param (option_list): item[1] should be a str')
-
-            if type(option[2]) != bool:
-                raise TypeError('Malformed param (option_list): item[2] should be a bool')
 
         data = {
             'select_id': select_id,
@@ -216,14 +205,19 @@ class DefaultRenderer(object):
         Returns:
 
         """
+        # FIXME remove parameter type-checking
         add_button_type = type(add_button)
         del_button_type = type(delete_button)
 
         if add_button_type is not bool:
-            raise TypeError('add_button type is wrong (' + str(add_button_type) + 'received, bool needed')
+            raise TypeError(
+                "add_button type is wrong (%s received, bool needed)" % str(add_button_type)
+            )
 
         if del_button_type is not bool:
-            raise TypeError('add_button type is wrong (' + str(del_button_type) + 'received, bool needed')
+            raise TypeError(
+                "del_button type is wrong (%s received, bool needed)" % str(del_button_type)
+            )
 
         form_string = ""
 

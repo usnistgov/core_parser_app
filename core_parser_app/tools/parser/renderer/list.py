@@ -1,10 +1,9 @@
 """List Renderer class
 """
-from builtins import str
-from builtins import range
 import logging
+from builtins import range
+from builtins import str
 from os.path import join
-from types import *
 
 from django.template import loader
 
@@ -46,13 +45,20 @@ class AbstractListRenderer(DefaultRenderer):
         """
         # FIXME Django SafeText type cause the test to fail
         # if type(content) not in [str, unicode]:
-        #     raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
+        #     raise TypeError('First param (content) should be a str (' + str(type(content)) +
+        #     ' given)')
 
-        if type(element_id) not in [str, NoneType]:
-            raise TypeError('Second param (element_id) should be a str or None (' + str(type(element_id)) + ' given)')
+        # FIXME remove parameter type-checking
+        if type(element_id) != str and element_id is not None:
+            raise TypeError(
+                "Second param (element_id) should be a str or None (%s given)" %
+                str(type(element_id))
+            )
 
         if type(is_hidden) != bool:
-            raise TypeError('Third param (chosen) should be a bool (' + str(type(is_hidden)) + ' given)')
+            raise TypeError(
+                "Third param (chosen) should be a bool (%s given)" % str(type(is_hidden))
+            )
 
         data = {
             'content': content,
@@ -75,9 +81,7 @@ class AbstractListRenderer(DefaultRenderer):
         """
         data = {
             'li_class': li_class,
-            # 'tag_id': tag_id,
             'li_id': str(li_id),
-            # 'text': text,
             'content': content
         }
 
@@ -174,7 +178,6 @@ class ListRenderer(AbstractListRenderer):
             element_name = element.options['label']
 
         for child_key in child_keys:
-            # li_class = ''
             # FIXME Use tuples instead
             sub_elements = []
             sub_inputs = []
@@ -503,7 +506,9 @@ class ListRenderer(AbstractListRenderer):
                     options.append((str(child.pk), child.options['name'], is_selected_element))
                     element_html = self.render_element(child)
                 elif child.tag == 'sequence':
-                    options.append((str(child.pk), 'Sequence '+str(item_number), is_selected_element))
+                    options.append(
+                        (str(child.pk), 'Sequence '+str(item_number), is_selected_element)
+                    )
                     item_number += 1
 
                     element_html = self.render_sequence(child)
@@ -518,7 +523,9 @@ class ListRenderer(AbstractListRenderer):
                     self.warnings.append(message)
 
                 if element_html != '':
-                    sub_content += self._render_ul(element_html, str(child.pk), (not is_selected_element))
+                    sub_content += self._render_ul(
+                        element_html, str(child.pk), (not is_selected_element)
+                    )
 
             if children_number == 0:  # Choice has no child
                 li_class = 'removed'
@@ -530,7 +537,8 @@ class ListRenderer(AbstractListRenderer):
                 if len(children[iter_element]) == 1:
                     html_content += options[0][1] + sub_content
                 else:  # Choice contains a list
-                    html_content += 'Choice ' + self._render_select(None, 'choice', options) + buttons
+                    html_content += 'Choice %s%s' % (self._render_select(None, 'choice', options),
+                                                     buttons)
                     html_content += sub_content
 
             # FIXME temp fix, do it in a cleaner way
