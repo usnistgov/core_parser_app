@@ -61,7 +61,7 @@ def load_schema_data_in_db(xsd_data):
 
     if 'options' in xsd_data:
         if xsd_element.tag == 'module' and xsd_data['options']['data'] is not None:
-            module_data = xsd_data['options']['data'].encode('utf-8')
+            module_data = xsd_data['options']['data']
             module_data = module_data.lstrip()
             xsd_data['options']['data'] = module_data.rstrip()
 
@@ -304,12 +304,13 @@ def get_xml_element_data(xsd_element, xml_element):
                 reload_data = ''
         else:  # branch: return children
             try:
-                if list(xml_element) > 0:
+                if len(list(xml_element)) > 0:
                     reload_data = ''
                     for child in list(xml_element):
                         reload_data += XSDTree.tostring(child)
-            except:
+            except Exception as e:
                 # FIXME in which case would we need that?
+                logger.debug("Exception thrown: %s" % str(e))
                 reload_data = str(xml_element)
 
     return reload_data
@@ -2108,7 +2109,6 @@ class XSDParser(object):
 
         # check if a module is set for this element
         if module_url is not None:
-
             try:
                 module = module_api.get_by_url(module_url.path)
 
