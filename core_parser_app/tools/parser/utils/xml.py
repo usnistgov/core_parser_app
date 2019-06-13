@@ -1,7 +1,5 @@
 """XML utils
 """
-from future import standard_library
-standard_library.install_aliases()
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 from core_parser_app.settings import MODULE_TAG_NAME
 from urllib.parse import urlparse

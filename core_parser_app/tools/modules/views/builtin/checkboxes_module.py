@@ -1,17 +1,15 @@
 """ Checkboxes Module
 """
 from __future__ import division
-from builtins import str
 from past.utils import old_div
 from abc import ABCMeta
 from math import ceil
 
 from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.views.module import AbstractModule
-from future.utils import with_metaclass
 
 
-class AbstractCheckboxesModule(with_metaclass(ABCMeta, AbstractModule)):
+class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
     """ Checkboxes module
     """
 

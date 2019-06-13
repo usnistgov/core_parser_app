@@ -1,14 +1,12 @@
 """Xpath accessor class
 """
 
-from builtins import object
 from abc import ABCMeta, abstractmethod
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.components.data_structure import api as data_structure_api
-from future.utils import with_metaclass
 
 
-class XPathAccessor(with_metaclass(ABCMeta, object)):
+class XPathAccessor(object, metaclass=ABCMeta):
     def __init__(self, request):
         try:
             element = data_structure_element_api.get_by_id(request.POST['module_id'])

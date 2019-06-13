@@ -1,8 +1,6 @@
 """List Renderer class
 """
 import logging
-from builtins import range
-from builtins import str
 from os.path import join
 
 from django.template import loader

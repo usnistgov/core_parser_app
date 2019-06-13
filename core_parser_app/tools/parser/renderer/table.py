@@ -1,7 +1,7 @@
 """Table Renderer class
 """
 import logging
-from builtins import range
+from __future__ import print_function
 from os.path import join
 from django.template import loader
 from core_parser_app.tools.parser.renderer import DefaultRenderer

@@ -13,10 +13,9 @@ from rest_framework.status import HTTP_200_OK
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
 from core_parser_app.components.module import api as module_api
 from core_parser_app.tools.modules.exceptions import ModuleError
-from future.utils import with_metaclass
 
 
-class AbstractModule(with_metaclass(ABCMeta, View)):
+class AbstractModule(View, metaclass=ABCMeta):
     """Abstract module class
     """
 

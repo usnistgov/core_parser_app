@@ -1,6 +1,5 @@
 """Sanitize util
 """
-from builtins import str
 import json
 
 from django.utils.html import escape

@@ -3,10 +3,9 @@
 from abc import ABCMeta
 
 from core_parser_app.tools.modules.views.module import AbstractModule
-from future.utils import with_metaclass
 
 
-class AbstractInputModule(with_metaclass(ABCMeta, AbstractModule)):
+class AbstractInputModule(AbstractModule, metaclass=ABCMeta):
     """Input module
     """
 

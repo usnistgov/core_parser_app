@@ -1,9 +1,5 @@
 """ Testing utils
 """
-from builtins import str
-from builtins import map
-from past.builtins import basestring
-from builtins import object
 import collections
 import json
 from os.path import join
@@ -112,7 +108,7 @@ def convert(data):
     Returns:
 
     """
-    if isinstance(data, basestring):
+    if type(data) == str:
         return str(data)
     elif isinstance(data, collections.Mapping):
         return dict(list(map(convert, iter(data.items()))))

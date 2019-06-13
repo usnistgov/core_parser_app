@@ -1,7 +1,5 @@
 """Base Renderer class
 """
-from builtins import object
-from builtins import str
 from os.path import join
 
 from django.template import loader

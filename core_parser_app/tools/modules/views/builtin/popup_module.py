@@ -3,10 +3,9 @@
 from abc import ABCMeta, abstractmethod
 
 from core_parser_app.tools.modules.views.module import AbstractModule
-from future.utils import with_metaclass
 
 
-class AbstractPopupModule(with_metaclass(ABCMeta, AbstractModule)):
+class AbstractPopupModule(AbstractModule, metaclass=ABCMeta):
     """Popup module
     """
 
