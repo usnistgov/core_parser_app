@@ -1,12 +1,16 @@
 """Sanitize util
 """
 import json
+import logging
+from builtins import str
 
 from django.utils.html import escape
 from lxml import etree
 
 from xml_utils.commons.exceptions import XMLError
 from xml_utils.xsd_tree.xsd_tree import XSDTree
+
+logger = logging.getLogger(__name__)
 
 
 def sanitize(input_value):
@@ -36,9 +40,10 @@ def sanitize(input_value):
             xml_data = XSDTree.fromstring(input_value, parser=xml_cleaner_parser)
 
             input_value = XSDTree.tostring(xml_data)
-        except XMLError:
+        except XMLError as e:
             # input is not XML, pass
-            pass
+            logger.warning("sanitize threw an exception: {0}".format(str(e)))
+
         finally:
             try:
                 json_value = json.loads(input_value)

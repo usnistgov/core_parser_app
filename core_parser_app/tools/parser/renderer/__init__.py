@@ -1,11 +1,14 @@
 """Base Renderer class
 """
+import logging
 from os.path import join
 
 from django.template import loader
 from django.template.backends.django import Template
 
 from core_parser_app.components.data_structure_element.models import DataStructureElement
+
+logger = logging.getLogger(__name__)
 
 
 class DefaultRenderer(object):
@@ -221,7 +224,7 @@ class DefaultRenderer(object):
 
         # Fixed number of occurences, don't need buttons
         if not add_button and not delete_button:
-            pass
+            logger.debug("_render_buttons: no add, no delete")
         else:
             if add_button:
                 form_string += self._load_template('btn_add', {'is_hidden': False})

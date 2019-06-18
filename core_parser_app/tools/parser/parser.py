@@ -5,8 +5,12 @@ import numbers
 import re
 import sys
 import traceback
+from builtins import object
+from builtins import range
+from builtins import str
 from urllib.parse import parse_qsl
 
+from future import standard_library
 from lxml import etree
 
 from core_main_app.commons.exceptions import CoreError
@@ -28,6 +32,7 @@ from xml_utils.xsd_tree.xsd_tree import XSDTree
 from xml_utils.xsd_types.xsd_types import get_xsd_types
 
 logger = logging.getLogger(__name__)
+standard_library.install_aliases()
 
 
 ##################################################
@@ -305,7 +310,7 @@ def get_xml_element_data(xsd_element, xml_element):
                         reload_data += XSDTree.tostring(child)
             except Exception as e:
                 # FIXME in which case would we need that?
-                logger.debug("Exception thrown: %s" % str(e))
+                logger.warning("Exception thrown: %s" % str(e))
                 reload_data = str(xml_element)
 
     return reload_data
@@ -1302,9 +1307,9 @@ class XSDParser(object):
 
                         db_elem_iter['children'].append(choice_result)
                     elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-                        pass
+                        logger.debug("generate_sequence case not implemented.")
                     elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-                        pass
+                        logger.debug("generate_sequence case not implemented.")
 
                 db_element['children'].append(db_elem_iter)
 
@@ -1353,9 +1358,9 @@ class XSDParser(object):
 
                     db_elem_iter['children'].append(choice_result)
                 elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-                    pass
+                    logger.info("generate_sequence_absent case not implemented.")
                 elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-                    pass
+                    logger.info("generate_sequence_absent case not implemented.")
 
             db_element['children'].append(db_elem_iter)
 
@@ -1396,9 +1401,9 @@ class XSDParser(object):
                 choice = self.generate_choice(child, xml_tree, schema_location=schema_location)
                 db_element['children'].append(choice)
             elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-                pass
+                logger.info("generate_sequence_absent case not implemented.")
             elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-                pass
+                logger.info("generate_sequence_absent case not implemented.")
 
         return db_element
 
@@ -1500,8 +1505,8 @@ class XSDParser(object):
             if elements_found is not None:
                 try:
                     element_found = elements_found[x]
-                except:
-                    pass
+                except Exception as e:
+                    logger.warning("generate_choice threw an exception: {0}".format(str(e)))
 
             for (counter, choiceChild) in enumerate(list(element)):
                 # For unbounded choice, explicitly don't generate the choices not selected
@@ -1547,7 +1552,7 @@ class XSDParser(object):
                     db_child_0 = element_result
                     db_child['children'].append(db_child_0)
                 elif choiceChild.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-                    pass
+                    logger.info("generate_sequence case not implemented.")
                 elif choiceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
                     choice = self.generate_choice(choiceChild, xml_tree,
                                                   counter, full_path=full_path,
@@ -1562,7 +1567,7 @@ class XSDParser(object):
                     db_child_0 = sequence
                     db_child['children'].append(db_child_0)
                 elif choiceChild.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-                    pass
+                    logger.info("generate_sequence case not implemented.")
 
             db_element['children'].append(db_child)
 

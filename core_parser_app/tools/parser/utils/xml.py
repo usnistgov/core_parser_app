@@ -1,10 +1,13 @@
 """XML utils
 """
+import logging
 from urllib.parse import urlparse
 
 from core_parser_app.components.module import api as module_api
 from core_parser_app.settings import MODULE_TAG_NAME
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
+
+logger = logging.getLogger(__name__)
 
 APP_INFO_OPTIONS = ['label', 'placeholder', 'tooltip', 'use', 'default', MODULE_TAG_NAME]
 
@@ -85,7 +88,7 @@ def get_attribute_occurrences(element):
             min_occurs = 0
             max_occurs = 0
         elif element.attrib['use'] == "required":
-            pass
+            logger.debug("get_attribute_occurrences: element use required")
 
     return min_occurs, max_occurs
 
