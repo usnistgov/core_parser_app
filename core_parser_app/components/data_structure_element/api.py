@@ -1,6 +1,5 @@
 """API for Data Structure Element
 """
-from core_main_app.commons.exceptions import DoesNotExist
 from core_parser_app.components.data_structure_element.models import DataStructureElement
 
 

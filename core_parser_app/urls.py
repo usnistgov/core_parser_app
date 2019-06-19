@@ -1,8 +1,9 @@
 """ Url router for the parser application
 """
 from django.conf.urls import url, include
-from core_parser_app.views.user import ajax as user_ajax
+
 from core_parser_app.views.common import views as common_views, ajax as common_ajax
+from core_parser_app.views.user import ajax as user_ajax
 
 urlpatterns = [
     url(r'^data-structure-element/value', user_ajax.data_structure_element_value,

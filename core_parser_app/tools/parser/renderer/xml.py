@@ -1,12 +1,13 @@
 """XML Renderer class
 """
-from django.template import loader
-from os.path import join
-from bson.objectid import ObjectId
 import numbers
+from os.path import join
 
-from  core_parser_app.settings import AUTO_ESCAPE_XML_ENTITIES
+from bson.objectid import ObjectId
+from django.template import loader
+
 from core_parser_app.components.data_structure_element import api as data_structure_element_api
+from core_parser_app.settings import AUTO_ESCAPE_XML_ENTITIES
 from core_parser_app.tools.parser.exceptions import RendererError
 from core_parser_app.tools.parser.renderer import DefaultRenderer
 from xml_utils.xsd_tree.operations.xml_entities import XmlEntities

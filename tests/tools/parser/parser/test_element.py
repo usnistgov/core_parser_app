@@ -6,7 +6,6 @@ from unittest.case import TestCase
 from core_parser_app.tools.parser.parser import XSDParser
 from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
-
 from xml_utils.xsd_tree.xsd_tree import XSDTree
 
 # FIXME: use django finder

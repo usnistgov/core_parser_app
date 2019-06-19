@@ -1,9 +1,10 @@
 """XML utils
 """
-from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
-from core_parser_app.settings import MODULE_TAG_NAME
 from urllib.parse import urlparse
+
 from core_parser_app.components.module import api as module_api
+from core_parser_app.settings import MODULE_TAG_NAME
+from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 
 APP_INFO_OPTIONS = ['label', 'placeholder', 'tooltip', 'use', 'default', MODULE_TAG_NAME]
 

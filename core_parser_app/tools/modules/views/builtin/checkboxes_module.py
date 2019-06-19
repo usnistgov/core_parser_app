@@ -1,9 +1,11 @@
 """ Checkboxes Module
 """
 from __future__ import division
-from past.utils import old_div
+
 from abc import ABCMeta
 from math import ceil
+
+from past.utils import old_div
 
 from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.views.module import AbstractModule

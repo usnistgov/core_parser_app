@@ -1,10 +1,12 @@
 """ Unit Test Data Structure Element
 """
-import core_parser_app.components.data_structure_element.api as data_structure_element_api
-from core_parser_app.components.data_structure_element.models import DataStructureElement
-from core_main_app.commons import exceptions
 from unittest.case import TestCase
+
 from mock import patch
+
+import core_parser_app.components.data_structure_element.api as data_structure_element_api
+from core_main_app.commons import exceptions
+from core_parser_app.components.data_structure_element.models import DataStructureElement
 
 
 class TestDataStructureElementGetAll(TestCase):

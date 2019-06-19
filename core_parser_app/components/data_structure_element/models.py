@@ -1,10 +1,11 @@
 """ Data structure element model
 """
 
+from bson.objectid import ObjectId
 from django_mongoengine import fields, Document
 from mongoengine import errors as mongoengine_errors
+
 from core_main_app.commons import exceptions
-from bson.objectid import ObjectId
 
 
 class DataStructureElement(Document):

@@ -1,7 +1,7 @@
 """Form rendering utils
 """
-import textwrap
 import re
+import textwrap
 
 
 def format_tooltip(text, width=80):

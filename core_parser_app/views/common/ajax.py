@@ -1,9 +1,11 @@
 """AJAX views
 """
 import json
+
 from django.http.response import HttpResponseBadRequest, HttpResponse
-from core_parser_app.components.module import api as module_api
+
 from core_main_app.components.template import api as template_api
+from core_parser_app.components.module import api as module_api
 
 
 def delete_module(request):

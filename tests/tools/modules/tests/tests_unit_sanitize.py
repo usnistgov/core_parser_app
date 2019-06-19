@@ -2,6 +2,7 @@
 """
 
 from unittest.case import TestCase
+
 from core_parser_app.tools.modules.sanitize import sanitize
 
 

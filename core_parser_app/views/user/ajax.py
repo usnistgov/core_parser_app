@@ -1,8 +1,10 @@
 """AJAX views
 """
-from core_parser_app.components.data_structure_element import api as data_structure_element_api
-from django.http.response import HttpResponseBadRequest, HttpResponse
 import json
+
+from django.http.response import HttpResponseBadRequest, HttpResponse
+
+from core_parser_app.components.data_structure_element import api as data_structure_element_api
 
 
 def data_structure_element_value(request):

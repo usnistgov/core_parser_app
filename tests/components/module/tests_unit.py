@@ -1,10 +1,12 @@
 from unittest.case import TestCase
+
 from bson.objectid import ObjectId
+from django.core import exceptions as django_exceptions
 from mock.mock import Mock, patch
 from mongoengine import errors as mongoengine_errors
-from django.core import exceptions as django_exceptions
-from core_parser_app.components.module.models import Module
+
 from core_parser_app.components.module import api as module_api
+from core_parser_app.components.module.models import Module
 
 
 class TestModuleGetById(TestCase):

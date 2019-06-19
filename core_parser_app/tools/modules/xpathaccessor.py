@@ -2,8 +2,9 @@
 """
 
 from abc import ABCMeta, abstractmethod
-from core_parser_app.components.data_structure_element import api as data_structure_element_api
+
 from core_parser_app.components.data_structure import api as data_structure_api
+from core_parser_app.components.data_structure_element import api as data_structure_element_api
 
 
 class XPathAccessor(object, metaclass=ABCMeta):

@@ -1,5 +1,6 @@
-from django.conf import settings
 from os.path import join, dirname, realpath
+
+from django.conf import settings
 
 if not settings.configured:
     settings.configure()
