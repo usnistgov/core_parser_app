@@ -42,6 +42,7 @@ class DataFixtures(FixtureInterface):
         # option build
         data_structure_element_option_1 = {"opt_1_1": "value_opt_1", "opt_1_2": "value_opt_2"}
         data_structure_element_option_2 = {"opt_2_1": "value_opt_1", "opt_2_2": "value_opt_2"}
+        data_structure_element_option_xpath = {'xpath': {'xml': 'value_xpath'}}
 
         # insert two complete data structure element
         data_structure_element_1 = DataStructureElement('tag1',
@@ -56,7 +57,10 @@ class DataFixtures(FixtureInterface):
                                                         'value3',
                                                         data_structure_element_option_2,
                                                         self.children_2).save()
-
+        data_structure_element_4 = DataStructureElement('tag4',
+                                                        'value4',
+                                                        data_structure_element_option_xpath,
+                                                        self.children_2).save()
         # build a collection of data structure element
         self.data_structure_element_collection = [data_structure_element_child_1,
                                                   data_structure_element_child_2,
@@ -64,7 +68,8 @@ class DataFixtures(FixtureInterface):
                                                   data_structure_element_child_4,
                                                   data_structure_element_1,
                                                   data_structure_element_2,
-                                                  data_structure_element_3]
+                                                  data_structure_element_3,
+                                                  data_structure_element_4]
 
 
 class DataStructureElementMultipleLevelsFixture(FixtureInterface):

@@ -56,3 +56,22 @@ class DataStructureElement(Document):
             raise exceptions.DoesNotExist(str(e))
         except Exception as ex:
             raise exceptions.ModelError(str(ex))
+
+    @staticmethod
+    def get_by_xpath(xpath):
+        """ Returns the object with the given id
+
+        Args:
+            xpath:
+
+        Returns:
+            DataStructureElement (obj): DataStructureElement object with the given id
+
+        """
+
+        try:
+            return DataStructureElement.objects(__raw__={"options.xpath.xml": str(xpath)})
+        except mongoengine_errors.DoesNotExist as e:
+            raise exceptions.DoesNotExist(str(e))
+        except Exception as ex:
+            raise exceptions.ModelError(str(ex))

@@ -49,6 +49,22 @@ class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
             api_data_structure_element.get_by_id("")
 
 
+class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
+    fixture = fixture_data
+
+    def test_data_get_by_xpath_return_data_if_found(self):
+        # Act
+        result = self.fixture.data_structure_element_collection[7].get_by_xpath("value_xpath")
+        # Assert
+        self.assertEqual(result[0], self.fixture.data_structure_element_collection[7])
+
+    def test_data_get_by_xpath_return_empty_if_xpath_not_found(self):
+        # Act
+        result = self.fixture.data_structure_element_collection[7].get_by_xpath("wrong_xpath_value")
+        # Act
+        self.assertEqual(result.count(), 0)
+
+
 class TestDataStructureElementGetByChildId(MongoIntegrationBaseTestCase):
     fixture = fixture_data
 

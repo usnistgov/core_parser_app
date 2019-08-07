@@ -49,6 +49,27 @@ class TestDataStructureElementGetById(TestCase):
         self.assertIsInstance(result, DataStructureElement)
 
 
+class TestDataStructureElementGetByXpath(TestCase):
+
+    @patch.object(DataStructureElement, 'get_by_xpath')
+    def test_data_structure_element_get_by_xpath_raises_does_not_exist_error_if_not_found(self, mock_get):
+        # Arrange
+        mock_get.side_effect = exceptions.DoesNotExist('')
+        # Act # Assert
+        with self.assertRaises(exceptions.DoesNotExist):
+            data_structure_element_api.get_by_xpath("value_xpath")
+
+    @patch.object(DataStructureElement, 'get_by_xpath')
+    def test_data_structure_element_get_by_xpath_return_data_if_found(self, mock_get):
+        # Arrange
+        mock_data_structure_element = DataStructureElement("tag", "value", {"xpath.xml": "value_xpath"})
+        mock_get.return_value = mock_data_structure_element
+        # Act
+        result = DataStructureElement.get_by_xpath("value_xpath")
+        # Assert
+        self.assertEqual(result, mock_data_structure_element)
+
+
 class TestDataStructureElementGetAllByChildId(TestCase):
 
     def test_data_structure_element_get_by_id_raises_model_error_if_not_found(self):

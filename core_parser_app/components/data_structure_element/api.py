@@ -46,6 +46,16 @@ def get_by_id(data_structure_element_id):
     return DataStructureElement.get_by_id(data_structure_element_id)
 
 
+def get_by_xpath(xpath):
+    """ List all DataStructureElement
+        Args :
+            xpath
+        Returns: DataStructureElement collection
+    """
+
+    return DataStructureElement.get_by_xpath(xpath)
+
+
 # TODO: needs to be reworked
 def pull_children(data_structure_element, children):
     """
