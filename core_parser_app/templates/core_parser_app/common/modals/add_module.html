@@ -7,10 +7,9 @@
 <p>
     Select the module you want to associate with the selected element.
 </p>
-<table class="table table-bordered" id="modules-table">
+<table class="table table-condensed" id="modules-table">
     <tbody>
-    <tr>
-        <td><b>Default</b></td>
+    <tr class="red-background">
         <td>Default behavior</td>
         <td>
             <a class="btn btn-danger delete">Restore</a>
@@ -18,8 +17,7 @@
     </tr>
     {% for module in data.modules %}
     <tr>
-        <td moduleID="{{module.id}}"><b>{{module.name}}</b></td>
-        <td>{{module.url}}</td>
+        <td data-id="{{module.id}}" data-module-url-value="{{module.url}}">{{module.url | title}}</td>
         <td>
             <a class="btn btn-primary insert">Insert</a>
         </td>

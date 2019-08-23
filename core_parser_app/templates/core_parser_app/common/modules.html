@@ -8,7 +8,7 @@
     <tbody>
     {% for module in data.modules %}
     <tr>
-        <td moduleID="{{module.id}}"><b>{{module.name}}</b></td>
+        <td data-id="{{module.id}}"><b>{{module.name}}</b></td>
         <td>{{module.url}}</td>
     </tr>
     {% empty %}

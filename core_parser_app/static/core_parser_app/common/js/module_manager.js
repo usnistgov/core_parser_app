@@ -7,8 +7,8 @@ var insertModule = function(event){
 	parent = $(target).parent();
 
 	insertButton = event.target;
-	moduleURL = $(insertButton).parent().siblings(':nth-of-type(2)').text();
-	moduleID = $(insertButton).parent().siblings(':first').attr('moduleID');
+	moduleURL = $(insertButton).parent().siblings(':first').attr('data-module-url-value')
+	moduleID = $(insertButton).parent().siblings(':first').attr('data-id');
     templateID = $("#templateid").html();
 
 	xpath = getXPath();

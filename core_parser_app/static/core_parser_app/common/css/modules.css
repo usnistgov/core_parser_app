@@ -1,4 +1,7 @@
-#modules-table{
-    table-layout: fixed;
-    word-wrap: break-word;
+#modules-table td>a{
+    float: right;
+}
+
+.red-background {
+    background-color: #fee;
 }
