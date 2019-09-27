@@ -32,7 +32,8 @@ def discover_modules(urls):
                     if module_view_name.startswith('core_module_'):
                         module_view = AbstractModule.get_view_from_view_path(module_view_name)
                         if issubclass(module_view, AbstractModule):
-                            module_object = Module(url=url_pattern.regex.pattern,
+                            # FIXME: do not use private field
+                            module_object = Module(url=url_pattern.pattern._regex,
                                                    name=url_pattern.name,
                                                    view=module_view_name,
                                                    multiple=module_view.is_managing_occurrences)
