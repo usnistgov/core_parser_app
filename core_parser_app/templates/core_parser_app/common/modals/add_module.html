@@ -12,14 +12,14 @@
     <tr class="red-background">
         <td>Default behavior</td>
         <td>
-            <a class="btn btn-danger delete">Restore</a>
+            <button class="btn btn-danger delete">Restore</button>
         </td>
     </tr>
     {% for module in data.modules %}
     <tr>
         <td data-id="{{module.id}}" data-module-url-value="{{module.url}}">{{module.url | title}}</td>
         <td>
-            <a class="btn btn-primary insert">Insert</a>
+            <button class="btn btn-primary insert">Insert</button>
         </td>
     </tr>
     {% endfor %}
@@ -27,5 +27,5 @@
 </table>
 {% endblock %}
 {% block modal_footer %}
-<a class="btn btn-default pull-left" data-dismiss="modal" href="#"><i class="fa fa-times"></i> Cancel</a>
+<a class="btn btn-secondary pull-left" data-dismiss="modal" href="#"><i class="fa fa-times"></i> Cancel</a>
 {% endblock %}
