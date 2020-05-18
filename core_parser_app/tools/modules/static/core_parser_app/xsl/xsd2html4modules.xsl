@@ -35,7 +35,7 @@
 					<xsl:choose>
 						<!-- Element with children -->
 						<xsl:when test="* and not(contains(name(child::*),'annotation') and count(child::*)=1)">
-							<span class="collapse" style="cursor:pointer;" onclick="showhide(event);"></span>
+							<span class="collapse show" style="cursor:pointer;" onclick="showhide(event);"></span>
 							<span class="category">
 								<xsl:choose>
 									<xsl:when test="contains(name(.),'element')
