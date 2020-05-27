@@ -17,7 +17,7 @@ class AbstractAutoCompleteModule(AbstractModule, metaclass=ABCMeta):
             styles:
             label:
         """
-        scripts = ['core_parser_app/js/builtin/autocomplete.js'] + scripts
+        scripts = ["core_parser_app/js/builtin/autocomplete.js"] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
 
         self.label = label
@@ -33,10 +33,12 @@ class AbstractAutoCompleteModule(AbstractModule, metaclass=ABCMeta):
         """
         params = {}
 
-        if self.data != '':
-            params['value'] = self.data
+        if self.data != "":
+            params["value"] = self.data
 
         if self.label is not None:
             params.update({"label": self.label})
 
-        return AbstractModule.render_template('core_parser_app/builtin/autocomplete.html', params)
+        return AbstractModule.render_template(
+            "core_parser_app/builtin/autocomplete.html", params
+        )

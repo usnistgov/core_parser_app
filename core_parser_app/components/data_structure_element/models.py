@@ -10,10 +10,11 @@ from core_main_app.commons import exceptions
 
 class DataStructureElement(Document):
     """Represents data structure object"""
+
     tag = fields.StringField()
     value = fields.StringField(blank=True)
     options = fields.DictField(default={}, blank=True)
-    children = fields.ListField(fields.ReferenceField('self'), blank=True)
+    children = fields.ListField(fields.ReferenceField("self"), blank=True)
 
     @staticmethod
     def get_all():
@@ -70,7 +71,9 @@ class DataStructureElement(Document):
         """
 
         try:
-            return DataStructureElement.objects(__raw__={"options.xpath.xml": str(xpath)})
+            return DataStructureElement.objects(
+                __raw__={"options.xpath.xml": str(xpath)}
+            )
         except mongoengine_errors.DoesNotExist as e:
             raise exceptions.DoesNotExist(str(e))
         except Exception as ex:

@@ -6,17 +6,21 @@ from mock import patch
 
 import core_parser_app.components.data_structure_element.api as data_structure_element_api
 from core_main_app.commons import exceptions
-from core_parser_app.components.data_structure_element.models import DataStructureElement
+from core_parser_app.components.data_structure_element.models import (
+    DataStructureElement,
+)
 
 
 class TestDataStructureElementGetAll(TestCase):
-
-    @patch.object(DataStructureElement, 'get_all')
+    @patch.object(DataStructureElement, "get_all")
     def test_data_structure_element_get_all_return_collection_of_data(self, mock_list):
         # Arrange
         mock_data_structure_element_1 = DataStructureElement("tag", "value")
         mock_data_structure_element_2 = DataStructureElement("tag", "value")
-        mock_list.return_value = [mock_data_structure_element_1, mock_data_structure_element_2]
+        mock_list.return_value = [
+            mock_data_structure_element_1,
+            mock_data_structure_element_2,
+        ]
         # Act
         result = data_structure_element_api.get_all()
         # Assert
@@ -24,11 +28,12 @@ class TestDataStructureElementGetAll(TestCase):
 
 
 class TestDataStructureElementGetById(TestCase):
-
-    @patch.object(DataStructureElement, 'get_by_id')
-    def test_data_structure_element_get_by_id_raises_does_not_exist_error_if_not_found(self, mock_get):
+    @patch.object(DataStructureElement, "get_by_id")
+    def test_data_structure_element_get_by_id_raises_does_not_exist_error_if_not_found(
+        self, mock_get
+    ):
         # Arrange
-        mock_get.side_effect = exceptions.DoesNotExist('')
+        mock_get.side_effect = exceptions.DoesNotExist("")
         # Act # Assert
         with self.assertRaises(exceptions.DoesNotExist):
             data_structure_element_api.get_by_id(1)
@@ -38,7 +43,7 @@ class TestDataStructureElementGetById(TestCase):
         with self.assertRaises(exceptions.ModelError):
             data_structure_element_api.get_by_id(1)
 
-    @patch.object(DataStructureElement, 'get_by_id')
+    @patch.object(DataStructureElement, "get_by_id")
     def test_data_structure_element_get_by_id_return_data_if_found(self, mock_get):
         # Arrange
         mock_data_structure_element = DataStructureElement("tag", "value")
@@ -50,19 +55,22 @@ class TestDataStructureElementGetById(TestCase):
 
 
 class TestDataStructureElementGetByXpath(TestCase):
-
-    @patch.object(DataStructureElement, 'get_by_xpath')
-    def test_data_structure_element_get_by_xpath_raises_does_not_exist_error_if_not_found(self, mock_get):
+    @patch.object(DataStructureElement, "get_by_xpath")
+    def test_data_structure_element_get_by_xpath_raises_does_not_exist_error_if_not_found(
+        self, mock_get
+    ):
         # Arrange
-        mock_get.side_effect = exceptions.DoesNotExist('')
+        mock_get.side_effect = exceptions.DoesNotExist("")
         # Act # Assert
         with self.assertRaises(exceptions.DoesNotExist):
             data_structure_element_api.get_by_xpath("value_xpath")
 
-    @patch.object(DataStructureElement, 'get_by_xpath')
+    @patch.object(DataStructureElement, "get_by_xpath")
     def test_data_structure_element_get_by_xpath_return_data_if_found(self, mock_get):
         # Arrange
-        mock_data_structure_element = DataStructureElement("tag", "value", {"xpath.xml": "value_xpath"})
+        mock_data_structure_element = DataStructureElement(
+            "tag", "value", {"xpath.xml": "value_xpath"}
+        )
         mock_get.return_value = mock_data_structure_element
         # Act
         result = DataStructureElement.get_by_xpath("value_xpath")
@@ -71,13 +79,12 @@ class TestDataStructureElementGetByXpath(TestCase):
 
 
 class TestDataStructureElementGetAllByChildId(TestCase):
-
     def test_data_structure_element_get_by_id_raises_model_error_if_not_found(self):
         # Act # Assert
         with self.assertRaises(exceptions.ModelError):
             data_structure_element_api.get_all_by_child_id(1)
 
-    @patch.object(DataStructureElement, 'get_all_by_child_id')
+    @patch.object(DataStructureElement, "get_all_by_child_id")
     def test_data_structure_element_get_all_by_id_return_data_if_found(self, mock_get):
         # Arrange
         mock_data_structure_element = DataStructureElement("tag", "value")
@@ -89,9 +96,10 @@ class TestDataStructureElementGetAllByChildId(TestCase):
 
 
 class TestDataStructureElementUpsert(TestCase):
-
-    @patch.object(DataStructureElement, 'save')
-    def test_data_structure_element_upsert_return_data_structure_element(self, mock_save):
+    @patch.object(DataStructureElement, "save")
+    def test_data_structure_element_upsert_return_data_structure_element(
+        self, mock_save
+    ):
         # Arrange
         mock_data_structure_element = DataStructureElement("tag", "value")
         mock_save.return_value = mock_data_structure_element

@@ -3,7 +3,10 @@
 from core_main_app.components.template import api as template_api
 from core_parser_app.components.module.models import Module
 from core_parser_app.settings import MODULE_TAG_NAME
-from xml_utils.xsd_tree.operations.appinfo import add_appinfo_element, delete_appinfo_element
+from xml_utils.xsd_tree.operations.appinfo import (
+    add_appinfo_element,
+    delete_appinfo_element,
+)
 
 
 def get_by_id(module_id):
@@ -83,7 +86,9 @@ def add_module(template, module_id, xpath):
     # get the module
     module_object = get_by_id(module_id)
 
-    template.content = add_appinfo_element(template.content, xpath, MODULE_TAG_NAME, module_object.url)
+    template.content = add_appinfo_element(
+        template.content, xpath, MODULE_TAG_NAME, module_object.url
+    )
     return template_api.upsert(template)
 
 
@@ -101,4 +106,3 @@ def delete_module(template, xpath):
     template.content = delete_appinfo_element(template.content, xpath, MODULE_TAG_NAME)
 
     return template_api.upsert(template)
-

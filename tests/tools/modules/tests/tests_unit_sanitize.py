@@ -7,7 +7,6 @@ from core_parser_app.tools.modules.sanitize import sanitize
 
 
 class TestSanitize(TestCase):
-
     def test_sanitize_special_character_returns_encoded_character(self):
         self.assertEquals("&lt;", sanitize("<"))
 

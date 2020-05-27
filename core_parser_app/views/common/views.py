@@ -27,35 +27,36 @@ class ManageModulesUserView(View):
 
         """
         assets = {
-            "js": [
-                {
-                    "path": 'core_main_app/common/js/XMLTree.js',
-                    "is_raw": True
-                },
-
+            "js": [{"path": "core_main_app/common/js/XMLTree.js", "is_raw": True},],
+            "css": [
+                "core_main_app/common/css/XMLTree.css",
+                "core_parser_app/common/css/modules.css",
             ],
-            "css": ['core_main_app/common/css/XMLTree.css',
-                    'core_parser_app/common/css/modules.css']
         }
 
         modals = []
         if not self.read_only:
             modals = ["core_parser_app/common/modals/add_module.html"]
-            assets["js"].append({
-                                    "path": 'core_parser_app/common/js/module_manager.js',
-                                    "is_raw": False
-                                })
+            assets["js"].append(
+                {"path": "core_parser_app/common/js/module_manager.js", "is_raw": False}
+            )
 
         try:
-            return render(request,
-                          'core_parser_app/common/module_manager.html',
-                          modals=modals,
-                          assets=assets,
-                          context=get_context(pk, self.back_to_previous_url, self.read_only, self.title))
+            return render(
+                request,
+                "core_parser_app/common/module_manager.html",
+                modals=modals,
+                assets=assets,
+                context=get_context(
+                    pk, self.back_to_previous_url, self.read_only, self.title
+                ),
+            )
         except Exception as e:
-            return render(request,
-                          'core_main_app/common/commons/error.html',
-                          context={'error': str(e)})
+            return render(
+                request,
+                "core_main_app/common/commons/error.html",
+                context={"error": str(e)},
+            )
 
 
 def get_context(template_id, url_previous_button, read_only, title):
@@ -79,17 +80,19 @@ def get_context(template_id, url_previous_button, read_only, title):
 
     # reverse url
     try:
-        url_back_to = reverse(url_previous_button, kwargs={'version_manager_id': version_manager.id})
+        url_back_to = reverse(
+            url_previous_button, kwargs={"version_manager_id": version_manager.id}
+        )
     except NoReverseMatch:
         url_back_to = reverse(url_previous_button)
 
     context = {
-        'xsdTree': xsd_tree_html,
-        'modules': modules,
-        'object': template,
-        'version_manager': version_manager,
-        'url_back_to': url_back_to,
-        'read_only': read_only,
-        'title': title
+        "xsdTree": xsd_tree_html,
+        "modules": modules,
+        "object": template,
+        "version_manager": version_manager,
+        "url_back_to": url_back_to,
+        "read_only": read_only,
+        "title": title,
     }
     return context

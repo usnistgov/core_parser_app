@@ -3,9 +3,16 @@
 from bson.objectid import ObjectId
 
 from core_main_app.commons import exceptions
-from core_main_app.utils.integration_tests.integration_base_test_case import MongoIntegrationBaseTestCase
-from core_parser_app.components.data_structure_element import api as api_data_structure_element
-from core_parser_app.components.data_structure_element.models import DataStructureElement
+from core_main_app.utils.integration_tests.integration_base_test_case import (
+    MongoIntegrationBaseTestCase,
+)
+from core_parser_app.components.data_structure_element import (
+    api as api_data_structure_element,
+)
+from core_parser_app.components.data_structure_element.models import (
+    DataStructureElement,
+)
+
 # TODO: see why can't use from tests.components.data_structure_element.fixtures.fixtures import DataFixtures
 from .fixtures.fixtures import DataFixtures, DataStructureElementMultipleLevelsFixture
 
@@ -22,11 +29,15 @@ class TestDataStructureElementGetAll(MongoIntegrationBaseTestCase):
         # Assert
         self.assertTrue(all(isinstance(item, DataStructureElement) for item in result))
 
-    def test_data_structure_element_get_all_return_all_data_structure_element_in_collection(self):
+    def test_data_structure_element_get_all_return_all_data_structure_element_in_collection(
+        self,
+    ):
         # Act
         result = api_data_structure_element.get_all()
         # Assert
-        self.assertTrue(len(self.fixture.data_structure_element_collection) == len(result))
+        self.assertTrue(
+            len(self.fixture.data_structure_element_collection) == len(result)
+        )
 
 
 class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
@@ -39,7 +50,9 @@ class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
 
     def test_data_get_by_id_return_data_if_found(self):
         # Act
-        result = api_data_structure_element.get_by_id(self.fixture.data_structure_element_collection[1].id)
+        result = api_data_structure_element.get_by_id(
+            self.fixture.data_structure_element_collection[1].id
+        )
         # Assert
         self.assertEqual(result, self.fixture.data_structure_element_collection[1])
 
@@ -54,13 +67,17 @@ class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
 
     def test_data_get_by_xpath_return_data_if_found(self):
         # Act
-        result = self.fixture.data_structure_element_collection[7].get_by_xpath("value_xpath")
+        result = self.fixture.data_structure_element_collection[7].get_by_xpath(
+            "value_xpath"
+        )
         # Assert
         self.assertEqual(result[0], self.fixture.data_structure_element_collection[7])
 
     def test_data_get_by_xpath_return_empty_if_xpath_not_found(self):
         # Act
-        result = self.fixture.data_structure_element_collection[7].get_by_xpath("wrong_xpath_value")
+        result = self.fixture.data_structure_element_collection[7].get_by_xpath(
+            "wrong_xpath_value"
+        )
         # Act
         self.assertEqual(result.count(), 0)
 
@@ -70,7 +87,9 @@ class TestDataStructureElementGetByChildId(MongoIntegrationBaseTestCase):
 
     def test_data_structure_element_get_by_child_id(self):
         # Act
-        result = api_data_structure_element.get_all_by_child_id(self.fixture.data_structure_element_child_id_1)
+        result = api_data_structure_element.get_all_by_child_id(
+            self.fixture.data_structure_element_child_id_1
+        )
         # Assert
         self.assertTrue(all(isinstance(item, DataStructureElement) for item in result))
 
@@ -85,37 +104,47 @@ class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
 
     def test_get_root_element_returns_root_for_leaf(self):
         # Act
-        result = api_data_structure_element.get_root_element(self.fixture.data_structure_element_1_1_2_1)
+        result = api_data_structure_element.get_root_element(
+            self.fixture.data_structure_element_1_1_2_1
+        )
         # Assert
         self.assertEqual(result, self.fixture.data_structure_element_root)
 
     def test_get_root_element_returns_root_for_branch(self):
         # Act
-        result = api_data_structure_element.get_root_element(self.fixture.data_structure_element_1_1)
+        result = api_data_structure_element.get_root_element(
+            self.fixture.data_structure_element_1_1
+        )
         # Assert
         self.assertEqual(result, self.fixture.data_structure_element_root)
 
     def test_get_root_element_returns_root_for_root(self):
         # Act
-        result = api_data_structure_element.get_root_element(self.fixture.data_structure_element_root)
+        result = api_data_structure_element.get_root_element(
+            self.fixture.data_structure_element_root
+        )
         # Assert
         self.assertEqual(result, self.fixture.data_structure_element_root)
 
     def test_get_root_element_return_same_root_for_elements_of_same_tree(self):
-        for element in [self.fixture.data_structure_element_root,
-                        self.fixture.data_structure_element_1,
-                        self.fixture.data_structure_element_2,
-                        self.fixture.data_structure_element_1_1,
-                        self.fixture.data_structure_element_1_1_1,
-                        self.fixture.data_structure_element_1_1_2,
-                        self.fixture.data_structure_element_1_1_3,
-                        self.fixture.data_structure_element_1_1_2_1]:
+        for element in [
+            self.fixture.data_structure_element_root,
+            self.fixture.data_structure_element_1,
+            self.fixture.data_structure_element_2,
+            self.fixture.data_structure_element_1_1,
+            self.fixture.data_structure_element_1_1_1,
+            self.fixture.data_structure_element_1_1_2,
+            self.fixture.data_structure_element_1_1_3,
+            self.fixture.data_structure_element_1_1_2_1,
+        ]:
             # Act
             result = api_data_structure_element.get_root_element(element)
             # Assert
             self.assertEqual(result, self.fixture.data_structure_element_root)
-        for element in [self.fixture.data_structure_element_root_2,
-                        self.fixture.data_structure_element_test]:
+        for element in [
+            self.fixture.data_structure_element_root_2,
+            self.fixture.data_structure_element_test,
+        ]:
             # Act
             result = api_data_structure_element.get_root_element(element)
             # Assert

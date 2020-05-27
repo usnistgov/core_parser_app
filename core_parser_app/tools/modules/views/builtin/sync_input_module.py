@@ -10,7 +10,15 @@ class AbstractSyncInputModule(AbstractModule, metaclass=ABCMeta):
     """Synchronous input module
     """
 
-    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, modclass=None, disabled=False):
+    def __init__(
+        self,
+        scripts=list(),
+        styles=list(),
+        label=None,
+        default_value=None,
+        modclass=None,
+        disabled=False,
+    ):
         """ Initialize the module
 
         Args:
@@ -21,7 +29,7 @@ class AbstractSyncInputModule(AbstractModule, metaclass=ABCMeta):
             modclass:
             disabled:
         """
-        scripts = ['core_parser_app/js/builtin/sync_input.js'] + scripts
+        scripts = ["core_parser_app/js/builtin/sync_input.js"] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
 
         if modclass is None:
@@ -42,11 +50,13 @@ class AbstractSyncInputModule(AbstractModule, metaclass=ABCMeta):
 
         """
 
-        params = {'class': self.modclass}
+        params = {"class": self.modclass}
         if self.label is not None:
             params.update({"label": self.label})
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
         if self.disabled is not None:
             params.update({"disabled": self.disabled})
-        return AbstractModule.render_template('core_parser_app/builtin/sync_input.html', params)
+        return AbstractModule.render_template(
+            "core_parser_app/builtin/sync_input.html", params
+        )

@@ -15,7 +15,15 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
     """ Checkboxes module
     """
 
-    def __init__(self, scripts=list(), styles=list(), label=None, name=None, options=None, selected=list()):
+    def __init__(
+        self,
+        scripts=list(),
+        styles=list(),
+        label=None,
+        name=None,
+        options=None,
+        selected=list(),
+    ):
         """ Initialize the module
 
         Args:
@@ -26,8 +34,8 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
             options:
             selected:
         """
-        scripts = ['core_parser_app/js/builtin/checkboxes.js'] + scripts
-        styles = ['core_parser_app/css/builtin/checkboxes.css'] + styles
+        scripts = ["core_parser_app/js/builtin/checkboxes.js"] + scripts
+        styles = ["core_parser_app/css/builtin/checkboxes.css"] + styles
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
 
         if name is None:
@@ -52,10 +60,10 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
         """
         input_tag = '<input type="checkbox" '
         if checked:
-            input_tag += 'checked '
+            input_tag += "checked "
         input_tag += 'value="' + input_key + '"/> ' + input_value
 
-        return '<span>' + input_tag + '</span>'
+        return "<span>" + input_tag + "</span>"
 
     def _render_module(self, request):
         """ Return the module
@@ -84,18 +92,22 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
         # Filling the parameters
         for key, val in list(self.options.items()):
             if item_nb == max_item_nb:
-                params['column' + str(col_id)] = checkboxes_html
+                params["column" + str(col_id)] = checkboxes_html
 
                 checkboxes_html = ""
                 item_nb = 0
                 col_id += 1
 
-            checkboxes_html += CheckboxesModule._create_html_checkbox(key, val, checked=(key in self.selected))
+            checkboxes_html += CheckboxesModule._create_html_checkbox(
+                key, val, checked=(key in self.selected)
+            )
             item_nb += 1
 
-        params['column' + str(col_id)] = checkboxes_html
+        params["column" + str(col_id)] = checkboxes_html
 
         if self.label is not None:
             params.update({"label": self.label})
 
-        return AbstractModule.render_template('core_parser_app/builtin/checkboxes.html', params)
+        return AbstractModule.render_template(
+            "core_parser_app/builtin/checkboxes.html", params
+        )

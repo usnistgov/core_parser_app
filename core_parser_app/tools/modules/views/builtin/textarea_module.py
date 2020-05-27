@@ -9,7 +9,7 @@ class AbstractTextAreaModule(AbstractModule, metaclass=ABCMeta):
     """Text Area module
     """
 
-    def __init__(self, scripts=list(), styles=list(), label=None, data=''):
+    def __init__(self, scripts=list(), styles=list(), label=None, data=""):
         """ Initialize module
 
         Args:
@@ -19,8 +19,8 @@ class AbstractTextAreaModule(AbstractModule, metaclass=ABCMeta):
             label:
             data:
         """
-        scripts = ['core_parser_app/js/builtin/textarea.js'] + scripts
-        styles = ['core_parser_app/css/builtin/textarea.css'] + styles
+        scripts = ["core_parser_app/js/builtin/textarea.js"] + scripts
+        styles = ["core_parser_app/css/builtin/textarea.css"] + styles
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
 
         self.label = label
@@ -35,8 +35,8 @@ class AbstractTextAreaModule(AbstractModule, metaclass=ABCMeta):
         Returns:
 
         """
-        params = {"label": self.label,
-                  'data': self.data}
+        params = {"label": self.label, "data": self.data}
 
-        return AbstractModule.render_template('core_parser_app/builtin/textarea.html', params)
-
+        return AbstractModule.render_template(
+            "core_parser_app/builtin/textarea.html", params
+        )

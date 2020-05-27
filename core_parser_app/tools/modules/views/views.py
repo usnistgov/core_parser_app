@@ -23,11 +23,9 @@ def index(request):
     # get list of modules
     list_modules = module_api.get_all()
     # set context
-    context = {'modules': list_modules}
+    context = {"modules": list_modules}
     # render template
-    return render(request,
-                  'core_parser_app/common/modules.html',
-                  context=context)
+    return render(request, "core_parser_app/common/modules.html", context=context)
 
 
 def load_resources_view(request):
@@ -36,36 +34,31 @@ def load_resources_view(request):
     :param request:
     :return:
     """
-    if not request.method == 'GET':
+    if not request.method == "GET":
         return HttpResponseBadRequest({})
 
-    if 'urlsToLoad' not in request.GET or 'urlsLoaded' not in request.GET:
+    if "urlsToLoad" not in request.GET or "urlsLoaded" not in request.GET:
         return HttpResponseBadRequest({})
 
     # URLs of the modules to load
-    mod_urls_qs = sanitize(request.GET['urlsToLoad'])
+    mod_urls_qs = sanitize(request.GET["urlsToLoad"])
     mod_urls = json.loads(mod_urls_qs)
 
     # URLs of the loaded modules
-    mod_urls_loaded_qs = sanitize(request.GET['urlsLoaded'])
+    mod_urls_loaded_qs = sanitize(request.GET["urlsLoaded"])
     mod_urls_loaded = json.loads(mod_urls_loaded_qs)
 
     # Request hack to get module resources
-    request.GET = {
-        'resources': True
-    }
+    request.GET = {"resources": True}
 
     # List of resources
-    resources = {
-        'scripts': [],
-        'styles': []
-    }
+    resources = {"scripts": [], "styles": []}
 
     # Add all resources from requested modules
     for url in mod_urls:
         module = module_api.get_by_url(url)
         module_view = AbstractModule.get_view_from_view_path(module.view).as_view()
-        mod_resources = module_view(request).content.decode('utf-8')
+        mod_resources = module_view(request).content.decode("utf-8")
 
         mod_resources = sanitize(mod_resources)
         mod_resources = json.loads(mod_resources)
@@ -82,7 +75,7 @@ def load_resources_view(request):
     # Remove possible dependencies form already loaded modules
     for url in mod_urls_loaded:
         module_view = AbstractModule.get_module_view(url)
-        mod_resources = module_view(request).content.decode('utf-8')
+        mod_resources = module_view(request).content.decode("utf-8")
 
         mod_resources = sanitize(mod_resources)
         mod_resources = json.loads(mod_resources)
@@ -98,31 +91,33 @@ def load_resources_view(request):
                     del resources[key][i]
 
     # Build response content
-    response = {
-        'scripts': "",
-        'styles': ""
-    }
+    response = {"scripts": "", "styles": ""}
 
     # Aggregate scripts
-    for script in resources['scripts']:
-        if script.startswith('http://') or script.startswith('https://'):
+    for script in resources["scripts"]:
+        if script.startswith("http://") or script.startswith("https://"):
             script_tag = '<script class="module" src="' + script + '"></script>'
         else:
-            with open(finders.find(script), 'r') as script_file:
-                script_tag = '<script class="module">' + script_file.read() + '</script>'
+            with open(finders.find(script), "r") as script_file:
+                script_tag = (
+                    '<script class="module">' + script_file.read() + "</script>"
+                )
 
-        response['scripts'] += script_tag
+        response["scripts"] += script_tag
 
     # Aggregate styles
-    for style in resources['styles']:
-        if style.startswith('http://') or style.startswith('https://'):
-            script_tag = '<link class="module" rel="stylesheet" type="text/css" href="' + style + '"></link>'
+    for style in resources["styles"]:
+        if style.startswith("http://") or style.startswith("https://"):
+            script_tag = (
+                '<link class="module" rel="stylesheet" type="text/css" href="'
+                + style
+                + '"></link>'
+            )
         else:
-            with open(finders.find(style), 'r') as script_file:
-                script_tag = '<style class="module">' + script_file.read() + '</style>'
+            with open(finders.find(style), "r") as script_file:
+                script_tag = '<style class="module">' + script_file.read() + "</style>"
 
-        response['styles'] += script_tag
+        response["styles"] += script_tag
 
     # Send response
     return HttpResponse(json.dumps(response))
-

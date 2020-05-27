@@ -16,8 +16,8 @@ def delete_module(request):
     """
     try:
         # get the parameters
-        template_id = request.POST.get('templateID', None)
-        xpath = request.POST.get('xpath', None)
+        template_id = request.POST.get("templateID", None)
+        xpath = request.POST.get("xpath", None)
 
         # get the template
         template = template_api.get(template_id)
@@ -25,9 +25,9 @@ def delete_module(request):
         # delete the module
         module_api.delete_module(template, xpath)
     except Exception as e:
-        return HttpResponseBadRequest(str(e), content_type='application/javascript')
+        return HttpResponseBadRequest(str(e), content_type="application/javascript")
 
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
+    return HttpResponse(json.dumps({}), content_type="application/javascript")
 
 
 def insert_module(request):
@@ -38,9 +38,9 @@ def insert_module(request):
     """
     try:
         # get the parameters
-        module_id = request.POST.get('moduleID', None)
-        template_id = request.POST.get('templateID', None)
-        xpath = request.POST.get('xpath', None)
+        module_id = request.POST.get("moduleID", None)
+        template_id = request.POST.get("templateID", None)
+        xpath = request.POST.get("xpath", None)
 
         # get the template
         template = template_api.get(template_id)
@@ -48,6 +48,6 @@ def insert_module(request):
         # add the module
         module_api.add_module(template, module_id, xpath)
     except Exception as e:
-        return HttpResponseBadRequest(str(e), content_type='application/javascript')
+        return HttpResponseBadRequest(str(e), content_type="application/javascript")
 
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
+    return HttpResponse(json.dumps({}), content_type="application/javascript")

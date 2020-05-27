@@ -4,19 +4,21 @@
 from abc import ABCMeta, abstractmethod
 
 from core_parser_app.components.data_structure import api as data_structure_api
-from core_parser_app.components.data_structure_element import api as data_structure_element_api
+from core_parser_app.components.data_structure_element import (
+    api as data_structure_element_api,
+)
 
 
 class XPathAccessor(object, metaclass=ABCMeta):
     def __init__(self, request):
         try:
-            element = data_structure_element_api.get_by_id(request.POST['module_id'])
+            element = data_structure_element_api.get_by_id(request.POST["module_id"])
 
-            self.xpath = element.options['xpath']['xml']
+            self.xpath = element.options["xpath"]["xml"]
             self.values = {}
             self.set_XpathAccessor(request)
         except Exception as e:
-            message = 'XPathAccessor error: '
+            message = "XPathAccessor error: "
             raise XPathAccessorError(message + str(e))
 
     def get_xpath(self):
@@ -27,23 +29,23 @@ class XPathAccessor(object, metaclass=ABCMeta):
         form_element = self._get_element(root_id, xpath)
         input_element = self.get_input(form_element)
 
-        if input_element.tag != 'module':
+        if input_element.tag != "module":
             input_element.update(set__value=value)
         else:  # Element is a module
             options = input_element.options
 
-            if 'data' in value:
-                options['data'] = value['data']
+            if "data" in value:
+                options["data"] = value["data"]
 
-            if 'attributes' in value:
-                options['attributes'] = value['attributes']
+            if "attributes" in value:
+                options["attributes"] = value["attributes"]
 
             input_element.update(set__options=options)
 
         input_element.reload()
 
     def get_input(self, element):
-        input_elements = ['input', 'restriction', 'choice', 'module']
+        input_elements = ["input", "restriction", "choice", "module"]
 
         if element.tag in input_elements:
             return element
@@ -68,8 +70,8 @@ class XPathAccessor(object, metaclass=ABCMeta):
 
     @staticmethod
     def element_has_xpath(element, xpath):
-        return 'xpath' in element.options and element.options['xpath']['xml'] == xpath
-    
+        return "xpath" in element.options and element.options["xpath"]["xml"] == xpath
+
     @abstractmethod
     def set_XpathAccessor(self, request):
         """ Set xpath accessor
@@ -77,20 +79,21 @@ class XPathAccessor(object, metaclass=ABCMeta):
         Args:
             request: HTTP request
         """
-        raise NotImplementedError("This method is not implemented.")  
-    
+        raise NotImplementedError("This method is not implemented.")
+
     def get_XpathAccessor(self):
         """Return xpath accessor values
 
         Returns:
 
         """
-        return {'xpath_accessor': self.values}
+        return {"xpath_accessor": self.values}
 
 
 class XPathAccessorError(Exception):
     """
         Exception raised by the siblings accessor system
     """
+
     def __init__(self, message):
         self.message = message

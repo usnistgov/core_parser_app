@@ -9,7 +9,14 @@ class AbstractInputButtonModule(AbstractModule, metaclass=ABCMeta):
     """ Input Button module
     """
 
-    def __init__(self, scripts=list(), styles=list(), button_label='Send', label=None, default_value=None):
+    def __init__(
+        self,
+        scripts=list(),
+        styles=list(),
+        button_label="Send",
+        label=None,
+        default_value=None,
+    ):
         """ Initialize the module
 
         Args:
@@ -38,5 +45,6 @@ class AbstractInputButtonModule(AbstractModule, metaclass=ABCMeta):
             params.update({"label": self.label})
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
-        return AbstractModule.render_template('core_parser_app/builtin/input_button.html', params)
-
+        return AbstractModule.render_template(
+            "core_parser_app/builtin/input_button.html", params
+        )

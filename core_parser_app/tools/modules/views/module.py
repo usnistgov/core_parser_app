@@ -10,7 +10,9 @@ from django.template.loader import get_template
 from django.views.generic import View
 from rest_framework.status import HTTP_200_OK
 
-from core_parser_app.components.data_structure_element import api as data_structure_element_api
+from core_parser_app.components.data_structure_element import (
+    api as data_structure_element_api,
+)
 from core_parser_app.components.module import api as module_api
 from core_parser_app.tools.modules.exceptions import ModuleError
 
@@ -35,7 +37,7 @@ class AbstractModule(View, metaclass=ABCMeta):
         self.styles = styles
 
         # Skeleton of the modules
-        self.template_name = 'core_parser_app/module.html'
+        self.template_name = "core_parser_app/module.html"
 
         # initialize data
         self.data = None
@@ -51,9 +53,9 @@ class AbstractModule(View, metaclass=ABCMeta):
         Returns:
 
         """
-        if 'resources' in request.GET:
+        if "resources" in request.GET:
             return self._get_resources()
-        elif 'managing_occurrences' in request.GET:
+        elif "managing_occurrences" in request.GET:
             return HttpResponse(json.dumps(self.is_managing_occurrences), HTTP_200_OK)
         else:
             return self._get(request)
@@ -67,41 +69,50 @@ class AbstractModule(View, metaclass=ABCMeta):
         Returns:
 
         """
-        module_id = request.GET['module_id']
-        url = request.GET['url'] if 'url' in request.GET else \
-            data_structure_element_api.get_by_id(module_id) .options['url']
+        module_id = request.GET["module_id"]
+        url = (
+            request.GET["url"]
+            if "url" in request.GET
+            else data_structure_element_api.get_by_id(module_id).options["url"]
+        )
         template_data = {
-            'module_id': module_id,
-            'module': '',
-            'display': '',
-            'url': url
+            "module_id": module_id,
+            "module": "",
+            "display": "",
+            "url": url,
         }
 
         try:
             # retrieve module's data
             self.data = self._retrieve_data(request)
             # get module's rendering
-            template_data['module'] = self._render_module(request)
+            template_data["module"] = self._render_module(request)
             # get nodule's data rendering
-            template_data['display'] = self._render_data(request)
+            template_data["display"] = self._render_data(request)
 
             # get module element
             module_element = data_structure_element_api.get_by_id(module_id)
             # get its options
             options = module_element.options
             # update module element data
-            options['data'] = self.data
+            options["data"] = self.data
             # set updated options
             module_element.options = options
             # save module element
             data_structure_element_api.upsert(module_element)
         except Exception as e:
-            raise ModuleError('Something went wrong during module initialization: ' + str(e))
+            raise ModuleError(
+                "Something went wrong during module initialization: " + str(e)
+            )
 
         # Check that values are not None
         for key, val in list(template_data.items()):
             if val is None:
-                raise ModuleError('Variable '+key+' cannot be None. Module initialization cannot be completed.')
+                raise ModuleError(
+                    "Variable "
+                    + key
+                    + " cannot be None. Module initialization cannot be completed."
+                )
 
         # TODO Add additional checks
 
@@ -120,27 +131,28 @@ class AbstractModule(View, metaclass=ABCMeta):
         Returns:
 
         """
-        template_data = {
-            'display': '',
-            'url': ''
-        }
+        template_data = {"display": "", "url": ""}
 
         try:
-            if 'module_id' not in request.POST:
-                return HttpResponseBadRequest({'error': 'No "module_id" parameter provided'})
+            if "module_id" not in request.POST:
+                return HttpResponseBadRequest(
+                    {"error": 'No "module_id" parameter provided'}
+                )
 
-            module_element = data_structure_element_api.get_by_id(request.POST['module_id'])
+            module_element = data_structure_element_api.get_by_id(
+                request.POST["module_id"]
+            )
             # retrieve module's data
             self.data = self._retrieve_data(request)
-            template_data['display'] = self._render_data(request)
+            template_data["display"] = self._render_data(request)
             options = module_element.options
 
             # TODO: needs to be updated
             if type(self.data) == dict:
-                options['data'] = self.data['data']
-                options['attributes'] = self.data['attributes']
+                options["data"] = self.data["data"]
+                options["attributes"] = self.data["attributes"]
             else:
-                options['data'] = self.data
+                options["data"] = self.data
 
             # TODO Implement this system instead
             # options['content'] = self._get_content(request)
@@ -149,12 +161,12 @@ class AbstractModule(View, metaclass=ABCMeta):
             module_element.options = options
             data_structure_element_api.upsert(module_element)
         except Exception as e:
-            raise ModuleError('Something went wrong during module update: ' + str(e))
+            raise ModuleError("Something went wrong during module update: " + str(e))
 
         html_code = AbstractModule.render_template(self.template_name, template_data)
 
         response_dict = dict()
-        response_dict['html'] = html_code
+        response_dict["html"] = html_code
 
         if hasattr(self, "get_XpathAccessor"):
             response_dict.update(self.get_XpathAccessor())
@@ -164,10 +176,7 @@ class AbstractModule(View, metaclass=ABCMeta):
     def _get_resources(self):
         """Returns HTTP response containing module resources
         """
-        response = {
-            'scripts': self.scripts,
-            'styles': self.styles
-        }
+        response = {"scripts": self.scripts, "styles": self.styles}
 
         return HttpResponse(json.dumps(response), status=HTTP_200_OK)
 
@@ -225,9 +234,9 @@ class AbstractModule(View, metaclass=ABCMeta):
         :return:
         """
         # module = module_api.get_by_url(url)
-        pkglist = view.split('.')
+        pkglist = view.split(".")
 
-        pkgs = '.'.join(pkglist[:-1])
+        pkgs = ".".join(pkglist[:-1])
         func = pkglist[-1:][0]
 
         imported_pkgs = importlib.import_module(pkgs)
@@ -249,4 +258,3 @@ class AbstractModule(View, metaclass=ABCMeta):
 
         template = get_template(template_name)
         return template.render(context)
-

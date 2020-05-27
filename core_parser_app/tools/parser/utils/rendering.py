@@ -14,4 +14,4 @@ def format_tooltip(text, width=80):
     Returns:
 
     """
-    return textwrap.fill(re.sub(r'\s+', ' ', text.strip()), width)
+    return textwrap.fill(re.sub(r"\s+", " ", text.strip()), width)

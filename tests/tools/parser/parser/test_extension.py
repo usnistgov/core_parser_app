@@ -32,49 +32,63 @@ class ParserCreateExtensionTestSuite(TestCase):
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
             "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension",
-            namespaces=self.namespaces
+            namespaces=self.namespaces,
         )[0]
 
-        result_dict = self.parser.generate_extension(xsd_element, xsd_tree, full_path="/root")
+        result_dict = self.parser.generate_extension(
+            xsd_element, xsd_tree, full_path="/root"
+        )
         expected_dict = self.extension_data_handler.get_json(xsd_files)
 
         self.assertDictEqual(expected_dict, result_dict)
 
-    def test_generate_extension_with_single_child_attribute_returns_expected_json_dict(self):
+    def test_generate_extension_with_single_child_attribute_returns_expected_json_dict(
+        self,
+    ):
         xsd_files = join("attribute", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
             "/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension",
-            namespaces=self.namespaces
+            namespaces=self.namespaces,
         )[0]
 
-        result_dict = self.parser.generate_extension(xsd_element, xsd_tree, full_path="/root")
+        result_dict = self.parser.generate_extension(
+            xsd_element, xsd_tree, full_path="/root"
+        )
         expected_dict = self.extension_data_handler.get_json(xsd_files)
 
         self.assertDictEqual(expected_dict, result_dict)
 
-    def test_generate_extension_with_single_child_choice_returns_expected_json_dict(self):
+    def test_generate_extension_with_single_child_choice_returns_expected_json_dict(
+        self,
+    ):
         xsd_files = join("choice", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
             "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension",
-            namespaces=self.namespaces
+            namespaces=self.namespaces,
         )[0]
 
-        result_dict = self.parser.generate_extension(xsd_element, xsd_tree, full_path="/root")
+        result_dict = self.parser.generate_extension(
+            xsd_element, xsd_tree, full_path="/root"
+        )
         expected_dict = self.extension_data_handler.get_json(xsd_files)
 
         self.assertDictEqual(expected_dict, result_dict)
 
-    def test_generate_extension_with_single_child_sequence_returns_expected_json_dict(self):
+    def test_generate_extension_with_single_child_sequence_returns_expected_json_dict(
+        self,
+    ):
         xsd_files = join("sequence", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
             "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension",
-            namespaces=self.namespaces
+            namespaces=self.namespaces,
         )[0]
 
-        result_dict = self.parser.generate_extension(xsd_element, xsd_tree, full_path="/root")
+        result_dict = self.parser.generate_extension(
+            xsd_element, xsd_tree, full_path="/root"
+        )
         expected_dict = self.extension_data_handler.get_json(xsd_files)
 
         self.assertDictEqual(expected_dict, result_dict)
@@ -102,7 +116,7 @@ class ParserReloadExtensionTestSuite(TestCase):
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
             "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension",
-            namespaces=self.namespaces
+            namespaces=self.namespaces,
         )[0]
 
         xml_tree = self.extension_data_handler.get_xml(xsd_files)
@@ -111,20 +125,25 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         # Generate result dict
         result_dict = self.parser.generate_extension(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree,
-            default_value=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
+            default_value=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.extension_data_handler.get_json(xsd_files+".reload")
+        expected_dict = self.extension_data_handler.get_json(xsd_files + ".reload")
         self.assertDictEqual(expected_dict, result_dict)
 
-    def test_generate_extension_with_single_child_attribute_returns_expected_json_dict(self):
+    def test_generate_extension_with_single_child_attribute_returns_expected_json_dict(
+        self,
+    ):
         xsd_files = join("attribute", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
             "/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension",
-            namespaces=self.namespaces
+            namespaces=self.namespaces,
         )[0]
 
         xml_tree = self.extension_data_handler.get_xml(xsd_files)
@@ -133,20 +152,25 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         # Generate result dict
         result_dict = self.parser.generate_extension(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree,
-            default_value="entry0"
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
+            default_value="entry0",
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.extension_data_handler.get_json(xsd_files+".reload")
+        expected_dict = self.extension_data_handler.get_json(xsd_files + ".reload")
         self.assertDictEqual(expected_dict, result_dict)
 
-    def test_generate_extension_with_single_child_choice_returns_expected_json_dict(self):
+    def test_generate_extension_with_single_child_choice_returns_expected_json_dict(
+        self,
+    ):
         xsd_files = join("choice", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
             "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension",
-            namespaces=self.namespaces
+            namespaces=self.namespaces,
         )[0]
 
         xml_tree = self.extension_data_handler.get_xml(xsd_files)
@@ -159,15 +183,17 @@ class ParserReloadExtensionTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.extension_data_handler.get_json(xsd_files+".reload")
+        expected_dict = self.extension_data_handler.get_json(xsd_files + ".reload")
         self.assertDictEqual(expected_dict, result_dict)
 
-    def test_generate_extension_with_single_child_sequence_returns_expected_json_dict(self):
+    def test_generate_extension_with_single_child_sequence_returns_expected_json_dict(
+        self,
+    ):
         xsd_files = join("sequence", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
             "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension",
-            namespaces=self.namespaces
+            namespaces=self.namespaces,
         )[0]
 
         xml_tree = self.extension_data_handler.get_xml(xsd_files)
@@ -180,5 +206,5 @@ class ParserReloadExtensionTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.extension_data_handler.get_json(xsd_files+".reload")
+        expected_dict = self.extension_data_handler.get_json(xsd_files + ".reload")
         self.assertDictEqual(expected_dict, result_dict)

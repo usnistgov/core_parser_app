@@ -9,7 +9,15 @@ class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
     """Options Modules
     """
 
-    def __init__(self, scripts=list(), styles=list(), label=None, options=None, disabled=False, selected=None):
+    def __init__(
+        self,
+        scripts=list(),
+        styles=list(),
+        label=None,
+        options=None,
+        disabled=False,
+        selected=None,
+    ):
         """ Initialize module
 
         Args:
@@ -23,7 +31,7 @@ class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
         if options is None:
             options = {}
 
-        scripts = ['core_parser_app/js/builtin/options.js'] + scripts
+        scripts = ["core_parser_app/js/builtin/options.js"] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
 
         self.options = options
@@ -47,7 +55,9 @@ class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
 
         for key, val in list(self.options.items()):
             if self.selected is not None and key == self.selected:
-                options_html += "<option value='" + key + "' selected>" + val + "</option>"
+                options_html += (
+                    "<option value='" + key + "' selected>" + val + "</option>"
+                )
             else:
                 options_html += "<option value='" + key + "'>" + val + "</option>"
 
@@ -59,4 +69,6 @@ class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
         if self.disabled is not None:
             params.update({"disabled": self.disabled})
 
-        return AbstractModule.render_template('core_parser_app/builtin/options.html', params)
+        return AbstractModule.render_template(
+            "core_parser_app/builtin/options.html", params
+        )

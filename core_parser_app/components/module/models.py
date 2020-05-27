@@ -8,6 +8,7 @@ from core_main_app.commons import exceptions
 
 class Module(Document):
     """Represents a module, that will replace the default rendering of an element"""
+
     name = fields.StringField(unique=True)
     url = fields.StringField(unique=True)
     view = fields.StringField()
@@ -63,7 +64,7 @@ class Module(Document):
         Returns:
 
         """
-        return Module.objects.all().values_list('url')
+        return Module.objects.all().values_list("url")
 
     @staticmethod
     def delete_all():

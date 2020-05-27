@@ -31,10 +31,13 @@ class ParserCreateComplexTypeTestSuite(TestCase):
     def test_create_choice_basic(self):
         xsd_files = join("choice", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
-        result_string = self.parser.generate_complex_type(xsd_element, xsd_tree,
-                                                          full_path="/root")
+        result_string = self.parser.generate_complex_type(
+            xsd_element, xsd_tree, full_path="/root"
+        )
 
         expected_dict = self.complex_type_data_handler.get_json(xsd_files)
         self.assertDictEqual(result_string, expected_dict)
@@ -42,10 +45,13 @@ class ParserCreateComplexTypeTestSuite(TestCase):
     def test_create_sequence_basic(self):
         xsd_files = join("sequence", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
-        result_string = self.parser.generate_complex_type(xsd_element, xsd_tree,
-                                                          full_path="/root")
+        result_string = self.parser.generate_complex_type(
+            xsd_element, xsd_tree, full_path="/root"
+        )
 
         expected_dict = self.complex_type_data_handler.get_json(xsd_files)
         self.assertDictEqual(result_string, expected_dict)
@@ -53,10 +59,13 @@ class ParserCreateComplexTypeTestSuite(TestCase):
     def test_create_simple_content_basic(self):
         xsd_files = join("simple_content", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
-        result_string = self.parser.generate_complex_type(xsd_element, xsd_tree,
-                                                          full_path="/root")
+        result_string = self.parser.generate_complex_type(
+            xsd_element, xsd_tree, full_path="/root"
+        )
 
         expected_dict = self.complex_type_data_handler.get_json(xsd_files)
         self.assertDictEqual(result_string, expected_dict)
@@ -64,10 +73,13 @@ class ParserCreateComplexTypeTestSuite(TestCase):
     def test_create_complex_content_basic(self):
         xsd_files = join("complex_content", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
-        result_string = self.parser.generate_complex_type(xsd_element, xsd_tree,
-                                                          full_path="/root")
+        result_string = self.parser.generate_complex_type(
+            xsd_element, xsd_tree, full_path="/root"
+        )
 
         expected_dict = self.complex_type_data_handler.get_json(xsd_files)
         self.assertDictEqual(result_string, expected_dict)
@@ -75,10 +87,13 @@ class ParserCreateComplexTypeTestSuite(TestCase):
     def test_create_attribute_basic(self):
         xsd_files = join("attribute", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
-        result_string = self.parser.generate_complex_type(xsd_element, xsd_tree,
-                                                          full_path="/root")
+        result_string = self.parser.generate_complex_type(
+            xsd_element, xsd_tree, full_path="/root"
+        )
 
         expected_dict = self.complex_type_data_handler.get_json(xsd_files)
         self.assertDictEqual(result_string, expected_dict)
@@ -86,10 +101,13 @@ class ParserCreateComplexTypeTestSuite(TestCase):
     def test_create_multiple_basic(self):
         xsd_files = join("multiple", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
-        result_string = self.parser.generate_complex_type(xsd_element, xsd_tree,
-                                                          full_path="/root")
+        result_string = self.parser.generate_complex_type(
+            xsd_element, xsd_tree, full_path="/root"
+        )
 
         expected_dict = self.complex_type_data_handler.get_json(xsd_files)
         self.assertDictEqual(result_string, expected_dict)
@@ -114,7 +132,9 @@ class ParserReloadComplexTypeTestSuite(TestCase):
     def test_reload_choice_basic(self):
         xsd_files = join("choice", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
         xml_tree = self.complex_type_data_handler.get_xml(xsd_files)
         xml_data = XSDTree.tostring(xml_tree)
@@ -132,7 +152,9 @@ class ParserReloadComplexTypeTestSuite(TestCase):
     def test_reload_sequence_basic(self):
         xsd_files = join("sequence", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
         xml_tree = self.complex_type_data_handler.get_xml(xsd_files)
         xml_data = XSDTree.tostring(xml_tree)
@@ -150,7 +172,9 @@ class ParserReloadComplexTypeTestSuite(TestCase):
     def test_reload_simple_content_basic(self):
         xsd_files = join("simple_content", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
         xml_tree = self.complex_type_data_handler.get_xml(xsd_files)
         xml_data = XSDTree.tostring(xml_tree)
@@ -160,8 +184,11 @@ class ParserReloadComplexTypeTestSuite(TestCase):
 
         # Generate result dict
         result_string = self.parser.generate_complex_type(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree,
-            default_value=xml_value
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
+            default_value=xml_value,
         )
 
         # Load expected dictionary and compare with result
@@ -171,7 +198,9 @@ class ParserReloadComplexTypeTestSuite(TestCase):
     def test_reload_complex_content_basic(self):
         xsd_files = join("complex_content", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
         xml_tree = self.complex_type_data_handler.get_xml(xsd_files)
         xml_data = XSDTree.tostring(xml_tree)
@@ -189,7 +218,9 @@ class ParserReloadComplexTypeTestSuite(TestCase):
     def test_reload_attribute_basic(self):
         xsd_files = join("attribute", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
         xml_tree = self.complex_type_data_handler.get_xml(xsd_files)
         xml_data = XSDTree.tostring(xml_tree)
@@ -207,7 +238,9 @@ class ParserReloadComplexTypeTestSuite(TestCase):
     def test_reload_multiple_basic(self):
         xsd_files = join("multiple", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath("/xs:schema/xs:complexType", namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:complexType", namespaces=self.namespaces
+        )[0]
 
         xml_tree = self.complex_type_data_handler.get_xml(xsd_files)
         xml_data = XSDTree.tostring(xml_tree)

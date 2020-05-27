@@ -1,6 +1,8 @@
 """API for Data Structure Element
 """
-from core_parser_app.components.data_structure_element.models import DataStructureElement
+from core_parser_app.components.data_structure_element.models import (
+    DataStructureElement,
+)
 
 
 def upsert(data_structure_element):

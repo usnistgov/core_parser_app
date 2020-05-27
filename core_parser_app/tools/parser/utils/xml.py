@@ -9,7 +9,14 @@ from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 
 logger = logging.getLogger(__name__)
 
-APP_INFO_OPTIONS = ['label', 'placeholder', 'tooltip', 'use', 'default', MODULE_TAG_NAME]
+APP_INFO_OPTIONS = [
+    "label",
+    "placeholder",
+    "tooltip",
+    "use",
+    "default",
+    MODULE_TAG_NAME,
+]
 
 
 def get_app_info_options(element):
@@ -25,7 +32,9 @@ def get_app_info_options(element):
     app_info = {}
 
     # Get app info of the element
-    app_info_elements = element.findall("./{0}annotation/{0}appinfo".format(LXML_SCHEMA_NAMESPACE))
+    app_info_elements = element.findall(
+        "./{0}annotation/{0}appinfo".format(LXML_SCHEMA_NAMESPACE)
+    )
     # Browse the app info
     for app_info_element in app_info_elements:
         # get the elements in the app info
@@ -55,15 +64,15 @@ def get_element_occurrences(element):
     max_occurs = 1
 
     # Get min occurs
-    if 'minOccurs' in element.attrib:
-        min_occurs = int(element.attrib['minOccurs'])
+    if "minOccurs" in element.attrib:
+        min_occurs = int(element.attrib["minOccurs"])
 
     # Get max occurs
-    if 'maxOccurs' in element.attrib:
-        if element.attrib['maxOccurs'] == "unbounded":
+    if "maxOccurs" in element.attrib:
+        if element.attrib["maxOccurs"] == "unbounded":
             max_occurs = -1
         else:
-            max_occurs = int(element.attrib['maxOccurs'])
+            max_occurs = int(element.attrib["maxOccurs"])
 
     return min_occurs, max_occurs
 
@@ -81,13 +90,13 @@ def get_attribute_occurrences(element):
     min_occurs = 1
     max_occurs = 1
 
-    if 'use' in element.attrib:
-        if element.attrib['use'] == "optional":
+    if "use" in element.attrib:
+        if element.attrib["use"] == "optional":
             min_occurs = 0
-        elif element.attrib['use'] == "prohibited":
+        elif element.attrib["use"] == "prohibited":
             min_occurs = 0
             max_occurs = 0
-        elif element.attrib['use'] == "required":
+        elif element.attrib["use"] == "required":
             logger.debug("get_attribute_occurrences: element use required")
 
     return min_occurs, max_occurs

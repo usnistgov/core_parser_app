@@ -9,7 +9,14 @@ class AbstractInputModule(AbstractModule, metaclass=ABCMeta):
     """Input module
     """
 
-    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, disabled=False):
+    def __init__(
+        self,
+        scripts=list(),
+        styles=list(),
+        label=None,
+        default_value=None,
+        disabled=False,
+    ):
         """ Initialize the module
 
         Args:
@@ -19,7 +26,7 @@ class AbstractInputModule(AbstractModule, metaclass=ABCMeta):
             default_value:
             disabled:
         """
-        scripts = ['core_parser_app/js/builtin/input.js'] + scripts
+        scripts = ["core_parser_app/js/builtin/input.js"] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
 
         self.label = label
@@ -46,4 +53,6 @@ class AbstractInputModule(AbstractModule, metaclass=ABCMeta):
         if self.disabled is not None:
             params.update({"disabled": self.disabled})
 
-        return AbstractModule.render_template('core_parser_app/builtin/input.html', params)
+        return AbstractModule.render_template(
+            "core_parser_app/builtin/input.html", params
+        )

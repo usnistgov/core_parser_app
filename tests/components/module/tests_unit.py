@@ -10,8 +10,7 @@ from core_parser_app.components.module.models import Module
 
 
 class TestModuleGetById(TestCase):
-
-    @patch('core_parser_app.components.module.models.Module.get_by_id')
+    @patch("core_parser_app.components.module.models.Module.get_by_id")
     def test_module_get_by_id_returns_module(self, mock_get_by_id):
         # Arrange
         mock_module = _create_mock_module()
@@ -24,8 +23,10 @@ class TestModuleGetById(TestCase):
         # Assert
         self.assertIsInstance(result, Module)
 
-    @patch('core_parser_app.components.module.models.Module.get_by_id')
-    def test_module_get_by_id_raises_exception_if_object_does_not_exist(self, mock_get_by_id):
+    @patch("core_parser_app.components.module.models.Module.get_by_id")
+    def test_module_get_by_id_raises_exception_if_object_does_not_exist(
+        self, mock_get_by_id
+    ):
         # Arrange
         mock_absent_id = ObjectId()
         mock_get_by_id.side_effect = mongoengine_errors.DoesNotExist
@@ -36,8 +37,7 @@ class TestModuleGetById(TestCase):
 
 
 class TestModuleGetByUrl(TestCase):
-
-    @patch('core_parser_app.components.module.models.Module.get_by_url')
+    @patch("core_parser_app.components.module.models.Module.get_by_url")
     def test_module_get_by_url_returns_module(self, mock_get_by_url):
         # Arrange
         mock_module = _create_mock_module()
@@ -50,8 +50,10 @@ class TestModuleGetByUrl(TestCase):
         # Assert
         self.assertIsInstance(result, Module)
 
-    @patch('core_parser_app.components.module.models.Module.get_by_url')
-    def test_module_get_by_url_raises_exception_if_object_does_not_exist(self, mock_get_by_url):
+    @patch("core_parser_app.components.module.models.Module.get_by_url")
+    def test_module_get_by_url_raises_exception_if_object_does_not_exist(
+        self, mock_get_by_url
+    ):
         # Arrange
         mock_absent_url = "/absent"
         mock_get_by_url.side_effect = mongoengine_errors.DoesNotExist
@@ -62,7 +64,7 @@ class TestModuleGetByUrl(TestCase):
 
 
 class TestModuleGetAll(TestCase):
-    @patch('core_parser_app.components.module.models.Module.get_all')
+    @patch("core_parser_app.components.module.models.Module.get_all")
     def test_module_list_contains_only_module(self, mock_get_all):
         # Arrange
         mock_module_1 = _create_mock_module()
@@ -77,7 +79,7 @@ class TestModuleGetAll(TestCase):
 
 
 class TestModuleUpsert(TestCase):
-    @patch('core_parser_app.components.module.models.Module.save')
+    @patch("core_parser_app.components.module.models.Module.save")
     def test_module_upsert_valid_returns_module(self, mock_save):
         module = _create_module()
 
@@ -85,7 +87,7 @@ class TestModuleUpsert(TestCase):
         result = module_api.upsert(module)
         self.assertIsInstance(result, Module)
 
-    @patch('core_parser_app.components.module.models.Module.save')
+    @patch("core_parser_app.components.module.models.Module.save")
     def test_module_upsert_invalid_raises_validation_error(self, mock_save):
         module = _create_module()
         mock_save.side_effect = django_exceptions.ValidationError("")
@@ -94,7 +96,7 @@ class TestModuleUpsert(TestCase):
 
 
 class TestModuleGetAllUrls(TestCase):
-    @patch('core_parser_app.components.module.models.Module.get_all_urls')
+    @patch("core_parser_app.components.module.models.Module.get_all_urls")
     def test_module_list_contains_only_urls(self, mock_get_all_urls):
         # Arrange
         mock_module_1 = _create_mock_module()
@@ -114,12 +116,7 @@ def _create_module():
     Returns:
 
     """
-    return Module(
-        id=ObjectId(),
-        name="module",
-        url="/module",
-        view="Module.view"
-    )
+    return Module(id=ObjectId(), name="module", url="/module", view="Module.view")
 
 
 def _create_mock_module():

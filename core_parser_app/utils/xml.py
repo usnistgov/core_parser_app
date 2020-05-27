@@ -19,7 +19,7 @@ def transform_xsd_to_html_with_modules(xsd_string):
 
     """
     # Get path to XSLT file
-    xslt_path = finders.find('core_parser_app/xsl/xsd2html4modules.xsl')
+    xslt_path = finders.find("core_parser_app/xsl/xsd2html4modules.xsl")
 
     # get global namespace used in the schema
     global_namespace = get_global_namespace(xsd_string)
@@ -33,12 +33,16 @@ def transform_xsd_to_html_with_modules(xsd_string):
         else:
             # the schema is using a global namespace and it's not the XML Schema namespace
             # FIXME: to support this case, we would need to add a namespace prefix to the XSLT
-            raise NotImplementedError("The schema is using an unsupported global namespace.")
+            raise NotImplementedError(
+                "The schema is using an unsupported global namespace."
+            )
     else:
         # no global namespace used
         module_tag_name = MODULE_TAG_NAME
 
-    return xsl_transform(xsd_string, read_and_update_xslt_with_settings(xslt_path, module_tag_name))
+    return xsl_transform(
+        xsd_string, read_and_update_xslt_with_settings(xslt_path, module_tag_name)
+    )
 
 
 def read_and_update_xslt_with_settings(xslt_file_path, module_tag_name):
@@ -55,6 +59,8 @@ def read_and_update_xslt_with_settings(xslt_file_path, module_tag_name):
         # read the XSLT file
         xslt_file_content = xslt_file.read()
         # update the file with the desired module tag name
-        xslt_file_content = xslt_file_content.replace("module_tag_name", module_tag_name)
+        xslt_file_content = xslt_file_content.replace(
+            "module_tag_name", module_tag_name
+        )
         # return the updated file content
         return xslt_file_content

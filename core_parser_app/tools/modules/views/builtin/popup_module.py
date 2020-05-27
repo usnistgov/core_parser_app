@@ -9,18 +9,18 @@ class AbstractPopupModule(AbstractModule, metaclass=ABCMeta):
     """Popup module
     """
 
-    def __init__(self, scripts=list(), styles=list(), button_label=''):
+    def __init__(self, scripts=list(), styles=list(), button_label=""):
         """ Initialize module
 
         Args:
             scripts:
             styles:
         """
-        scripts = ['core_parser_app/js/builtin/popup.js'] + scripts
+        scripts = ["core_parser_app/js/builtin/popup.js"] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
 
         self.button_label = button_label
-        self.popup_content = ''
+        self.popup_content = ""
 
     def _render_module(self, request):
         """ Return module's rendering
@@ -36,7 +36,9 @@ class AbstractPopupModule(AbstractModule, metaclass=ABCMeta):
             "button_label": self.button_label,
         }
 
-        return AbstractModule.render_template('core_parser_app/builtin/popup.html', params)
+        return AbstractModule.render_template(
+            "core_parser_app/builtin/popup.html", params
+        )
 
     @abstractmethod
     def _get_popup_content(self):

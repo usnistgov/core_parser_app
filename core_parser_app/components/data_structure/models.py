@@ -6,7 +6,9 @@ from django_mongoengine import fields, Document
 
 from core_main_app.commons import exceptions
 from core_main_app.components.template.models import Template
-from core_parser_app.components.data_structure_element.models import DataStructureElement
+from core_parser_app.components.data_structure_element.models import (
+    DataStructureElement,
+)
 from core_parser_app.tasks import delete_branch_task
 
 logger = logging.getLogger(__name__)
@@ -14,12 +16,15 @@ logger = logging.getLogger(__name__)
 
 class DataStructure(Document):
     """Stores data being entered and not yet curated"""
+
     user = fields.StringField()
     template = fields.ReferenceField(Template)
-    name = fields.StringField(unique_with=['user', 'template'])
-    data_structure_element_root = fields.ReferenceField(DataStructureElement, blank=True)
+    name = fields.StringField(unique_with=["user", "template"])
+    data_structure_element_root = fields.ReferenceField(
+        DataStructureElement, blank=True
+    )
 
-    meta = {'abstract': True}
+    meta = {"abstract": True}
 
     @staticmethod
     def get_by_id(data_structure_id):
@@ -44,7 +49,11 @@ class DataStructure(Document):
                 break
             except exceptions.DoesNotExist as e:
                 # data structure not found, continue search
-                logger.warning("Dependency {0} threw an exception: {1}".format(subclass.__name__, str(e)))
+                logger.warning(
+                    "Dependency {0} threw an exception: {1}".format(
+                        subclass.__name__, str(e)
+                    )
+                )
 
         # data structure found
         if data_structure is not None:

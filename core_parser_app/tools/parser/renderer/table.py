@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractTableRenderer(DefaultRenderer):
-
     def __init__(self, xsd_data):
         """Initializes table renderer object
 
@@ -38,9 +37,7 @@ class AbstractTableRenderer(DefaultRenderer):
         Returns:
 
         """
-        data = {
-            "content": content
-        }
+        data = {"content": content}
 
         return self._load_template("table", data)
 
@@ -54,10 +51,7 @@ class AbstractTableRenderer(DefaultRenderer):
         Returns:
 
         """
-        data = {
-            "name": name,
-            "content": content
-        }
+        data = {"name": name, "content": content}
 
         return self._load_template("tr", data)
 
@@ -71,10 +65,7 @@ class AbstractTableRenderer(DefaultRenderer):
         Returns:
 
         """
-        data = {
-            "title": title,
-            "content": content
-        }
+        data = {"title": title, "content": content}
 
         return self._load_template("top", data)
 
@@ -178,15 +169,21 @@ class TableRenderer(AbstractTableRenderer):
                 for child_index in range(len(sub_elements)):
                     if sub_inputs[child_index]:  # Element is an input
                         html_content += "%s%s%s" % (
-                                element.options["name"], sub_elements[child_index], buttons
+                            element.options["name"],
+                            sub_elements[child_index],
+                            buttons,
                         )
                     else:  # Element is not an input
                         html_content += "%s%s%s" % (
-                            self._render_collapse_button(), element.options["name"], buttons
+                            self._render_collapse_button(),
+                            element.options["name"],
+                            buttons,
                         )
                         # html_content += self._render_ul(sub_elements[child_index], None)
 
-            final_html += self._render_tr(element["options"]["name"] + buttons, html_content)
+            final_html += self._render_tr(
+                element["options"]["name"] + buttons, html_content
+            )
 
         return final_html
 

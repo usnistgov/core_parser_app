@@ -21,10 +21,10 @@ class CheckboxRenderer(ListRenderer):
 
         """
         data = {
-            'id': element.pk,
-            'selected': True if element.value == 'true' else False,
+            "id": element.pk,
+            "selected": True if element.value == "true" else False,
         }
-        return self._load_template('checkbox', data)
+        return self._load_template("checkbox", data)
 
     def render_restriction(self, element):
         """Renders a selectable element
@@ -36,7 +36,7 @@ class CheckboxRenderer(ListRenderer):
 
         """
         data = {
-            'id': element.pk,
-            'selected': True if element.value == 'true' else False,
+            "id": element.pk,
+            "selected": True if element.value == "true" else False,
         }
-        return self._load_template('checkbox', data)
+        return self._load_template("checkbox", data)
