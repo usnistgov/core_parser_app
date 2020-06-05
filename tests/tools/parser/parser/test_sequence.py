@@ -28,7 +28,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.parser = XSDParser()
 
     def _run_test(self, xsd_files):
-        xsd_xpath = '/xs:schema/xs:complexType/xs:sequence'
+        xsd_xpath = "/xs:schema/xs:complexType/xs:sequence"
 
         xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(xsd_xpath, namespaces=self.namespaces)[0]
@@ -42,49 +42,49 @@ class ParserCreateSequenceTestSuite(TestCase):
         return result_dict, expected_dict
 
     def test_create_element_basic(self):
-        xsd_files = join('element', 'basic')
+        xsd_files = join("element", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_create_element_unbounded(self):
-        xsd_files = join('element', 'unbounded')
+        xsd_files = join("element", "unbounded")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_create_choice_basic(self):
-        xsd_files = join('choice', 'basic')
+        xsd_files = join("choice", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_create_choice_unbounded(self):
-        xsd_files = join('choice', 'unbounded')
+        xsd_files = join("choice", "unbounded")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_create_sequence_basic(self):
-        xsd_files = join('sequence', 'basic')
+        xsd_files = join("sequence", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_create_sequence_unbounded(self):
-        xsd_files = join('sequence', 'unbounded')
+        xsd_files = join("sequence", "unbounded")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_create_multiple_basic(self):
-        xsd_files = join('multiple', 'basic')
+        xsd_files = join("multiple", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_create_multiple_unbounded(self):
-        xsd_files = join('multiple', 'unbounded')
+        xsd_files = join("multiple", "unbounded")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
@@ -93,6 +93,7 @@ class ParserCreateSequenceTestSuite(TestCase):
 class ParserReloadSequenceTestSuite(TestCase):
     """
     """
+
     maxDiff = None
 
     def setUp(self):
@@ -129,50 +130,50 @@ class ParserReloadSequenceTestSuite(TestCase):
         return result_dict, expected_dict
 
     def test_reload_element_basic(self):
-        xsd_files = join('element', 'basic')
+        xsd_files = join("element", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_reload_element_unbounded(self):
         # fixme correct bug
-        xsd_files = join('element', 'unbounded')
+        xsd_files = join("element", "unbounded")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_reload_choice_basic(self):
-        xsd_files = join('choice', 'basic')
+        xsd_files = join("choice", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_reload_choice_unbounded(self):
-        xsd_files = join('choice', 'unbounded')
+        xsd_files = join("choice", "unbounded")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_reload_sequence_basic(self):
-        xsd_files = join('sequence', 'basic')
+        xsd_files = join("sequence", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_reload_sequence_unbounded(self):
-        xsd_files = join('sequence', 'unbounded')
+        xsd_files = join("sequence", "unbounded")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_reload_multiple_basic(self):
-        xsd_files = join('multiple', 'basic')
+        xsd_files = join("multiple", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_reload_multiple_unbounded(self):
-        xsd_files = join('multiple', 'unbounded')
+        xsd_files = join("multiple", "unbounded")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)

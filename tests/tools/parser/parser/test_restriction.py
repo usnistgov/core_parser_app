@@ -29,8 +29,9 @@ class ParserCreateRestrictionTestSuite(TestCase):
 
     def _run_test(self, xsd_files):
         xsd_tree = self.restriction_data_handler.get_xsd(xsd_files)
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
-                                     namespaces=self.namespaces)[0]
+        xsd_element = xsd_tree.xpath(
+            "/xs:schema/xs:simpleType/xs:restriction", namespaces=self.namespaces
+        )[0]
 
         result_dict = self.parser.generate_restriction(
             xsd_element, xsd_tree, full_path="/root"
@@ -40,12 +41,12 @@ class ParserCreateRestrictionTestSuite(TestCase):
         return result_dict, expected_dict
 
     def test_enumeration(self):
-        xsd_files = join('enumeration', 'basic')
+        xsd_files = join("enumeration", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_simple_type(self):
-        xsd_files = join('simple_type', 'basic')
+        xsd_files = join("simple_type", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(result_dict, expected_dict)
@@ -71,8 +72,7 @@ class ParserReloadRestrictionTestSuite(TestCase):
     def _run_test(self, xsd_files):
         xsd_tree = self.restriction_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
-            "/xs:schema/xs:simpleType/xs:restriction",
-            namespaces=self.namespaces
+            "/xs:schema/xs:simpleType/xs:restriction", namespaces=self.namespaces
         )[0]
 
         xml_tree = self.restriction_data_handler.get_xml(xsd_files)
@@ -81,8 +81,11 @@ class ParserReloadRestrictionTestSuite(TestCase):
 
         # Generate result dict
         result_dict = self.parser.generate_restriction(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree,
-            default_value=edit_data_tree.text
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
+            default_value=edit_data_tree.text,
         )
 
         # Load expected dictionary and compare with result
@@ -97,7 +100,7 @@ class ParserReloadRestrictionTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_simple_type(self):
-        xsd_files = join('simple_type', 'basic')
+        xsd_files = join("simple_type", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(expected_dict, result_dict)
