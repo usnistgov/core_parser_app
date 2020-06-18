@@ -2,6 +2,7 @@
 """
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest, HttpResponse
 from django.utils.html import escape
 
@@ -9,6 +10,7 @@ from core_main_app.components.template import api as template_api
 from core_parser_app.components.module import api as module_api
 
 
+@login_required
 def delete_module(request):
     """
     Deletes a module from a template
@@ -33,6 +35,7 @@ def delete_module(request):
     return HttpResponse(json.dumps({}), content_type="application/javascript")
 
 
+@login_required
 def insert_module(request):
     """
     Insert a module in a template
