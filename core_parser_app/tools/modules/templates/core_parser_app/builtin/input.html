@@ -2,9 +2,7 @@
 	{% if label %}
 	<label>{{label}}</label>
 	{% endif %}
-	{% if disabled %}
-	<input type="text" value="{{ default_value }}" disabled/>
-	{% else %}
-	<input type="text" value="{{ default_value }}"/>
-	{% endif %}
+	<input type="text" value="{{ default_value }}"
+		   {% if placeholder %} placeholder="{{ placeholder }}" {% endif %}
+           {% if disabled %} disabled {% endif %}/>
 </div>

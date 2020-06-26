@@ -16,6 +16,7 @@ class AbstractInputModule(AbstractModule, metaclass=ABCMeta):
         label=None,
         default_value=None,
         disabled=False,
+        placeholder=None,
     ):
         """ Initialize the module
 
@@ -25,6 +26,7 @@ class AbstractInputModule(AbstractModule, metaclass=ABCMeta):
             label:
             default_value:
             disabled:
+            placeholder:
         """
         scripts = ["core_parser_app/js/builtin/input.js"] + scripts
         AbstractModule.__init__(self, scripts=scripts, styles=styles)
@@ -32,6 +34,7 @@ class AbstractInputModule(AbstractModule, metaclass=ABCMeta):
         self.label = label
         self.default_value = default_value
         self.disabled = disabled
+        self.placeholder = placeholder
 
     def _render_module(self, request):
         """ Return module's rendering
@@ -52,6 +55,9 @@ class AbstractInputModule(AbstractModule, metaclass=ABCMeta):
 
         if self.disabled is not None:
             params.update({"disabled": self.disabled})
+
+        if self.placeholder is not None:
+            params.update({"placeholder": self.placeholder})
 
         return AbstractModule.render_template(
             "core_parser_app/builtin/input.html", params
