@@ -28,7 +28,7 @@ class DataStructure(Document):
 
     @staticmethod
     def get_by_id(data_structure_id):
-        """ Returns the object with the given id
+        """Returns the object with the given id
 
         Args:
             data_structure_id:
@@ -65,7 +65,7 @@ class DataStructure(Document):
 
     @classmethod
     def pre_delete(cls, sender, document, **kwargs):
-        """ Pre delete operations
+        """Pre delete operations
 
         Returns:
 
@@ -74,7 +74,7 @@ class DataStructure(Document):
         document.delete_data_structure_elements_from_root()
 
     def delete_data_structure_elements_from_root(self):
-        """ Delete all data structure elements from the root
+        """Delete all data structure elements from the root
 
         Returns:
 

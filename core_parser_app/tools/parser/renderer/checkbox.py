@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class CheckboxRenderer(ListRenderer):
-    """Checkbox renderer, makes elements selectable
-    """
+    """Checkbox renderer, makes elements selectable"""
 
     def _render_input(self, element):
         """Renders a selectable element

@@ -6,11 +6,10 @@ from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class AbstractPopupModule(AbstractModule, metaclass=ABCMeta):
-    """Popup module
-    """
+    """Popup module"""
 
     def __init__(self, scripts=list(), styles=list(), button_label=""):
-        """ Initialize module
+        """Initialize module
 
         Args:
             scripts:
@@ -23,7 +22,7 @@ class AbstractPopupModule(AbstractModule, metaclass=ABCMeta):
         self.popup_content = ""
 
     def _render_module(self, request):
-        """ Return module's rendering
+        """Return module's rendering
 
         Args:
             request:
@@ -42,6 +41,5 @@ class AbstractPopupModule(AbstractModule, metaclass=ABCMeta):
 
     @abstractmethod
     def _get_popup_content(self):
-        """ Process data to build the module
-        """
+        """Process data to build the module"""
         raise NotImplementedError("not implemented")

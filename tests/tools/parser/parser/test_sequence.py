@@ -13,8 +13,7 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateSequenceTestSuite(TestCase):
-    """ Test creation of elements under sequence
-    """
+    """Test creation of elements under sequence"""
 
     def setUp(self):
         sequence_data = join(RESOURCES_PATH, "parser", "sequence")
@@ -91,8 +90,7 @@ class ParserCreateSequenceTestSuite(TestCase):
 
 
 class ParserReloadSequenceTestSuite(TestCase):
-    """
-    """
+    """"""
 
     maxDiff = None
 

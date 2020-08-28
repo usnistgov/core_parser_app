@@ -11,13 +11,12 @@ from xml_utils.xsd_tree.xsd_tree import XSDTree
 
 class DataHandler(object):
     def __init__(self, dir_name):
-        """ Init data handler
-        """
+        """Init data handler"""
         self.dir_name = dir_name
 
     @staticmethod
     def get_xml_file(filename):
-        """ Get XML file
+        """Get XML file
 
         Args:
             filename:
@@ -50,7 +49,7 @@ class DataHandler(object):
         return XSDTree.transform_to_xml(file_string)
 
     def get_xml(self, filename):
-        """ Get XML
+        """Get XML
 
         Args:
             filename:
@@ -62,7 +61,7 @@ class DataHandler(object):
         return etree.ElementTree(self.get_xml_file(filename))
 
     def get_xsd(self, filename):
-        """ Get XSD
+        """Get XSD
 
         Args:
             filename:
@@ -74,7 +73,7 @@ class DataHandler(object):
         return etree.ElementTree(self.get_xml_file(filename))
 
     def get_html(self, filename):
-        """ Get HTML
+        """Get HTML
 
         Args:
             filename:
@@ -86,7 +85,7 @@ class DataHandler(object):
         return self.get_xml(filename)
 
     def get_json(self, filename):
-        """ Get JSON
+        """Get JSON
 
         Args:
             filename:
@@ -102,7 +101,7 @@ class DataHandler(object):
 
 
 def convert(data):
-    """ Convert data
+    """Convert data
 
     Args:
         data:

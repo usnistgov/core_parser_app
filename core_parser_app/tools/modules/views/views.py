@@ -29,7 +29,7 @@ def index(request):
 
 
 def load_resources_view(request):
-    """ Load resources for a given list of modules
+    """Load resources for a given list of modules
 
     :param request:
     :return:

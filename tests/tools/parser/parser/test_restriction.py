@@ -13,8 +13,7 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateRestrictionTestSuite(TestCase):
-    """
-    """
+    """"""
 
     def setUp(self):
         restriction_data = join(RESOURCES_PATH, "parser", "restriction")
@@ -53,8 +52,7 @@ class ParserCreateRestrictionTestSuite(TestCase):
 
 
 class ParserReloadRestrictionTestSuite(TestCase):
-    """
-    """
+    """"""
 
     def setUp(self):
         # Init data path

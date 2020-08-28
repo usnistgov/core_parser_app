@@ -18,8 +18,7 @@ from core_parser_app.tools.modules.exceptions import ModuleError
 
 
 class AbstractModule(View, metaclass=ABCMeta):
-    """Abstract module class
-    """
+    """Abstract module class"""
 
     # Is the module managing occurrences by its own? (False by default)
     # NOTE: needs to be redefined in subclasses
@@ -43,7 +42,7 @@ class AbstractModule(View, metaclass=ABCMeta):
         self.data = None
 
     def get(self, request, *args, **kwargs):
-        """ Manage the GET requests
+        """Manage the GET requests
 
         Args:
             request:
@@ -61,7 +60,7 @@ class AbstractModule(View, metaclass=ABCMeta):
             return self._get(request)
 
     def _get(self, request):
-        """ Manage the GET requests
+        """Manage the GET requests
 
         Args:
             request:
@@ -121,7 +120,7 @@ class AbstractModule(View, metaclass=ABCMeta):
         return HttpResponse(html_string, status=HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        """ Manage POST requests
+        """Manage POST requests
 
         Args:
             request:
@@ -174,15 +173,14 @@ class AbstractModule(View, metaclass=ABCMeta):
         return HttpResponse(json.dumps(response_dict))
 
     def _get_resources(self):
-        """Returns HTTP response containing module resources
-        """
+        """Returns HTTP response containing module resources"""
         response = {"scripts": self.scripts, "styles": self.styles}
 
         return HttpResponse(json.dumps(response), status=HTTP_200_OK)
 
     @abstractmethod
     def _render_module(self, request):
-        """ Render the module content
+        """Render the module content
 
         Args:
             request:
@@ -194,7 +192,7 @@ class AbstractModule(View, metaclass=ABCMeta):
 
     @abstractmethod
     def _retrieve_data(self, request):
-        """ Retrieve module's data
+        """Retrieve module's data
 
         Args:
             request:
@@ -206,7 +204,7 @@ class AbstractModule(View, metaclass=ABCMeta):
 
     @abstractmethod
     def _render_data(self, request):
-        """ Return the module's data representation
+        """Return the module's data representation
 
         Args:
             request:
@@ -244,7 +242,7 @@ class AbstractModule(View, metaclass=ABCMeta):
 
     @staticmethod
     def render_template(template_name, context=None):
-        """ Renders the module in HTML using django template
+        """Renders the module in HTML using django template
 
         Args:
             template_name:

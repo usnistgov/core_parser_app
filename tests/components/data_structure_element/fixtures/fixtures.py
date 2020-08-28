@@ -7,8 +7,7 @@ from core_parser_app.components.data_structure_element.models import (
 
 
 class DataFixtures(FixtureInterface):
-    """ Represents Data structure element fixtures
-    """
+    """Represents Data structure element fixtures"""
 
     data_structure_element_child_id_1 = None
     data_structure_element_child_3 = None
@@ -16,7 +15,7 @@ class DataFixtures(FixtureInterface):
     data_structure_element_collection = None
 
     def insert_data(self):
-        """ Insert a set of Data
+        """Insert a set of Data
 
         Returns:
 
@@ -25,7 +24,7 @@ class DataFixtures(FixtureInterface):
         self.generate_data_structure_element()
 
     def generate_data_structure_element(self):
-        """ Insert three elements in mock database with different tag and value
+        """Insert three elements in mock database with different tag and value
 
         two of them have same children
         two of then have same options
@@ -91,8 +90,7 @@ class DataFixtures(FixtureInterface):
 
 
 class DataStructureElementMultipleLevelsFixture(FixtureInterface):
-    """ Represents Data structure element fixtures
-    """
+    """Represents Data structure element fixtures"""
 
     data_structure_element_1_1_2_1 = None
     data_structure_element_1_1_1 = None
@@ -107,7 +105,7 @@ class DataStructureElementMultipleLevelsFixture(FixtureInterface):
     data_structure_element_collection = None
 
     def insert_data(self):
-        """ Insert a set of Data
+        """Insert a set of Data
 
         Returns:
 
@@ -116,7 +114,7 @@ class DataStructureElementMultipleLevelsFixture(FixtureInterface):
         self.generate_data_structure_element()
 
     def generate_data_structure_element(self):
-        """ Insert data structure elements on multiple levels in mock database
+        """Insert data structure elements on multiple levels in mock database
 
         Example::
 

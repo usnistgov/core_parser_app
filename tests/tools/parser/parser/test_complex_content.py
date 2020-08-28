@@ -13,8 +13,7 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateComplexContentTestSuite(TestCase):
-    """
-    """
+    """"""
 
     maxDiff = None
 
@@ -64,8 +63,7 @@ class ParserCreateComplexContentTestSuite(TestCase):
 
 
 class ParserReloadComplexContentTestSuite(TestCase):
-    """
-    """
+    """"""
 
     maxDiff = None
 

@@ -71,8 +71,7 @@ class AbstractTableRenderer(DefaultRenderer):
 
 
 class TableRenderer(AbstractTableRenderer):
-    """
-    """
+    """"""
 
     def __init__(self, xsd_data):
         """Initializes table renderer

@@ -6,11 +6,10 @@ from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class AbstractAutoCompleteModule(AbstractModule, metaclass=ABCMeta):
-    """ AutoCompleteModule class
-    """
+    """AutoCompleteModule class"""
 
     def __init__(self, scripts=list(), styles=list(), label=None):
-        """ Initialize the module
+        """Initialize the module
 
         Args:
             scripts:
@@ -23,7 +22,7 @@ class AbstractAutoCompleteModule(AbstractModule, metaclass=ABCMeta):
         self.label = label
 
     def _render_module(self, request):
-        """ Return the module
+        """Return the module
 
         Args:
             request:

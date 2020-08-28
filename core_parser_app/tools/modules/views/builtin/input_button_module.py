@@ -6,8 +6,7 @@ from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class AbstractInputButtonModule(AbstractModule, metaclass=ABCMeta):
-    """ Input Button module
-    """
+    """Input Button module"""
 
     def __init__(
         self,
@@ -17,7 +16,7 @@ class AbstractInputButtonModule(AbstractModule, metaclass=ABCMeta):
         label=None,
         default_value=None,
     ):
-        """ Initialize the module
+        """Initialize the module
 
         Args:
             scripts:
@@ -32,7 +31,7 @@ class AbstractInputButtonModule(AbstractModule, metaclass=ABCMeta):
         self.default_value = default_value
 
     def _render_module(self, request):
-        """ Return the module rendering
+        """Return the module rendering
 
         Args:
             request:

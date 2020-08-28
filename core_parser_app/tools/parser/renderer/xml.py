@@ -16,8 +16,7 @@ from xml_utils.xsd_tree.operations.xml_entities import XmlEntities
 
 
 class AbstractXmlRenderer(DefaultRenderer):
-    """Abstract XML renderer class
-    """
+    """Abstract XML renderer class"""
 
     def __init__(self, xsd_data):
         """Initializes XML renderer object
@@ -68,8 +67,7 @@ def get_parent_element(element):
 
 
 class XmlRenderer(AbstractXmlRenderer):
-    """XML Renderer class
-    """
+    """XML Renderer class"""
 
     def __init__(self, xsd_data):
         """Initializes XML renderer object

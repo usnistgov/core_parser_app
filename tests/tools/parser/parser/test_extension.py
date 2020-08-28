@@ -13,8 +13,7 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateExtensionTestSuite(TestCase):
-    """
-    """
+    """"""
 
     def setUp(self):
         extension_data = join(RESOURCES_PATH, "parser", "extension")
@@ -95,8 +94,7 @@ class ParserCreateExtensionTestSuite(TestCase):
 
 
 class ParserReloadExtensionTestSuite(TestCase):
-    """
-    """
+    """"""
 
     def setUp(self):
         # Init data path

@@ -6,8 +6,7 @@ from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
-    """Options Modules
-    """
+    """Options Modules"""
 
     def __init__(
         self,
@@ -18,7 +17,7 @@ class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
         disabled=False,
         selected=None,
     ):
-        """ Initialize module
+        """Initialize module
 
         Args:
             scripts:
@@ -40,7 +39,7 @@ class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
         self.selected = selected
 
     def _render_module(self, request):
-        """ Return module's rendering
+        """Return module's rendering
 
         Args:
             request:

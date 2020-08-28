@@ -6,11 +6,10 @@ from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class AbstractTextAreaModule(AbstractModule, metaclass=ABCMeta):
-    """Text Area module
-    """
+    """Text Area module"""
 
     def __init__(self, scripts=list(), styles=list(), label=None, data=""):
-        """ Initialize module
+        """Initialize module
 
         Args:
 
@@ -27,7 +26,7 @@ class AbstractTextAreaModule(AbstractModule, metaclass=ABCMeta):
         self.data = data
 
     def _render_module(self, request):
-        """ Return module's rendering
+        """Return module's rendering
 
         Args:
             request:

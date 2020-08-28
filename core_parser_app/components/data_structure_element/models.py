@@ -27,7 +27,7 @@ class DataStructureElement(Document):
 
     @staticmethod
     def get_all_by_child_id(child_id):
-        """ Get Data structure element object which contains the given child id in its children
+        """Get Data structure element object which contains the given child id in its children
 
         Args:
             child_id:
@@ -42,7 +42,7 @@ class DataStructureElement(Document):
 
     @staticmethod
     def get_by_id(data_structure_element_id):
-        """ Returns the object with the given id
+        """Returns the object with the given id
 
         Args:
             data_structure_element_id:
@@ -60,7 +60,7 @@ class DataStructureElement(Document):
 
     @staticmethod
     def get_by_xpath(xpath):
-        """ Returns the object with the given id
+        """Returns the object with the given id
 
         Args:
             xpath:

@@ -6,7 +6,7 @@ from core_parser_app.components.data_structure_element.models import (
 
 
 def upsert(data_structure_element):
-    """ Save or update the Data Structure Element
+    """Save or update the Data Structure Element
 
     Args:
         data_structure_element:
@@ -18,15 +18,15 @@ def upsert(data_structure_element):
 
 
 def get_all():
-    """ List all DataStructureElement
+    """List all DataStructureElement
 
-        Returns: DataStructureElement collection
+    Returns: DataStructureElement collection
     """
     return DataStructureElement.get_all()
 
 
 def get_all_by_child_id(child_id):
-    """ Get Data structure element object which contains the given child id in its children
+    """Get Data structure element object which contains the given child id in its children
 
     Args:
         child_id:
@@ -38,21 +38,21 @@ def get_all_by_child_id(child_id):
 
 
 def get_by_id(data_structure_element_id):
-    """ Return DataStructureElement object with the given id
+    """Return DataStructureElement object with the given id
 
-        Args:
-            data_structure_element_id:
+    Args:
+        data_structure_element_id:
 
-        Returns: DataStructureElement object
+    Returns: DataStructureElement object
     """
     return DataStructureElement.get_by_id(data_structure_element_id)
 
 
 def get_by_xpath(xpath):
-    """ List all DataStructureElement
-        Args :
-            xpath
-        Returns: DataStructureElement collection
+    """List all DataStructureElement
+    Args :
+        xpath
+    Returns: DataStructureElement collection
     """
 
     return DataStructureElement.get_by_xpath(xpath)
@@ -89,7 +89,7 @@ def add_to_set(data_structure_element, children):
 
 
 def get_root_element(data_structure_element):
-    """ Return element's root
+    """Return element's root
 
     Args:
         data_structure_element:

@@ -295,7 +295,7 @@ def lookup_occurs(element, xml_tree, full_path, edit_data_tree, download_enabled
 
 
 def is_module_multiple(element):
-    """ Checks if the module is multiple (means it manages the occurrences)
+    """Checks if the module is multiple (means it manages the occurrences)
 
     :param element:
     :return:
@@ -365,7 +365,7 @@ def get_element_type(
     attr="type",
     download_enabled=True,
 ):
-    """ Get XSD type to render. Returns the tree where the type was found.
+    """Get XSD type to render. Returns the tree where the type was found.
 
     Parameters:
         element: XML element
@@ -749,7 +749,7 @@ class XSDParser(object):
         download_dependencies=True,
         store_type=False,
     ):
-        """ Initialize XSD Parser
+        """Initialize XSD Parser
 
         Args:
             min_tree:
@@ -773,7 +773,7 @@ class XSDParser(object):
         self.keyrefs = {}
 
     def generate_form(self, xsd_doc_data, xml_doc_data=None):
-        """ Generate form data structure form XML Schema
+        """Generate form data structure form XML Schema
 
         Args:
             xsd_doc_data:
@@ -904,7 +904,7 @@ class XSDParser(object):
         xml_element=None,
         force_generation=False,
     ):
-        """ Generate data structure for an XML element
+        """Generate data structure for an XML element
 
         Args:
             element:
@@ -1252,7 +1252,7 @@ class XSDParser(object):
     def generate_element_absent(
         self, request, element_id, xsd_doc_data, renderer_class=ListRenderer
     ):
-        """ Generate data structure for an XML element absent from the tree
+        """Generate data structure for an XML element absent from the tree
 
         Args:
             request:
@@ -1389,7 +1389,7 @@ class XSDParser(object):
         schema_location=None,
         force_generation=False,
     ):
-        """ Generate data structure for an XML sequence
+        """Generate data structure for an XML sequence
 
         Args:
             element:
@@ -1573,7 +1573,7 @@ class XSDParser(object):
 
     # FIXME: never called: see if still needed
     def generate_sequence_absent(self, element, xml_tree, schema_location=None):
-        """ Generate data structure for an XML sequence absent from the tree
+        """Generate data structure for an XML sequence absent from the tree
 
         Args:
             element:
@@ -1624,7 +1624,7 @@ class XSDParser(object):
         schema_location=None,
         force_generation=False,
     ):
-        """ Generate data structure for an XML choice
+        """Generate data structure for an XML choice
 
         Args:
             element:
@@ -1826,7 +1826,7 @@ class XSDParser(object):
     def generate_choice_absent(
         self, request, element_id, xsd_doc_data, renderer_class=ListRenderer
     ):
-        """ Generate data structure for an XML choice
+        """Generate data structure for an XML choice
 
         Args:
             request:
@@ -1936,7 +1936,7 @@ class XSDParser(object):
         schema_location=None,
         implicit_extension=True,
     ):
-        """ Generate data structure for an XML simple type
+        """Generate data structure for an XML simple type
 
         Args:
             element:
@@ -2058,7 +2058,7 @@ class XSDParser(object):
         schema_location=None,
         implicit_extension=True,
     ):
-        """ Generate data structure for an XML complex type
+        """Generate data structure for an XML complex type
 
         Args:
             element:
@@ -2253,7 +2253,7 @@ class XSDParser(object):
         is_fixed=False,
         schema_location=None,
     ):
-        """ Generate data structure for an XML extension
+        """Generate data structure for an XML extension
 
         Args:
             element:
@@ -2405,7 +2405,7 @@ class XSDParser(object):
         default_value="",
         schema_location=None,
     ):
-        """ Generate data structure for an XML complex content
+        """Generate data structure for an XML complex content
 
         Args:
             element:
@@ -2458,7 +2458,7 @@ class XSDParser(object):
         xml_tree=None,
         edit_data_tree=None,
     ):
-        """ Generate data structure for a module
+        """Generate data structure for a module
 
         Args:
             element:
@@ -2556,7 +2556,7 @@ class XSDParser(object):
         is_fixed=False,
         schema_location=None,
     ):
-        """ Generate data structure for an XML simple content
+        """Generate data structure for an XML simple content
 
         Args:
             element:
@@ -2615,7 +2615,7 @@ class XSDParser(object):
         is_fixed=False,
         schema_location=None,
     ):
-        """ Generate data structure for an XML restriction
+        """Generate data structure for an XML restriction
 
         Args:
             element:
@@ -2741,7 +2741,7 @@ class XSDParser(object):
         is_fixed=False,
         schema_location=None,
     ):
-        """ Generate data structure for an XML extension
+        """Generate data structure for an XML extension
 
         Args:
             element:
@@ -2789,7 +2789,9 @@ class XSDParser(object):
                     {
                         "tag": "input",
                         "value": default_value,
-                        "options": {"fixed": is_fixed,},
+                        "options": {
+                            "fixed": is_fixed,
+                        },
                     }
                 )
             else:  # not a built-in data type
@@ -2890,7 +2892,7 @@ class XSDParser(object):
         return db_element
 
     def is_key(self, element, full_path):
-        """ Check if current element is used as a key
+        """Check if current element is used as a key
 
         Args:
             element:
@@ -2914,7 +2916,7 @@ class XSDParser(object):
         return False
 
     def is_keyref(self, element, full_path):
-        """ Check if current element is used as a keyref
+        """Check if current element is used as a keyref
 
         Args:
             element:
@@ -2939,7 +2941,7 @@ class XSDParser(object):
         return False
 
     def manage_key_keyref(self, element, full_path):
-        """ Collect key and keyref elements
+        """Collect key and keyref elements
 
         Args:
             element:
@@ -3015,7 +3017,7 @@ class XSDParser(object):
                 }
 
     def init_key_keyref(self, element):
-        """ Initialize keys and keyrefs
+        """Initialize keys and keyrefs
 
         Args:
             element:

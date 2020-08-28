@@ -4,7 +4,7 @@
 
 class ParserError(Exception):
     """
-        Exception raised by the parser
+    Exception raised by the parser
     """
 
     def __init__(self, message):
@@ -13,7 +13,7 @@ class ParserError(Exception):
 
 class RendererError(Exception):
     """
-        Exception raised by the renderer
+    Exception raised by the renderer
     """
 
     def __init__(self, message):

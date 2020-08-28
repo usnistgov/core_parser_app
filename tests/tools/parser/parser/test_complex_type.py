@@ -13,8 +13,7 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateComplexTypeTestSuite(TestCase):
-    """ Element creation unit tests
-    """
+    """Element creation unit tests"""
 
     def setUp(self):
         # Setup data handler
@@ -114,8 +113,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
 
 
 class ParserReloadComplexTypeTestSuite(TestCase):
-    """ Element reload unit tests
-    """
+    """Element reload unit tests"""
 
     def setUp(self):
         complex_type_data = join(RESOURCES_PATH, "parser", "complex_type")

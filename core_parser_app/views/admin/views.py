@@ -10,7 +10,7 @@ class ManageModulesAdminView(View):
     back_to_previous_url = None
 
     def get(self, request, pk):
-        """ View that allows module management
+        """View that allows module management
 
         Args:
             request:

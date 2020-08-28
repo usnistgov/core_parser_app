@@ -7,8 +7,7 @@ from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class AbstractSyncInputModule(AbstractModule, metaclass=ABCMeta):
-    """Synchronous input module
-    """
+    """Synchronous input module"""
 
     def __init__(
         self,
@@ -19,7 +18,7 @@ class AbstractSyncInputModule(AbstractModule, metaclass=ABCMeta):
         modclass=None,
         disabled=False,
     ):
-        """ Initialize the module
+        """Initialize the module
 
         Args:
             scripts:
@@ -41,7 +40,7 @@ class AbstractSyncInputModule(AbstractModule, metaclass=ABCMeta):
         self.disabled = disabled
 
     def _render_module(self, request):
-        """ Return module's rendering
+        """Return module's rendering
 
         Args:
             request:

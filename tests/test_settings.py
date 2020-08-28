@@ -23,5 +23,7 @@ DATABASES = {
 }
 
 TEMPLATES = [
-    {"BACKEND": "django.template.backends.django.DjangoTemplates",},
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+    },
 ]

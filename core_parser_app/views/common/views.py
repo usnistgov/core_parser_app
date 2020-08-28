@@ -17,7 +17,7 @@ class ManageModulesUserView(View):
     title = "Modules Manager"
 
     def get(self, request, pk):
-        """ View that allows module management
+        """View that allows module management
 
         Args:
             request:
@@ -27,7 +27,9 @@ class ManageModulesUserView(View):
 
         """
         assets = {
-            "js": [{"path": "core_main_app/common/js/XMLTree.js", "is_raw": True},],
+            "js": [
+                {"path": "core_main_app/common/js/XMLTree.js", "is_raw": True},
+            ],
             "css": [
                 "core_main_app/common/css/XMLTree.css",
                 "core_parser_app/common/css/modules.css",
@@ -60,7 +62,7 @@ class ManageModulesUserView(View):
 
 
 def get_context(template_id, url_previous_button, read_only, title):
-    """ Get the context to manage the template modules
+    """Get the context to manage the template modules
 
     Args: template_id:
     Returns:

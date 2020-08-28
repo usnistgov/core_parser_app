@@ -12,8 +12,7 @@ from core_parser_app.tools.modules.views.module import AbstractModule
 
 
 class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
-    """ Checkboxes module
-    """
+    """Checkboxes module"""
 
     def __init__(
         self,
@@ -24,7 +23,7 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
         options=None,
         selected=list(),
     ):
-        """ Initialize the module
+        """Initialize the module
 
         Args:
             scripts:
@@ -48,7 +47,7 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
     # FIXME: use a template to generate the HTML of the checkbox
     @staticmethod
     def _create_html_checkbox(input_key, input_value, checked=False):
-        """ Return the html of the checkboxes
+        """Return the html of the checkboxes
 
         Args:
             input_key:
@@ -66,7 +65,7 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
         return "<span>" + input_tag + "</span>"
 
     def _render_module(self, request):
-        """ Return the module
+        """Return the module
 
         Args:
             request:

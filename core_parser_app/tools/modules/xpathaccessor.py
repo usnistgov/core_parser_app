@@ -74,7 +74,7 @@ class XPathAccessor(object, metaclass=ABCMeta):
 
     @abstractmethod
     def set_XpathAccessor(self, request):
-        """ Set xpath accessor
+        """Set xpath accessor
 
         Args:
             request: HTTP request
@@ -92,7 +92,7 @@ class XPathAccessor(object, metaclass=ABCMeta):
 
 class XPathAccessorError(Exception):
     """
-        Exception raised by the siblings accessor system
+    Exception raised by the siblings accessor system
     """
 
     def __init__(self, message):

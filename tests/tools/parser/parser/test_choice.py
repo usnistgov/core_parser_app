@@ -13,8 +13,7 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateChoiceTestSuite(TestCase):
-    """
-    """
+    """"""
 
     def setUp(self):
         choice_data = join(RESOURCES_PATH, "parser", "choice")
@@ -89,8 +88,7 @@ class ParserCreateChoiceTestSuite(TestCase):
 
 
 class ParserReloadChoiceTestSuite(TestCase):
-    """
-    """
+    """"""
 
     def setUp(self):
         choice_data = join(RESOURCES_PATH, "parser", "choice")

@@ -81,8 +81,7 @@ class AbstractListRenderer(DefaultRenderer):
 
 
 class ListRenderer(AbstractListRenderer):
-    """List Renderer class
-    """
+    """List Renderer class"""
 
     def __init__(self, xsd_data, request):
         """Initializes List renderer object

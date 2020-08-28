@@ -10,7 +10,7 @@ from xml_utils.xsd_tree.operations.namespaces import get_global_namespace
 
 
 def transform_xsd_to_html_with_modules(xsd_string):
-    """ Convert xsd string with modules to html.
+    """Convert xsd string with modules to html.
 
     Args:
         xsd_string:
