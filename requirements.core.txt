@@ -1,2 +1,2 @@
-core-main-app==1.11.*
+core-main-app==1.12.*
 xml-utils==1.10.*
