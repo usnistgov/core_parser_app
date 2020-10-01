@@ -30,8 +30,14 @@ class AbstractPopupModule(AbstractModule, metaclass=ABCMeta):
         Returns:
 
         """
+        module_id = None
+
+        if self.request:
+            module_id = self.request.GET.get("module_id", None)
+
         params = {
             "popup_content": self._get_popup_content(),
+            "module_id": module_id,
             "button_label": self.button_label,
         }
 

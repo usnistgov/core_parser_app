@@ -1,54 +1,41 @@
-var openModule = null;
-var openPopUp = null;
-var initialState = null;
-var popUpOptions = [];
+/**
+ * Popup module script
+ */
+let moduleElement = null;
+let moduleOptions = [];
 
-closePopUp = function() {
-    openPopUp.removeClass('active_dialog');
-    openPopUp.dialog("destroy");
-
-    openModule = null;
-    openPopUp = null;
-};
-
-closeAndRestorePopup = function() {
-    openPopUp.html(initialState);
-    closePopUp();
+let configurePopUp = (key, popupOptions)=>{
+    moduleOptions[key] = popupOptions;
 }
 
-var defaultPopUpOptions = {
-    modal: true,
-    buttons: {
-        Cancel: closeAndRestorePopup
-    },
-    close: function(event, ui) {
-        closeAndRestorePopup();
-    }
-};
-
-configurePopUp = function(moduleURL, options, getDataFunction) {
-    var modulePopUpOptions = $.extend({}, defaultPopUpOptions, options);
-
-    var saveButton = {
-        Save: function() {
-            data = getDataFunction();            
-            saveModuleData(openModule, data);
-            closePopUp();
-        }
-    };
-    modulePopUpOptions["buttons"] = $.extend({}, saveButton, modulePopUpOptions["buttons"]);
-
-    popUpOptions[moduleURL] = modulePopUpOptions;
-};
-
+/**
+ * Open modal button listener
+ */
 $('body').on('click', '.mod_popup .open-popup', function(event) {
     event.preventDefault();
-    openModule = $(this).parent().parent().parent();
+    moduleElement = $(this).parent().parent().parent();
+    popupOption = moduleOptions[moduleElement.find('.moduleURL').text()];
+    let jqBootstrapModalId = $("#modal-" + moduleElement[0].id);
 
-    openModule.find('.mod_dialog').addClass('active_dialog');
-    openPopUp = $('.active_dialog');
+    let modDialogElement = moduleElement.find('.mod_dialog')
+    modDialogElement.addClass('active_dialog');
 
-    // save the initial state in case of canceling or closing the popup
-    initialState = $(openPopUp).html();
-    openPopUp.dialog(popUpOptions[openModule.find('.moduleURL').text()]);
+    // the new bootstrap modal have an id as follow : id-<module-id>
+    if(jqBootstrapModalId.length > 0){
+        const getFormDataFunction = popupOption.getData;
+        jqBootstrapModalId.modal("show"); // show the modal
+        $(".save-module-form").unbind(); // unbind the previous listeners
+
+        // listen the click event on the save button
+        $(".save-module-form").on("click", ()=>{
+            let data = getFormDataFunction();
+            saveModuleData(moduleElement, data);
+            jqBootstrapModalId.modal('hide');
+        });
+        // listen the hide event on the modal
+        jqBootstrapModalId.unbind('hidden.bs.modal');
+        jqBootstrapModalId.on('hidden.bs.modal', function (e) {
+            moduleElement = null;
+        })
+    }
 });

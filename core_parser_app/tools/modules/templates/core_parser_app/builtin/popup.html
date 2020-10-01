@@ -1,8 +1,8 @@
 <div class="mod_popup">
 	<div class="btn btn-secondary open-popup">{{button_label}}</div>
-	<div class="mod_dialog" style="display:none;">
+	<div class="mod_dialog">
 		{% autoescape off %}
-		{{popup_content}}
+			{% include 'core_parser_app/builtin/modal_wrapper.html' %}
 		{% endautoescape %}
 	</div>
 </div>
