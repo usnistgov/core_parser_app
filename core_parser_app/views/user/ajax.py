@@ -2,6 +2,7 @@
 """
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest, HttpResponse
 
 from core_parser_app.components.data_structure_element import (
@@ -9,6 +10,7 @@ from core_parser_app.components.data_structure_element import (
 )
 
 
+@login_required
 def data_structure_element_value(request):
     """Endpoint for data structure element value
 
