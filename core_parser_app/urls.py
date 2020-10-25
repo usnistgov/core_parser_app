@@ -15,11 +15,8 @@ urlpatterns = [
     ),
     re_path(
         r"^template/modules/(?P<pk>\w+)",
-        login_required(
-            common_views.ManageModulesUserView.as_view(
-                back_to_previous_url="core_main_app_manage_template_versions",
-            ),
-            login_url=reverse_lazy("core_main_app_login"),
+        common_views.ManageModulesUserView.as_view(
+            back_to_previous_url="core_main_app_manage_template_versions",
         ),
         name="core_parser_app_template_modules",
     ),

@@ -1,7 +1,9 @@
 """
     Common views
 """
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse, NoReverseMatch
+from django.utils.decorators import method_decorator
 from django.views.generic import View
 
 from core_main_app.components.template import api as template_api
@@ -11,6 +13,7 @@ from core_parser_app.components.module import api as module_api
 from core_parser_app.utils.xml import transform_xsd_to_html_with_modules
 
 
+@method_decorator(login_required, name="dispatch")
 class ManageModulesUserView(View):
     back_to_previous_url = None
     read_only = False
