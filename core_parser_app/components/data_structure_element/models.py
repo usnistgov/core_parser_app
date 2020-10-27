@@ -17,15 +17,6 @@ class DataStructureElement(Document):
     children = fields.ListField(fields.ReferenceField("self"), blank=True)
 
     @staticmethod
-    def get_all():
-        """
-
-        Returns:
-
-        """
-        return DataStructureElement.objects.all()
-
-    @staticmethod
     def get_all_by_child_id(child_id):
         """Get Data structure element object which contains the given child id in its children
 

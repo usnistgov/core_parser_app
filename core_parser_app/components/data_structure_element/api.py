@@ -17,14 +17,6 @@ def upsert(data_structure_element):
     return data_structure_element.save()
 
 
-def get_all():
-    """List all DataStructureElement
-
-    Returns: DataStructureElement collection
-    """
-    return DataStructureElement.get_all()
-
-
 def get_all_by_child_id(child_id):
     """Get Data structure element object which contains the given child id in its children
 

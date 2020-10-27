@@ -11,22 +11,6 @@ from core_parser_app.components.data_structure_element.models import (
 )
 
 
-class TestDataStructureElementGetAll(TestCase):
-    @patch.object(DataStructureElement, "get_all")
-    def test_data_structure_element_get_all_return_collection_of_data(self, mock_list):
-        # Arrange
-        mock_data_structure_element_1 = DataStructureElement("tag", "value")
-        mock_data_structure_element_2 = DataStructureElement("tag", "value")
-        mock_list.return_value = [
-            mock_data_structure_element_1,
-            mock_data_structure_element_2,
-        ]
-        # Act
-        result = data_structure_element_api.get_all()
-        # Assert
-        self.assertTrue(all(isinstance(item, DataStructureElement) for item in result))
-
-
 class TestDataStructureElementGetById(TestCase):
     @patch.object(DataStructureElement, "get_by_id")
     def test_data_structure_element_get_by_id_raises_does_not_exist_error_if_not_found(

@@ -20,26 +20,6 @@ fixture_data = DataFixtures()
 fixture_multiple_levels_data = DataStructureElementMultipleLevelsFixture()
 
 
-class TestDataStructureElementGetAll(MongoIntegrationBaseTestCase):
-    fixture = fixture_data
-
-    def test_data_structure_element_get_all_return_collection_of_data(self):
-        # Act
-        result = api_data_structure_element.get_all()
-        # Assert
-        self.assertTrue(all(isinstance(item, DataStructureElement) for item in result))
-
-    def test_data_structure_element_get_all_return_all_data_structure_element_in_collection(
-        self,
-    ):
-        # Act
-        result = api_data_structure_element.get_all()
-        # Assert
-        self.assertTrue(
-            len(self.fixture.data_structure_element_collection) == len(result)
-        )
-
-
 class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
     fixture = fixture_data
 

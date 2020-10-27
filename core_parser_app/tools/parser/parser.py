@@ -1563,54 +1563,11 @@ class XSDParser(object):
 
                     db_elem_iter["children"].append(choice_result)
                 elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-                    logger.info("generate_sequence_absent case not implemented.")
+                    logger.info("generate_sequence case not implemented.")
                 elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-                    logger.info("generate_sequence_absent case not implemented.")
+                    logger.info("generate_sequence case not implemented.")
 
             db_element["children"].append(db_elem_iter)
-
-        return db_element
-
-    # FIXME: never called: see if still needed
-    def generate_sequence_absent(self, element, xml_tree, schema_location=None):
-        """Generate data structure for an XML sequence absent from the tree
-
-        Args:
-            element:
-            xml_tree:
-            schema_location:
-
-        Returns:
-
-        """
-        # TODO see if it can be merged in generate_sequence
-        db_element = {"tag": "sequence-iter", "value": None, "children": []}
-
-        # TODO: needs to be tested
-        if self.auto_key_keyref:
-            self.init_key_keyref(element)
-
-        # generates the sequence
-        for child in element:
-            if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-                element = self.generate_element(
-                    child, xml_tree, schema_location=schema_location
-                )
-                db_element["children"].append(element)
-            elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
-                sequence = self.generate_sequence(
-                    child, xml_tree, schema_location=schema_location
-                )
-                db_element["children"].append(sequence)
-            elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
-                choice = self.generate_choice(
-                    child, xml_tree, schema_location=schema_location
-                )
-                db_element["children"].append(choice)
-            elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-                logger.info("generate_sequence_absent case not implemented.")
-            elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-                logger.info("generate_sequence_absent case not implemented.")
 
         return db_element
 
