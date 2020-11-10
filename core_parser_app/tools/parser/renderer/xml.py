@@ -1,5 +1,6 @@
 """XML Renderer class
 """
+import logging
 import numbers
 from os.path import join
 
@@ -13,6 +14,8 @@ from core_parser_app.settings import AUTO_ESCAPE_XML_ENTITIES
 from core_parser_app.tools.parser.exceptions import RendererError
 from core_parser_app.tools.parser.renderer import DefaultRenderer
 from xml_utils.xsd_tree.operations.xml_entities import XmlEntities
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractXmlRenderer(DefaultRenderer):
@@ -48,35 +51,18 @@ class AbstractXmlRenderer(DefaultRenderer):
         return self._load_template("xml", data)
 
 
-def get_parent_element(element):
-    """Gets the parent element (tag is element not direct parent) of the current element
-
-    Args:
-        element:
-
-    Returns:
-
-    """
-    try:
-        parent = data_structure_element_api.get_all_by_child_id(ObjectId(element.id))
-        while parent.tag != "element":
-            parent = data_structure_element_api.get_all_by_child_id(ObjectId(parent.id))
-        return parent
-    except:
-        return None
-
-
 class XmlRenderer(AbstractXmlRenderer):
     """XML Renderer class"""
 
-    def __init__(self, xsd_data):
+    def __init__(self, xsd_data, request):
         """Initializes XML renderer object
 
         Args:
             xsd_data:
         """
-        self.isRoot = True
         super(XmlRenderer, self).__init__(xsd_data)
+        self.request = request
+        self.isRoot = True
 
     def render(self):
         """Renders form as XML
@@ -90,7 +76,7 @@ class XmlRenderer(AbstractXmlRenderer):
             content = self.render_choice(self.data)
             root = self.data.children[0]
             root_elem_id = root.value
-            root_elem = data_structure_element_api.get_by_id(root_elem_id)
+            root_elem = data_structure_element_api.get_by_id(root_elem_id, self.request)
             root_name = root_elem.options["name"]
 
             if (
@@ -109,6 +95,32 @@ class XmlRenderer(AbstractXmlRenderer):
             message = "render: " + self.data.tag + " not handled"
             self.warnings.append(message)
             return ""
+
+    def _get_parent_element(self, element):
+        """Gets the parent element (tag is element not direct parent) of the
+        current element
+
+        Args:
+            element:
+
+        Returns:
+
+        """
+        try:
+            parent = data_structure_element_api.get_all_by_child_id(
+                ObjectId(element.id), self.request
+            )
+            while parent.tag != "element":
+                parent = data_structure_element_api.get_all_by_child_id(
+                    ObjectId(parent.id), self.request
+                )
+            return parent
+        except Exception as e:
+            logger.warning(
+                "Exception caught while running 'XMLRendere._get_parent_element': %s"
+                % str(e)
+            )
+            return None
 
     def render_element(self, element):
         """Renders an element
@@ -176,7 +188,7 @@ class XmlRenderer(AbstractXmlRenderer):
                     self.warnings.append(message)
 
                 # namespaces
-                parent = get_parent_element(element)
+                parent = self._get_parent_element(element)
                 if parent is not None:
                     if (
                         "xmlns" in element.options
@@ -196,11 +208,13 @@ class XmlRenderer(AbstractXmlRenderer):
                         xmlns = ' xmlns="{}"'.format(element.options["xmlns"])
                         content[0] += xmlns
 
-                # content[2] has the value returned by a module (the entire tag, when multiple is True)
+                # content[2] has the value returned by a module (the entire
+                # tag, when multiple is True)
                 if content[2] != "":
                     if content[1] != "":
                         raise RendererError(
-                            "ERROR: More values than expected were returned (Module multiple)."
+                            "ERROR: More values than expected were returned "
+                            "(Module multiple)."
                         )
                     xml_string += content[2]
                 else:
@@ -247,7 +261,7 @@ class XmlRenderer(AbstractXmlRenderer):
             # namespaces
             if "xmlns" in element.options and element.options["xmlns"] is not None:
                 # check that element isn't declaring the same namespace xmlns=""
-                parent = get_parent_element(element)
+                parent = self._get_parent_element(element)
                 xmlns = ""
                 if parent is not None:
                     if (
@@ -279,7 +293,8 @@ class XmlRenderer(AbstractXmlRenderer):
 
                 attr_list.append(xmlns + " " + attr_key + "='" + attr_value + "'")
 
-                # TODO: check that sibling attributes are not declaring the same namespaces
+                # TODO: check that sibling attributes are not declaring the
+                #  same namespaces
             else:
                 attr_list.append(attr_key + '="' + attr_value + '"')
 
@@ -468,7 +483,7 @@ class XmlRenderer(AbstractXmlRenderer):
                             "ns_prefix" in child.options
                             and child.options["ns_prefix"] is not None
                         ):
-                            parent = get_parent_element(child)
+                            parent = self._get_parent_element(child)
                             if parent is not None:
                                 if (
                                     "xmlns" in parent.options
@@ -493,7 +508,7 @@ class XmlRenderer(AbstractXmlRenderer):
                             "ns_prefix" in child.options
                             and child.options["ns_prefix"] is not None
                         ):
-                            parent = get_parent_element(child)
+                            parent = self._get_parent_element(child)
                             if parent is not None:
                                 if (
                                     "xmlns" in parent.options

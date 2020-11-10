@@ -11,8 +11,12 @@ from core_parser_app.components.data_structure_element import (
 
 class XPathAccessor(object, metaclass=ABCMeta):
     def __init__(self, request):
+        self.request = request
+
         try:
-            element = data_structure_element_api.get_by_id(request.POST["module_id"])
+            element = data_structure_element_api.get_by_id(
+                request.POST["module_id"], self.request
+            )
 
             self.xpath = element.options["xpath"]["xml"]
             self.values = {}
@@ -54,7 +58,7 @@ class XPathAccessor(object, metaclass=ABCMeta):
             return self.get_input(child)
 
     def _get_element(self, form_id, xpath):
-        form_root = data_structure_element_api.get_by_id(form_id)
+        form_root = data_structure_element_api.get_by_id(form_id, self.request)
 
         if self.element_has_xpath(form_root, xpath):
             return form_root

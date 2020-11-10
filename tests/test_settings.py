@@ -1,3 +1,5 @@
+""" Settings for core_parser_app tests
+"""
 SECRET_KEY = "fake-key"
 
 INSTALLED_APPS = [
@@ -27,3 +29,6 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
     },
 ]
+
+ROOT_URLCONF = "core_parser_app.urls"
+LOGIN_URL = "/login"

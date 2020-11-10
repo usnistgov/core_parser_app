@@ -8,6 +8,7 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from mock.mock import Mock, patch
 
+from core_main_app.utils.tests_tools.MockUser import create_mock_user
 from core_parser_app.components.data_structure_element.models import (
     DataStructureElement,
 )
@@ -51,45 +52,52 @@ class TestGetResources(TestCase):
 
 class TestGet(TestCase):
     @patch("core_parser_app.tools.modules.views.module.AbstractModule.render_template")
-    @patch(
-        "core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id"
-    )
+    @patch("core_parser_app.components.data_structure_element.api.get_by_id")
+    @patch("core_parser_app.components.data_structure_element.api.upsert")
     def test_get_returns_http_response(
-        self, data_structure_element_get_by_id, render_template
+        self,
+        mock_data_structure_element_upsert,
+        mock_data_structure_element_get_by_id,
+        mock_render_template,
     ):
         request = HttpRequest()
         request.GET = {
             "module_id": str(ObjectId()),
             "url": "/url",
         }
+        request.user = create_mock_user("1")
         module_object = ModuleImplementation()
 
-        data_structure_element_get_by_id.return_value = (
-            _create_mock_data_structure_element()
-        )
-        render_template.return_value = ""
+        mock_data_structure_element = _create_mock_data_structure_element()
+        mock_data_structure_element_get_by_id.return_value = mock_data_structure_element
+        mock_data_structure_element_upsert.return_value = mock_data_structure_element
+        mock_render_template.return_value = ""
 
         response = module_object.get(request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
     @patch("core_parser_app.tools.modules.views.module.AbstractModule.render_template")
-    @patch(
-        "core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id"
-    )
+    @patch("core_parser_app.components.data_structure_element.api.get_by_id")
+    @patch("core_parser_app.components.data_structure_element.api.upsert")
     def test_get_data_structure_element_contains_module_values(
-        self, data_structure_element_get_by_id, render_template
+        self,
+        mock_data_structure_element_upsert,
+        mock_data_structure_element_get_by_id,
+        mock_render_template,
     ):
         request = HttpRequest()
         request.GET = {
             "module_id": str(ObjectId()),
             "url": "/url",
         }
+        request.user = create_mock_user("1")
         module_object = ModuleImplementation()
 
         data_structure_element = _create_mock_data_structure_element()
-        data_structure_element_get_by_id.return_value = data_structure_element
-        render_template.return_value = ""
+        mock_data_structure_element_get_by_id.return_value = data_structure_element
+        mock_data_structure_element_upsert.return_value = data_structure_element
+        mock_render_template.return_value = ""
 
         module_object.get(request)
 
@@ -127,50 +135,59 @@ class TestPost(TestCase):
         self.assertTrue(isinstance(response, HttpResponseBadRequest))
 
     @patch("core_parser_app.tools.modules.views.module.AbstractModule.render_template")
-    @patch(
-        "core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id"
-    )
+    @patch("core_parser_app.components.data_structure_element.api.get_by_id")
+    @patch("core_parser_app.components.data_structure_element.api.upsert")
     def test_post_returns_http_response(
-        self, data_structure_element_get_by_id, render_template
+        self,
+        mock_data_structure_element_upsert,
+        mock_data_structure_element_get_by_id,
+        mock_render_template,
     ):
-        request = HttpRequest()
-        request.POST = {
+        mock_request = Mock(spec=HttpRequest)
+        mock_request.POST = {
             "module_id": str(ObjectId()),
         }
+        mock_request.user = create_mock_user("1")
 
         module_object = ModuleImplementation()
 
-        data_structure_element_get_by_id.return_value = (
-            _create_mock_data_structure_element()
-        )
-        render_template.return_value = ""
+        mock_data_structure_element = _create_mock_data_structure_element()
+        mock_data_structure_element_get_by_id.return_value = mock_data_structure_element
+        mock_data_structure_element_upsert.return_value = mock_data_structure_element
+        mock_render_template.return_value = ""
 
-        response = module_object.post(request)
+        response = module_object.post(mock_request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
     @patch("core_parser_app.tools.modules.views.module.AbstractModule.render_template")
-    @patch(
-        "core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id"
-    )
+    @patch("core_parser_app.components.data_structure_element.api.get_by_id")
+    @patch("core_parser_app.components.data_structure_element.api.upsert")
     def test_post_data_structure_element_contains_module_values(
-        self, data_structure_element_get_by_id, render_template
+        self,
+        mock_data_structure_element_upsert,
+        mock_data_structure_element_get_by_id,
+        mock_render_template,
     ):
-        request = HttpRequest()
-        request.POST = {
+        mock_module_template = "mock_module_template"
+        mock_request = Mock(spec=HttpRequest)
+        mock_request.POST = {
             "module_id": str(ObjectId()),
         }
+        mock_request.user = create_mock_user("1")
 
         module_object = ModuleImplementation()
 
-        data_structure_element = _create_mock_data_structure_element()
-        data_structure_element_get_by_id.return_value = data_structure_element
-        render_template.return_value = ""
+        mock_data_structure_element = _create_mock_data_structure_element()
+        mock_data_structure_element_get_by_id.return_value = mock_data_structure_element
+        mock_data_structure_element_upsert.return_value = mock_data_structure_element
+        mock_render_template.return_value = mock_module_template
 
-        response = module_object.post(request)
+        response = module_object.post(mock_request)
         response_html = json.loads(response.content)["html"]
 
-        self.assertTrue(data_structure_element.options["data"] == "module result")
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response_html, mock_module_template)
 
 
 def _create_mock_data_structure_element():
@@ -179,6 +196,7 @@ def _create_mock_data_structure_element():
     :return:
     """
     mock_element = Mock(spec=DataStructureElement)
+    mock_element.user = "1"
     mock_element.tag = "tag"
     mock_element.value = "value"
     mock_element.options = {}

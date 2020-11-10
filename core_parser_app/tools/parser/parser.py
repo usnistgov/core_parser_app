@@ -8,6 +8,7 @@ import traceback
 from builtins import object
 from builtins import range
 from builtins import str
+from typing import Dict, Any
 from urllib.parse import parse_qsl
 
 from future import standard_library
@@ -52,13 +53,13 @@ standard_library.install_aliases()
 ##################################################
 # Part I: Utilities
 ##################################################
+def load_schema_data_in_db(request, xsd_data):
+    """Load data in database
+    Args:
+        request:
+        xsd_data:
 
-
-def load_schema_data_in_db(xsd_data):
-    """
-    Load data in database
-    :param xsd_data:
-    :return:
+    Returns:
     """
     xsd_element = DataStructureElement()
     xsd_element.tag = xsd_data["tag"]
@@ -86,7 +87,7 @@ def load_schema_data_in_db(xsd_data):
         children = []
 
         for child in xsd_data["children"]:
-            child_db = load_schema_data_in_db(child)
+            child_db = load_schema_data_in_db(request, child)
             children.append(child_db)
 
         if len(children) > 0:
@@ -99,31 +100,35 @@ def load_schema_data_in_db(xsd_data):
             child_index = int(xsd_element.value)
             xsd_element.value = str(xsd_element.children[child_index].pk)
 
-    data_structure_element_api.upsert(xsd_element)
+    data_structure_element_api.upsert(xsd_element, request)
     return xsd_element
 
 
 # TODO: look into using delete cascade
 # FIXME: not removing all data structure elements
-def delete_branch_from_db(element_id):
+def delete_branch_from_db(request, element_id):
+    """Delete a branch from the database
+
+    Args:
+        request:
+        element_id:
+
+    Returns:
     """
-    Delete a branch from the database
-    :param element_id:
-    :return:
-    """
-    element = data_structure_element_api.get_by_id(element_id)
+    element = data_structure_element_api.get_by_id(element_id, request)
 
     for child in element.children:
-        delete_branch_from_db(str(child.pk))
+        delete_branch_from_db(request, str(child.pk))
 
     element.delete()
 
 
 def update_branch_xpath(element):
-    """
-    Update the xpath in a branch
-    :param element:
-    :return:
+    """Update the xpath in a branch
+    Args:
+        element:
+
+    Returns:
     """
     element_xpath = element.options["xpath"]["xml"]
     xpath_index = 1
@@ -133,24 +138,26 @@ def update_branch_xpath(element):
         xpath_index += 1
 
 
-# TODO: needs to be reworked
-def remove_child_element(data_structure_element, to_remove):
+def remove_child_element(data_structure_element, child_element, request):
     """Removes a child element and its branch from db
 
     Args:
         data_structure_element:
-        to_remove:
+        child_element:
+        request:
 
     Returns:
 
     """
     # remove child from element
-    data_structure_element_api.pull_children(data_structure_element, to_remove)
+    data_structure_element_api.remove_child(
+        data_structure_element, child_element, request
+    )
     # update children xpaths
     update_branch_xpath(data_structure_element)
 
     # Deleting the branch from the database
-    delete_branch_from_db(str(to_remove.id))
+    delete_branch_from_db(request, str(child_element.id))
 
     # TODO: Sequence elem might not work
     if len(data_structure_element.children) == 0:
@@ -163,8 +170,8 @@ def remove_child_element(data_structure_element, to_remove):
         elif data_structure_element.tag == "sequence":
             elem_iter.tag = "sequence-iter"
 
-        data_structure_element_api.upsert(elem_iter)
-        data_structure_element_api.add_to_set(data_structure_element, [elem_iter])
+        data_structure_element_api.upsert(elem_iter, request)
+        data_structure_element_api.add_child(data_structure_element, elem_iter, request)
 
     return data_structure_element
 
@@ -172,10 +179,10 @@ def remove_child_element(data_structure_element, to_remove):
 def update_root_xpath(element, xpath, index):
     """
     Update the Xpath of the root
-    :param element:
-    :param xpath:
-    :param index:
-    :return:
+    Args: element:
+    Args: xpath:
+    Args: index:
+    Returns::
     """
     element_options = element.options
 
@@ -195,8 +202,8 @@ def update_root_xpath(element, xpath, index):
 def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
     """Perform a lookup in subelements to build xpath.
 
-    Get nodes' xpath, only one level deep. It's not going to every leaves. Only need to know if the
-    node is here.
+    Get nodes' xpath, only one level deep. It's not going to every leaves. Only
+    need to know if the node is here.
 
     Parameters:
         elements: XML element
@@ -204,7 +211,8 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
         download_enabled:
         request:
     """
-    # FIXME Making one function with get_subnode_xpath should be possible, both are doing the same job
+    # FIXME Making one function with get_subnode_xpath should be possible,
+    #  both are doing the same job
     # FIXME same problems as in get_subnodes_xpath
     xpaths = []
     element_tag = None
@@ -254,16 +262,17 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
 def lookup_occurs(
     element, xml_tree, full_path, edit_data_tree, download_enabled=True, request=None
 ):
-    """Do a lookup in data to get the number of occurrences of a sequence or choice without a name (not within a named
-    complextype).
+    """Lookup in data to get the number of occurrences of a sequence or  choice
+    without a name (i.e. not within a named complextype).
 
-    get the number of times the sequence appears in the XML document that we are loading for editing
-    algorithm:
-    get all the possible nodes that can appear in the sequence
-    for each node, count how many times it's found in the data
-    the maximum count is the number of occurrences of the sequence
-    only works if data are determinist enough: means we don't have an element outside the sequence, and the same in
-    the sequence
+    Retrieve the number of times the sequence appears in the XML document that
+    is loading for the editing algorithm:
+    * Get all the possible nodes that can appear in the sequence
+    * For each node, count how many times it's found in the data
+    * The maximum count is the number of occurrences of the sequence
+
+    Note: Only works if data are deterministic enough. There could be issues if
+    two elements with the same name appear in the sequence and out of it.
 
     Parameters:
         element: XML element
@@ -289,10 +298,6 @@ def lookup_occurs(
 
     # check if xpaths find a match in the document
     for xpath in xpaths:
-        edit_elements = edit_data_tree.xpath(
-            full_path + "/" + target_namespace_prefix + xpath["name"],
-            namespaces=namespaces,
-        )
         element_path = get_xml_xpath(
             xml_tree,
             full_path,
@@ -310,8 +315,8 @@ def lookup_occurs(
 def is_module_multiple(element):
     """Checks if the module is multiple (means it manages the occurrences)
 
-    :param element:
-    :return:
+    Args: element:
+    Returns::
     """
     module_url = get_module_url(element)
     if module_url is not None:
@@ -324,9 +329,10 @@ def is_module_multiple(element):
 def get_xml_element_data(xsd_element, xml_element):
     """
     Return the content of an xml element
-    :param xsd_element:
-    :param xml_element:
-    :return:
+    Args:
+        xsd_element:
+        xml_element:
+    Returns:
     """
 
     reload_data = None
@@ -429,7 +435,8 @@ def get_element_type(
                     type_ns_prefix = type_name.split(":")[0]
                     type_name = type_name.split(":")[1]
                     if type_ns_prefix != target_namespace_prefix:
-                        # TODO: manage ref to imported elements (different target namespace)
+                        # TODO: manage ref to imported elements (different
+                        #  target namespace)
                         # get all import elements
                         imports = xml_tree.findall(
                             "//{}import".format(LXML_SCHEMA_NAMESPACE)
@@ -480,10 +487,12 @@ def get_element_type(
 def import_xml_tree(el_import, download_enabled=True, request=None):
     """
     Return tree after downloading import's schemaLocation
-    :param el_import:
-    :param download_enabled:
-    :param request
-    :return:
+
+    Args:
+        el_import:
+        download_enabled:
+        request
+    Returns:
     """
     # get the location of the schema
     ref_xml_schema_url = el_import.attrib["schemaLocation"]
@@ -539,6 +548,8 @@ def get_ref_element(
         - xml_tree: xml tree where element was found
         - schema_location: location of the schema where the element was found
     """
+    ref_element = None
+
     if ":" in ref:
         # split the ref element
         ref_split = ref.split(":")
@@ -583,14 +594,13 @@ def get_ref_element(
 
 
 def get_element_form_default(xsd_tree):
-    """
-    Get value of ElementFormDefault
-    :param xsd_tree:
-    :return:
-    """
+    """Get value of ElementFormDefault
+    Args:
+        xsd_tree:
 
-    # default value
-    element_form_default = "unqualified"
+    Returns:
+    """
+    element_form_default = "unqualified"  # default value
 
     root = xsd_tree.getroot()
     if "elementFormDefault" in root.attrib:
@@ -600,10 +610,9 @@ def get_element_form_default(xsd_tree):
 
 
 def get_attribute_form_default(xsd_tree):
-    """
-    Get the value of the attributeFormDefault attribute
-    :param xsd_tree:
-    :return:
+    """Get the value of the attributeFormDefault attribute
+    Args: xsd_tree:
+    Returns::
     """
     # default value
     attribute_form_default = "unqualified"
@@ -618,15 +627,17 @@ def get_attribute_form_default(xsd_tree):
 def get_element_namespace(element, xsd_tree):
     """
     Get the namespace of the element
-    :param element:
-    :param xsd_tree:
+    Args:
+        element:
+        xsd_tree:
 
-    :return:
+    Returns:
     """
     # get the root of the XSD document
     xsd_root = xsd_tree.getroot()
 
-    # None by default, None means no namespace information needed, different from empty namespace
+    # None by default, None means no namespace information needed, different
+    # from empty namespace
     element_ns = None
 
     # check if the element is root
@@ -667,9 +678,11 @@ def get_element_namespace(element, xsd_tree):
 def get_extensions(xml_doc_tree, base_type_name):
     """
     Get all XML extensions of the XML Schema
-    :param xml_doc_tree:
-    :param base_type_name:
-    :return:
+    Args:
+        xml_doc_tree:
+        base_type_name:
+
+    Returns::
     """
     # TODO: look for extensions in imported documents
     # get all extensions of the document
@@ -789,6 +802,7 @@ class XSDParser(object):
             implicit_extension_base:
             download_dependencies:
             store_type:
+            request:
         """
         self.min_tree = min_tree
         self.ignore_modules = ignore_modules
@@ -826,7 +840,8 @@ class XSDParser(object):
         # build the tree from data
         # transform unicode to str to support XML declaration
         if xml_doc_data is not None:
-            # Load a parser able to clean the XML from blanks, comments and processing instructions
+            # Load a parser able to clean the XML from blanks, comments and
+            # processing instructions
             clean_parser = etree.XMLParser(
                 remove_blank_text=True, remove_comments=True, remove_pis=True
             )
@@ -904,12 +919,12 @@ class XSDParser(object):
                     else:
                         raise Exception("No possible root element detected")
 
-            root_element = load_schema_data_in_db(form_content)
+            root_element = load_schema_data_in_db(self.request, form_content)
 
             if self.auto_key_keyref:
                 root_element.options["keys"] = self.keys
                 root_element.options["keyrefs"] = self.keyrefs
-                data_structure_element_api.upsert(root_element)
+                data_structure_element_api.upsert(root_element, self.request)
 
             self.editing = False
             return root_element.pk
@@ -1063,9 +1078,11 @@ class XSDParser(object):
                 element.attrib["type"] if "type" in element.attrib else None
             )
 
-        # init variables for buttons management
-        nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-        nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
+        # Init variables for occurence management
+        nb_occurrences = 1  # Occurrences to render
+        assert nb_occurrences != 0  # Ensure visibility to the user
+        # Occurrences in loaded data or in form being rendered (can be 0)
+        nb_occurrences_data = min_occurs
         use = ""
         removed = False
 
@@ -1094,7 +1111,8 @@ class XSDParser(object):
                 removed = True
 
         if _has_module and _is_multiple:
-            # block maxOccurs to one, the module should take care of occurrences when the element is replaced
+            # block maxOccurs to one, the module should take care of
+            # occurrences when the element is replaced
             nb_occurrences = 1
             # max_occurs = 1
         elif nb_occurrences_data > nb_occurrences:
@@ -1129,7 +1147,8 @@ class XSDParser(object):
             request=self.request,
         )
 
-        # management of elements inside a choice (don't display if not part of the currently selected choice)
+        # management of elements inside a choice (don't display if not part of
+        # the currently selected choice)
         if choice_counter is not None:
             if self.editing:
                 if len(edit_elements) == 0:
@@ -1192,6 +1211,8 @@ class XSDParser(object):
                 else:  # generate the type
                     # get the default value (from xsd or from loaded xml)
                     default_value = ""
+                    db_child = dict()
+
                     if self.editing:
                         # if elements are found at this xpath
                         if len(edit_elements) > 0:
@@ -1247,7 +1268,6 @@ class XSDParser(object):
                             "value": default_value,
                         }
                     else:  # complex/simple type
-
                         if element_type.tag == "{0}complexType".format(
                             LXML_SCHEMA_NAMESPACE
                         ):
@@ -1283,12 +1303,11 @@ class XSDParser(object):
         return db_element
 
     def generate_element_absent(
-        self, request, element_id, xsd_doc_data, renderer_class=ListRenderer
+        self, element_id, xsd_doc_data, renderer_class=ListRenderer
     ):
         """Generate data structure for an XML element absent from the tree
 
         Args:
-            request:
             element_id:
             xsd_doc_data:
             renderer_class:
@@ -1297,8 +1316,10 @@ class XSDParser(object):
 
         """
 
-        sub_element = data_structure_element_api.get_by_id(element_id)
-        element_list = data_structure_element_api.get_all_by_child_id(element_id)
+        sub_element = data_structure_element_api.get_by_id(element_id, self.request)
+        element_list = data_structure_element_api.get_all_by_child_id(
+            element_id, self.request
+        )
 
         if self.auto_key_keyref:
             self.init_key_keyref(sub_element)
@@ -1339,7 +1360,7 @@ class XSDParser(object):
         # flatten the includes
         xml_doc_tree_str = XSDFlattenerDatabaseOrURL(
             XSDTree.tostring(xml_doc_tree),
-            request=request,
+            request=self.request,
             download_enabled=self.download_dependencies,
         ).get_flat()
         xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
@@ -1373,8 +1394,9 @@ class XSDParser(object):
                 xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True
             )
         else:
-            # can't directly use generate_element because only need the body of the element not its title
-            # provide xpath without element name because already generated in generate_element
+            # Cannot directly use generate_element because only the body
+            # of the element is needed, not its parent element. The full_path
+            # is generated accordingly (parent element contains the named path)
             db_tree = self.generate_element(
                 xml_element,
                 xml_doc_tree,
@@ -1383,7 +1405,7 @@ class XSDParser(object):
             )
 
         # Saving the tree in MongoDB
-        tree_root = load_schema_data_in_db(db_tree)
+        tree_root = load_schema_data_in_db(self.request, db_tree)
         generated_element = tree_root.children[0]
 
         # Updating the schema element
@@ -1394,7 +1416,9 @@ class XSDParser(object):
         schema_element.update(set__children=children)
 
         if len(sub_element.children) == 0:
-            schema_element_to_pull = data_structure_element_api.get_by_id(element_id)
+            schema_element_to_pull = data_structure_element_api.get_by_id(
+                element_id, self.request
+            )
             schema_element.update(pull__children=schema_element_to_pull)
 
         schema_element.reload()
@@ -1406,7 +1430,7 @@ class XSDParser(object):
         tree_root.update(set__options=tree_root_options)
         tree_root.reload()
 
-        renderer = renderer_class(tree_root, request)
+        renderer = renderer_class(tree_root, self.request)
         html_form = renderer.render(True)
 
         tree_root.delete()
@@ -1458,8 +1482,10 @@ class XSDParser(object):
 
         if min_occurs != 1 or max_occurs != 1:
             # init variables for buttons management
-            nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-            nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
+            nb_occurrences = 1  # Occurrences to render
+            assert nb_occurrences != 0  # Ensure visibility to the user
+            # Occurrences in loaded data or in form being rendered (can be 0)
+            nb_occurrences_data = min_occurs
 
             # loading data in the form
             if self.editing:
@@ -1547,8 +1573,11 @@ class XSDParser(object):
             # xsd_xpath = xml_tree.getpath(element)
 
             # init variables for buttons management
-            nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-            # nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
+            # nb of occurrences to render (can't be 0 or the user won't see
+            # this element at all)
+            nb_occurrences = 1
+            # nb of occurrences in loaded data or in form being rendered (can be 0)
+            # nb_occurrences_data = min_occurs
 
             if choice_counter is not None:
                 if self.editing:
@@ -1642,7 +1671,9 @@ class XSDParser(object):
         }
 
         # init variables for buttons management
-        nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
+        # nb of occurrences to render (can't be 0 or the user won't see this
+        # element at all)
+        nb_occurrences = 1
 
         max_occurs = 1
 
@@ -1659,7 +1690,8 @@ class XSDParser(object):
 
             # get element's min/max occurs attributes
             min_occurs, max_occurs = get_element_occurrences(element)
-            nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
+            # nb of occurrences in loaded data or in form being rendered (can be 0)
+            nb_occurrences_data = min_occurs
 
             # loading data in the form
             if self.editing:
@@ -1747,7 +1779,8 @@ class XSDParser(object):
                                 element_found is not None
                                 and element_found.tag == element_path
                             ):
-                                xml_element = element_found  # explicitly build the element if found
+                                # explicitly build the element if found
+                                xml_element = element_found
                                 db_child["value"] = counter
 
                         else:
@@ -1814,12 +1847,11 @@ class XSDParser(object):
         return db_element
 
     def generate_choice_absent(
-        self, request, element_id, xsd_doc_data, renderer_class=ListRenderer
+        self, element_id, xsd_doc_data, renderer_class=ListRenderer
     ):
         """Generate data structure for an XML choice
 
         Args:
-            request:
             element_id:
             xsd_doc_data:
             renderer_class:
@@ -1827,8 +1859,10 @@ class XSDParser(object):
         Returns:
 
         """
-        element = data_structure_element_api.get_by_id(element_id)
-        parents = data_structure_element_api.get_all_by_child_id(element_id)
+        element = data_structure_element_api.get_by_id(element_id, self.request)
+        parents = data_structure_element_api.get_all_by_child_id(
+            element_id, self.request
+        )
 
         if self.auto_key_keyref:
             self.init_key_keyref(element)
@@ -1869,7 +1903,7 @@ class XSDParser(object):
         # flatten the includes
         xml_doc_tree_str = XSDFlattenerDatabaseOrURL(
             XSDTree.tostring(xml_doc_tree),
-            request=request,
+            request=self.request,
             download_enabled=self.download_dependencies,
         ).get_flat()
 
@@ -1884,9 +1918,10 @@ class XSDParser(object):
 
         xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
 
-        # FIXME: Support all possibilities
+        # FIXME: Support all possible children element
         if element.tag == "element":
-            # provide xpath without element name because already generated in generate_element
+            # provide xpath without element name because already generated in
+            # generate_element
             db_tree = self.generate_element(
                 xml_element, xml_doc_tree, full_path=xml_xpath.rsplit("/", 1)[0]
             )
@@ -1898,7 +1933,7 @@ class XSDParser(object):
             raise ParserError("Element cannot be generated: not implemented.")
 
         # Saving the tree in MongoDB
-        tree_root = load_schema_data_in_db(db_tree)
+        tree_root = load_schema_data_in_db(self.request, db_tree)
 
         # Replacing the children with the generated branch
         children = parent.children
@@ -1911,7 +1946,7 @@ class XSDParser(object):
 
         parent.reload()
 
-        renderer = renderer_class(tree_root, request)
+        renderer = renderer_class(tree_root, self.request)
         html_form = renderer.render(False)
 
         return html_form
@@ -2270,7 +2305,9 @@ class XSDParser(object):
         }
 
         # init variables for buttons management
-        nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
+        # nb of occurrences to render (can't be 0 or the user won't see
+        # this element at all)
+        nb_occurrences = 1
 
         # keeps track of elements to display depending on the selected choice
         if choice_counter is not None:
@@ -2319,6 +2356,7 @@ class XSDParser(object):
                 if choiceChild.tag == "{0}simpleType".format(
                     LXML_SCHEMA_NAMESPACE
                 ) or choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                    result = dict()
 
                     if choiceChild.tag == "{0}complexType".format(
                         LXML_SCHEMA_NAMESPACE
@@ -2466,7 +2504,7 @@ class XSDParser(object):
                 "Modules are not getting ignored even though they are turned off"
             )
 
-        db_element = {
+        db_element: Dict[str, Any] = {
             "tag": "module",
             "value": None,
             "options": {
@@ -2526,13 +2564,15 @@ class XSDParser(object):
                                 )
                             else:
                                 raise ParserError(
-                                    "Unexpected number of elements found in the XML document."
+                                    "Unexpected number of elements found in "
+                                    "the XML document."
                                 )
 
                 db_element["options"]["url"] = module_url.path
                 db_element["options"]["data"] = reload_data
                 db_element["options"]["attributes"] = reload_attrib
             except Exception as e:
+                logger.error(str(e))
                 raise ParserError("Module not found.")
 
         return db_element
@@ -2620,8 +2660,11 @@ class XSDParser(object):
         Returns:
 
         """
-        # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_restriction.asp)
-        # FIXME simpleType is a possible child only if the base attr has not been specified
+        # FIXME doesn't generate all possible children (see
+        #  http://www.w3schools.com/xml/el_restriction.asp or
+        #  https://www.w3.org/TR/xmlschema-1/#declare-datatype)
+        # FIXME simpleType is a possible child only if the base attr has not
+        #  been specified
         db_element = {
             "tag": "restriction",
             "options": {
@@ -2746,8 +2789,9 @@ class XSDParser(object):
         Returns:
 
         """
-        # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_extension.asp)
-        db_element = {"tag": "extension", "value": None, "children": []}
+        # FIXME doesn't represent all the possibilities
+        #  (http://www.w3schools.com/xml/el_extension.asp)
+        db_element: Dict[str, Any] = {"tag": "extension", "value": None, "children": []}
 
         ##################################################
         # Parsing attributes
@@ -2893,7 +2937,7 @@ class XSDParser(object):
 
         """
         # remove indexes from the xpath
-        xpath = re.sub(r"\[[0-9]+\]", "", full_path)
+        xpath = re.sub(r"\[[0-9]+]", "", full_path)
         # remove namespaces
         for prefix in list(element.nsmap.keys()):
             xpath = re.sub(r"{}:".format(prefix), "", xpath)
@@ -2917,7 +2961,7 @@ class XSDParser(object):
 
         """
         # remove indexes from the xpath
-        xpath = re.sub(r"\[[0-9]+\]", "", full_path)
+        xpath = re.sub(r"\[[0-9]+]", "", full_path)
         # remove namespaces
         for prefix in list(element.nsmap.keys()):
             xpath = re.sub(r"{}:".format(prefix), "", xpath)
@@ -2947,12 +2991,12 @@ class XSDParser(object):
         list_keyref = element.findall("{0}keyref".format(LXML_SCHEMA_NAMESPACE))
 
         # remove indexes from the xpath
-        full_path = re.sub(r"\[[0-9]+\]", "", full_path)
+        full_path = re.sub(r"\[[0-9]+]", "", full_path)
 
         if len(list_key) > 0:
             for key in list_key:
                 key_name = key.attrib["name"]
-                # print key_name
+                key_field = ""
 
                 selector = key.find("{0}selector".format(LXML_SCHEMA_NAMESPACE))
                 selector_xpath = selector.attrib["xpath"]
@@ -2960,14 +3004,12 @@ class XSDParser(object):
                 # remove namespaces
                 for prefix in list(selector.nsmap.keys()):
                     key_selector = re.sub(r"{}:".format(prefix), "", key_selector)
-                # print key_selector
 
                 # FIXME: manage multiple fields
                 fields = key.findall("{0}field".format(LXML_SCHEMA_NAMESPACE))
                 for field in fields:
                     field_xpath = field.attrib["xpath"]
                     key_field = key_selector + "/" + field_xpath
-                    # print key_field
 
                 # look if a module is attached to the key
                 module_url = get_module_url(key)
@@ -2985,6 +3027,8 @@ class XSDParser(object):
             for keyref in list_keyref:
                 keyref_name = keyref.attrib["name"]
                 keyref_refer = keyref.attrib["refer"]
+                keyref_field = ""
+
                 if ":" in keyref_refer:
                     keyref_refer = keyref_refer.split(":")[1]
 
@@ -3016,7 +3060,7 @@ class XSDParser(object):
         Returns:
 
         """
-        root = data_structure_element_api.get_root_element(element)
+        root = data_structure_element_api.get_root_element(element, self.request)
         if "keys" in root.options:
             self.keys = root.options["keys"]
         if "keyrefs" in root.options:

@@ -1,8 +1,7 @@
 """ Url router for the parser application
 """
 from django.conf.urls import include
-from django.contrib.auth.decorators import login_required
-from django.urls import re_path, reverse_lazy
+from django.urls import re_path
 
 from core_parser_app.views.common import views as common_views, ajax as common_ajax
 from core_parser_app.views.user import ajax as user_ajax

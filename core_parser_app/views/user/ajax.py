@@ -5,6 +5,8 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseBadRequest, HttpResponse
 
+from core_main_app.access_control.exceptions import AccessControlError
+from core_main_app.commons.exceptions import DoesNotExist
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
 )
@@ -38,18 +40,21 @@ def get_data_structure_element_value(request):
     if "id" not in request.GET:
         return HttpResponseBadRequest()
 
-    element = data_structure_element_api.get_by_id(request.GET["id"])
-    element_value = element.value
+    try:
+        element = data_structure_element_api.get_by_id(request.GET["id"], request)
+        element_value = element.value
 
-    if element.tag == "module":
-        element_value = {
-            "data": element.options["data"],
-            "attributes": element.options["attributes"],
-        }
+        if element.tag == "module":
+            element_value = {
+                "data": element.options["data"],
+                "attributes": element.options["attributes"],
+            }
 
-    return HttpResponse(
-        json.dumps({"value": element_value}), content_type="application/json"
-    )
+        return HttpResponse(
+            json.dumps({"value": element_value}), content_type="application/json"
+        )
+    except (AccessControlError, DoesNotExist) as exc:
+        return HttpResponseBadRequest(json.dumps({"message": str(exc)}))
 
 
 def save_data_structure_element_value(request):
@@ -66,12 +71,18 @@ def save_data_structure_element_value(request):
             "Error when trying to data structure element: id or value is missing."
         )
 
-    input_element = data_structure_element_api.get_by_id(request.POST["id"])
+    try:
+        input_element = data_structure_element_api.get_by_id(
+            request.POST["id"], request
+        )
 
-    input_previous_value = input_element.value
-    input_element.value = request.POST["value"]
-    data_structure_element_api.upsert(input_element)
+        input_previous_value = input_element.value
+        input_element.value = request.POST["value"]
+        data_structure_element_api.upsert(input_element, request)
 
-    return HttpResponse(
-        json.dumps({"replaced": input_previous_value}), content_type="application/json"
-    )
+        return HttpResponse(
+            json.dumps({"replaced": input_previous_value}),
+            content_type="application/json",
+        )
+    except (AccessControlError, DoesNotExist) as exc:
+        return HttpResponseBadRequest(json.dumps({"message": str(exc)}))

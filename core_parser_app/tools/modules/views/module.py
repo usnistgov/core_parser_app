@@ -24,22 +24,25 @@ class AbstractModule(View, metaclass=ABCMeta):
     # NOTE: needs to be redefined in subclasses
     is_managing_occurrences = False
 
-    def __init__(self, scripts=list(), styles=list()):
+    def __init__(self, scripts=None, styles=None):
         """Initializes the module
 
         :param scripts:
         :param styles:
         """
+
         # JS scripts
-        self.scripts = scripts
+        self.scripts = scripts if scripts is not None else list()
         # CSS spreadsheets
-        self.styles = styles
+        self.styles = styles if styles is not None else list()
 
         # Skeleton of the modules
         self.template_name = "core_parser_app/module.html"
 
         # initialize data
         self.data = None
+
+        super().__init__()
 
     def get(self, request, *args, **kwargs):
         """Manage the GET requests
@@ -72,7 +75,7 @@ class AbstractModule(View, metaclass=ABCMeta):
         url = (
             request.GET["url"]
             if "url" in request.GET
-            else data_structure_element_api.get_by_id(module_id).options["url"]
+            else data_structure_element_api.get_by_id(module_id, request).options["url"]
         )
         template_data = {
             "module_id": module_id,
@@ -90,7 +93,7 @@ class AbstractModule(View, metaclass=ABCMeta):
             template_data["display"] = self._render_data(request)
 
             # get module element
-            module_element = data_structure_element_api.get_by_id(module_id)
+            module_element = data_structure_element_api.get_by_id(module_id, request)
             # get its options
             options = module_element.options
             # update module element data
@@ -98,7 +101,7 @@ class AbstractModule(View, metaclass=ABCMeta):
             # set updated options
             module_element.options = options
             # save module element
-            data_structure_element_api.upsert(module_element)
+            data_structure_element_api.upsert(module_element, request)
         except Exception as e:
             raise ModuleError(
                 "Something went wrong during module initialization: " + str(e)
@@ -139,7 +142,7 @@ class AbstractModule(View, metaclass=ABCMeta):
                 )
 
             module_element = data_structure_element_api.get_by_id(
-                request.POST["module_id"]
+                request.POST["module_id"], request
             )
             # retrieve module's data
             self.data = self._retrieve_data(request)
@@ -158,7 +161,7 @@ class AbstractModule(View, metaclass=ABCMeta):
             # options['attributes'] = self._get_attributes(request)
 
             module_element.options = options
-            data_structure_element_api.upsert(module_element)
+            data_structure_element_api.upsert(module_element, request)
         except Exception as e:
             raise ModuleError("Something went wrong during module update: " + str(e))
 
