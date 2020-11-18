@@ -192,7 +192,7 @@ def update_root_xpath(element, xpath, index):
         update_root_xpath(child, xpath, index)
 
 
-def get_nodes_xpath(elements, xml_tree, download_enabled=True):
+def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
     """Perform a lookup in subelements to build xpath.
 
     Get nodes' xpath, only one level deep. It's not going to every leaves. Only need to know if the
@@ -202,6 +202,7 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True):
         elements: XML element
         xml_tree: xml_tree
         download_enabled:
+        request:
     """
     # FIXME Making one function with get_subnode_xpath should be possible, both are doing the same job
     # FIXME same problems as in get_subnodes_xpath
@@ -231,6 +232,7 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True):
                     element_tag,
                     schema_location,
                     download_enabled=download_enabled,
+                    request=request,
                 )
 
                 if ref_element is not None:
@@ -239,12 +241,19 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True):
                     )
         else:
             xpaths.extend(
-                get_nodes_xpath(element, xml_tree, download_enabled=download_enabled)
+                get_nodes_xpath(
+                    element,
+                    xml_tree,
+                    download_enabled=download_enabled,
+                    request=request,
+                )
             )
     return xpaths
 
 
-def lookup_occurs(element, xml_tree, full_path, edit_data_tree, download_enabled=True):
+def lookup_occurs(
+    element, xml_tree, full_path, edit_data_tree, download_enabled=True, request=None
+):
     """Do a lookup in data to get the number of occurrences of a sequence or choice without a name (not within a named
     complextype).
 
@@ -261,10 +270,14 @@ def lookup_occurs(element, xml_tree, full_path, edit_data_tree, download_enabled
         xml_tree: XML schema tree
         full_path: current node XPath
         edit_data_tree: XML data tree
+        download_enabled:
+        request:
     """
     # FIXME this function is not returning the correct output
     # get all possible xpaths of sub nodes
-    xpaths = get_nodes_xpath(element, xml_tree, download_enabled=download_enabled)
+    xpaths = get_nodes_xpath(
+        element, xml_tree, download_enabled=download_enabled, request=request
+    )
     elements_found = []
 
     # get target namespace prefix if one declared
@@ -364,6 +377,7 @@ def get_element_type(
     schema_location=None,
     attr="type",
     download_enabled=True,
+    request=None,
 ):
     """Get XSD type to render. Returns the tree where the type was found.
 
@@ -375,7 +389,8 @@ def get_element_type(
         target_namespace_prefix:
         schema_location:
         attr:
-        download_enabled
+        download_enabled:
+        request:
 
     Returns the type if found
         - complexType
@@ -426,7 +441,9 @@ def get_element_type(
                                 import_ns = el_import.attrib["namespace"]
                                 if element.nsmap[type_ns_prefix] == import_ns:
                                     xml_tree, schema_location = import_xml_tree(
-                                        el_import, download_enabled
+                                        el_import,
+                                        download_enabled=download_enabled,
+                                        request=request,
                                     )
                                     break
                         else:
@@ -435,7 +452,9 @@ def get_element_type(
                                     import_ns = el_import.attrib["namespace"]
                                     if namespaces[type_ns_prefix] == import_ns:
                                         xml_tree, schema_location = import_xml_tree(
-                                            el_import, download_enabled
+                                            el_import,
+                                            download_enabled=download_enabled,
+                                            request=request,
                                         )
                                         break
 
@@ -458,11 +477,12 @@ def get_element_type(
     return element_type, xml_tree, schema_location
 
 
-def import_xml_tree(el_import, download_enabled=True):
+def import_xml_tree(el_import, download_enabled=True, request=None):
     """
     Return tree after downloading import's schemaLocation
     :param el_import:
     :param download_enabled:
+    :param request
     :return:
     """
     # get the location of the schema
@@ -481,7 +501,9 @@ def import_xml_tree(el_import, download_enabled=True):
         if len(includes) > 0:
             # create a flattener with the file content
             flattener = XSDFlattenerDatabaseOrURL(
-                ref_xml_schema_content, download_enabled
+                ref_xml_schema_content,
+                request=request,
+                download_enabled=download_enabled,
             )
             # flatten the includes
             ref_xml_schema_content = flattener.get_flat()
@@ -493,7 +515,13 @@ def import_xml_tree(el_import, download_enabled=True):
 
 
 def get_ref_element(
-    xml_tree, ref, namespaces, element_tag, schema_location=None, download_enabled=True
+    xml_tree,
+    ref,
+    namespaces,
+    element_tag,
+    schema_location=None,
+    download_enabled=True,
+    request=None,
 ):
     """
 
@@ -504,6 +532,7 @@ def get_ref_element(
         element_tag:
         schema_location:
         download_enabled:
+        request:
 
     Returns
         - ref_element: ref element when found
@@ -536,7 +565,7 @@ def get_ref_element(
                 import_ns = el_import.attrib["namespace"]
                 if namespaces[ref_namespace_prefix] == import_ns:
                     xml_tree, schema_location = import_xml_tree(
-                        el_import, download_enabled
+                        el_import, download_enabled=download_enabled, request=request
                     )
 
                     ref_element = xml_tree.find(
@@ -748,6 +777,7 @@ class XSDParser(object):
         implicit_extension_base=False,
         download_dependencies=True,
         store_type=False,
+        request=None,
     ):
         """Initialize XSD Parser
 
@@ -767,25 +797,28 @@ class XSDParser(object):
         self.implicit_extension_base = implicit_extension_base
         self.download_dependencies = download_dependencies
         self.store_type = store_type
+        self.request = request
 
         self.editing = False
         self.keys = {}
         self.keyrefs = {}
 
-    def generate_form(self, xsd_doc_data, xml_doc_data=None):
+    def generate_form(self, xsd_doc_data, xml_doc_data=None, request=None):
         """Generate form data structure form XML Schema
 
         Args:
             xsd_doc_data:
             xml_doc_data:
+            request:
 
         Returns:
 
         """
 
         # flatten the includes
-        flattener = XSDFlattenerDatabaseOrURL(xsd_doc_data, self.download_dependencies)
-        xml_doc_tree_str = flattener.get_flat()
+        xml_doc_tree_str = XSDFlattenerDatabaseOrURL(
+            xsd_doc_data, request=request, download_enabled=self.download_dependencies
+        ).get_flat()
         xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
         # if editing, get the XML data to fill the form
@@ -974,14 +1007,14 @@ class XSDParser(object):
         if "ref" in element.attrib:  # type is a reference included in the document
             is_ref = True
             ref = element.attrib["ref"]
-            download_enabled = self.download_dependencies
             ref_element, xml_tree, schema_location = get_ref_element(
                 xml_tree,
                 ref,
                 namespaces,
                 element_tag,
                 schema_location,
-                download_enabled=download_enabled,
+                download_enabled=self.download_dependencies,
+                request=self.request,
             )
             if ref_element is not None:
                 text_capitalized = ref_element.attrib.get("name")
@@ -1085,7 +1118,6 @@ class XSDParser(object):
         db_element["options"]["xmlns"] = element_ns
         db_element["options"]["ns_prefix"] = ns_prefix
 
-        download_enabled = self.download_dependencies
         element_type, xml_tree, schema_location = get_element_type(
             element,
             xml_tree,
@@ -1093,7 +1125,8 @@ class XSDParser(object):
             default_prefix,
             target_namespace_prefix,
             schema_location,
-            download_enabled=download_enabled,
+            download_enabled=self.download_dependencies,
+            request=self.request,
         )
 
         # management of elements inside a choice (don't display if not part of the currently selected choice)
@@ -1304,11 +1337,11 @@ class XSDParser(object):
             namespaces = get_namespaces(xsd_doc_data)
 
         # flatten the includes
-        download_enabled = self.download_dependencies
-        flattener = XSDFlattenerDatabaseOrURL(
-            XSDTree.tostring(xml_doc_tree), download_enabled
-        )
-        xml_doc_tree_str = flattener.get_flat()
+        xml_doc_tree_str = XSDFlattenerDatabaseOrURL(
+            XSDTree.tostring(xml_doc_tree),
+            request=request,
+            download_enabled=self.download_dependencies,
+        ).get_flat()
         xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
         xpath_element = schema_element.options["xpath"]
@@ -1431,13 +1464,13 @@ class XSDParser(object):
             # loading data in the form
             if self.editing:
                 # get the number of occurrences in the data
-                download_enabled = self.download_dependencies
                 elements_found = lookup_occurs(
                     element,
                     xml_tree,
                     full_path,
                     edit_data_tree,
-                    download_enabled=download_enabled,
+                    download_enabled=self.download_dependencies,
+                    request=self.request,
                 )
                 if max_occurs != 1:
                     nb_occurrences_data = len(elements_found)
@@ -1631,13 +1664,13 @@ class XSDParser(object):
             # loading data in the form
             if self.editing:
                 # get the number of occurrences in the data
-                download_enabled = self.download_dependencies
                 elements_found = lookup_occurs(
                     element,
                     xml_tree,
                     full_path,
                     edit_data_tree,
-                    download_enabled=download_enabled,
+                    download_enabled=self.download_dependencies,
+                    request=self.request,
                 )
                 nb_occurrences_data = len(elements_found)
                 if max_occurs != 1:
@@ -1834,11 +1867,12 @@ class XSDParser(object):
             namespaces = get_namespaces(xsd_doc_data)
 
         # flatten the includes
-        download_enabled = self.download_dependencies
-        flattener = XSDFlattenerDatabaseOrURL(
-            XSDTree.tostring(xml_doc_tree), download_enabled
-        )
-        xml_doc_tree_str = flattener.get_flat()
+        xml_doc_tree_str = XSDFlattenerDatabaseOrURL(
+            XSDTree.tostring(xml_doc_tree),
+            request=request,
+            download_enabled=self.download_dependencies,
+        ).get_flat()
+
         xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
         xpath_element = element.options["xpath"]
@@ -2728,7 +2762,6 @@ class XSDParser(object):
             target_namespace, target_namespace_prefix = get_target_namespace(
                 xml_tree, namespaces
             )
-            download_enabled = self.download_dependencies
             base_type, xml_tree, schema_location = get_element_type(
                 element,
                 xml_tree,
@@ -2737,7 +2770,8 @@ class XSDParser(object):
                 target_namespace_prefix,
                 schema_location,
                 "base",
-                download_enabled=download_enabled,
+                download_enabled=self.download_dependencies,
+                request=self.request,
             )
 
             # test if base is a built-in data types

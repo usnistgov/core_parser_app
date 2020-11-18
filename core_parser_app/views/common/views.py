@@ -53,7 +53,11 @@ class ManageModulesUserView(View):
                 modals=modals,
                 assets=assets,
                 context=get_context(
-                    pk, self.back_to_previous_url, self.read_only, self.title
+                    pk,
+                    self.back_to_previous_url,
+                    self.read_only,
+                    self.title,
+                    request=request,
                 ),
             )
         except Exception as e:
@@ -64,7 +68,7 @@ class ManageModulesUserView(View):
             )
 
 
-def get_context(template_id, url_previous_button, read_only, title):
+def get_context(template_id, url_previous_button, read_only, title, request):
     """Get the context to manage the template modules
 
     Args: template_id:
@@ -72,7 +76,7 @@ def get_context(template_id, url_previous_button, read_only, title):
     """
 
     # get the template
-    template = template_api.get(template_id)
+    template = template_api.get(template_id, request=request)
 
     # get template content as HTML
     xsd_tree_html = transform_xsd_to_html_with_modules(template.content)
@@ -81,7 +85,7 @@ def get_context(template_id, url_previous_button, read_only, title):
     modules = module_api.get_all()
 
     # get version manager
-    version_manager = version_manager_api.get_from_version(template)
+    version_manager = version_manager_api.get_from_version(template, request=request)
 
     # reverse url
     try:

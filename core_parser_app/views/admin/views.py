@@ -42,7 +42,11 @@ class ManageModulesAdminView(View):
                 modals=modals,
                 assets=assets,
                 context=get_context(
-                    pk, self.back_to_previous_url, False, "Modules Manager"
+                    pk,
+                    self.back_to_previous_url,
+                    False,
+                    "Modules Manager",
+                    request=request,
                 ),
             )
         except Exception as e:

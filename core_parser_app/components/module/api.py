@@ -72,13 +72,14 @@ def delete_all():
     Module.delete_all()
 
 
-def add_module(template, module_id, xpath):
+def add_module(template, module_id, xpath, request):
     """Inserts a module in a template
 
     Args:
         template:
         module_id:
         xpath:
+        request:
 
     Returns:
 
@@ -89,15 +90,16 @@ def add_module(template, module_id, xpath):
     template.content = add_appinfo_element(
         template.content, xpath, MODULE_TAG_NAME, module_object.url
     )
-    return template_api.upsert(template)
+    return template_api.upsert(template, request=request)
 
 
-def delete_module(template, xpath):
+def delete_module(template, xpath, request):
     """Deletes a module from a template
 
     Args:
         template:
         xpath:
+        request:
 
     Returns:
 
@@ -105,4 +107,4 @@ def delete_module(template, xpath):
     # delete module attribute from element
     template.content = delete_appinfo_element(template.content, xpath, MODULE_TAG_NAME)
 
-    return template_api.upsert(template)
+    return template_api.upsert(template, request=request)
