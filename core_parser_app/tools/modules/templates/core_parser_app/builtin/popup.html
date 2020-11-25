@@ -2,7 +2,7 @@
 	<div class="btn btn-secondary open-popup">{{button_label}}</div>
 	<div class="mod_dialog">
 		{% autoescape off %}
-			{% include 'core_parser_app/builtin/modal_wrapper.html' %}
+			{% include 'core_parser_app/builtin/modal_wrapper.html' with modal_title=button_label %}
 		{% endautoescape %}
 	</div>
 </div>
