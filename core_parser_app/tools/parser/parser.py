@@ -61,7 +61,7 @@ def load_schema_data_in_db(request, xsd_data):
 
     Returns:
     """
-    xsd_element = DataStructureElement()
+    xsd_element = DataStructureElement(user=str(request.user.id))
     xsd_element.tag = xsd_data["tag"]
 
     if xsd_data["value"] is not None:
@@ -161,7 +161,7 @@ def remove_child_element(data_structure_element, child_element, request):
 
     # TODO: Sequence elem might not work
     if len(data_structure_element.children) == 0:
-        elem_iter = DataStructureElement()
+        elem_iter = DataStructureElement(user=str(request.user.id))
 
         if data_structure_element.tag == "element":
             elem_iter.tag = "elem-iter"
