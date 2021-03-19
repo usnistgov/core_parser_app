@@ -2,18 +2,20 @@
 """
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
+from django.db.models import Q
 from django.http import HttpRequest
 from mongoengine import QuerySet
 from rest_framework.request import Request
 
+import core_main_app.permissions.rights as rights
 from core_main_app.access_control.exceptions import AccessControlError
 from core_main_app.commons.exceptions import CoreError
 
 logger = logging.getLogger(__name__)
 
 
-def _check_data_structure_elements_ownership(data_structure_element_list, user):
+def _check_data_structure_elements_access(data_structure_element_list, user):
     """Check that the user is authorized to query or retrieve all
     DataStructureElement from the input list.
 
@@ -24,8 +26,39 @@ def _check_data_structure_elements_ownership(data_structure_element_list, user):
     Returns:
     """
     for data_structure_element in data_structure_element_list:
-        if data_structure_element.user and data_structure_element.user != str(user.id):
-            raise AccessControlError("User is not the owner of the object.")
+        permission = (
+            data_structure_element.data_structure.document_type.get_permission()
+        )
+        codename = permission.split(".")[1]
+        # check if user can access this type of data structure element
+        if user.is_anonymous:
+            # Check in the anonymous_group
+            if not Group.objects.filter(
+                Q(name=rights.anonymous_group) & Q(permissions__codename=codename)
+            ):
+                raise AccessControlError(
+                    "User does not have the permission to access this data structure."
+                )
+        elif not user.has_perm(permission):
+            raise AccessControlError(
+                "User does not have the permission to access this data structure."
+            )
+        # check if user is the owner
+        _check_data_structure_element_ownership(data_structure_element, user)
+
+
+def _check_data_structure_element_ownership(data_structure_element, user):
+    """Check if the user is the owner
+
+    Args:
+        data_structure_element:
+        user:
+
+    Returns:
+
+    """
+    if data_structure_element.user and data_structure_element.user != str(user.id):
+        raise AccessControlError("User is not the owner of the object.")
 
 
 def is_data_structure_element_owner(fn, *args, **kwargs):
@@ -62,7 +95,7 @@ def is_data_structure_element_owner(fn, *args, **kwargs):
         return fn(*args, **kwargs)
 
     # Check user has the right to query the input DataStructureElement list.
-    _check_data_structure_elements_ownership(
+    _check_data_structure_elements_access(
         [arg for arg in args if isinstance(arg, DataStructureElement)]
         + [
             kwarg_value
@@ -92,7 +125,7 @@ def is_data_structure_element_owner(fn, *args, **kwargs):
         raise CoreError("Function returned unexpected elements")
 
     # Check that the user is authorized to retrieve all outputs.
-    _check_data_structure_elements_ownership(
+    _check_data_structure_elements_access(
         fn_output_data_structure_element_list,
         request_user,
     )

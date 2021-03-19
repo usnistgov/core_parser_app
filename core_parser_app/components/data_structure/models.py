@@ -1,6 +1,7 @@
 """ Data structure model
 """
 import logging
+from abc import abstractmethod
 
 from django_mongoengine import fields, Document
 
@@ -25,6 +26,11 @@ class DataStructure(Document):
     )
 
     meta = {"abstract": True}
+
+    @staticmethod
+    @abstractmethod
+    def get_permission():
+        raise NotImplementedError("Permission is not set")
 
     @staticmethod
     def get_by_id(data_structure_id):

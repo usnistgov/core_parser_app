@@ -53,15 +53,19 @@ standard_library.install_aliases()
 ##################################################
 # Part I: Utilities
 ##################################################
-def load_schema_data_in_db(request, xsd_data):
+def load_schema_data_in_db(request, xsd_data, data_structure):
     """Load data in database
     Args:
         request:
         xsd_data:
+        data_structure:
 
     Returns:
     """
-    xsd_element = DataStructureElement(user=str(request.user.id))
+    xsd_element = DataStructureElement(
+        user=str(request.user.id) if request.user.id else None,
+        data_structure=data_structure,
+    )
     xsd_element.tag = xsd_data["tag"]
 
     if xsd_data["value"] is not None:
@@ -87,7 +91,9 @@ def load_schema_data_in_db(request, xsd_data):
         children = []
 
         for child in xsd_data["children"]:
-            child_db = load_schema_data_in_db(request, child)
+            child_db = load_schema_data_in_db(
+                request, child, data_structure=data_structure
+            )
             children.append(child_db)
 
         if len(children) > 0:
@@ -161,7 +167,10 @@ def remove_child_element(data_structure_element, child_element, request):
 
     # TODO: Sequence elem might not work
     if len(data_structure_element.children) == 0:
-        elem_iter = DataStructureElement(user=str(request.user.id))
+        elem_iter = DataStructureElement(
+            user=str(request.user.id) if request.user.id else None,
+            data_structure=data_structure_element.data_structure,
+        )
 
         if data_structure_element.tag == "element":
             elem_iter.tag = "elem-iter"
@@ -817,12 +826,15 @@ class XSDParser(object):
         self.keys = {}
         self.keyrefs = {}
 
-    def generate_form(self, xsd_doc_data, xml_doc_data=None, request=None):
+    def generate_form(
+        self, xsd_doc_data, xml_doc_data=None, data_structure=None, request=None
+    ):
         """Generate form data structure form XML Schema
 
         Args:
             xsd_doc_data:
             xml_doc_data:
+            data_structure:
             request:
 
         Returns:
@@ -919,7 +931,9 @@ class XSDParser(object):
                     else:
                         raise Exception("No possible root element detected")
 
-            root_element = load_schema_data_in_db(self.request, form_content)
+            root_element = load_schema_data_in_db(
+                self.request, form_content, data_structure=data_structure
+            )
 
             if self.auto_key_keyref:
                 root_element.options["keys"] = self.keys
@@ -1303,13 +1317,14 @@ class XSDParser(object):
         return db_element
 
     def generate_element_absent(
-        self, element_id, xsd_doc_data, renderer_class=ListRenderer
+        self, element_id, xsd_doc_data, data_structure=None, renderer_class=ListRenderer
     ):
         """Generate data structure for an XML element absent from the tree
 
         Args:
             element_id:
             xsd_doc_data:
+            data_structure:
             renderer_class:
 
         Returns:
@@ -1405,7 +1420,9 @@ class XSDParser(object):
             )
 
         # Saving the tree in MongoDB
-        tree_root = load_schema_data_in_db(self.request, db_tree)
+        tree_root = load_schema_data_in_db(
+            self.request, db_tree, data_structure=data_structure
+        )
         generated_element = tree_root.children[0]
 
         # Updating the schema element
@@ -1847,13 +1864,14 @@ class XSDParser(object):
         return db_element
 
     def generate_choice_absent(
-        self, element_id, xsd_doc_data, renderer_class=ListRenderer
+        self, element_id, xsd_doc_data, data_structure=None, renderer_class=ListRenderer
     ):
         """Generate data structure for an XML choice
 
         Args:
             element_id:
             xsd_doc_data:
+            data_structure:
             renderer_class:
 
         Returns:
@@ -1933,7 +1951,9 @@ class XSDParser(object):
             raise ParserError("Element cannot be generated: not implemented.")
 
         # Saving the tree in MongoDB
-        tree_root = load_schema_data_in_db(self.request, db_tree)
+        tree_root = load_schema_data_in_db(
+            self.request, db_tree, data_structure=data_structure
+        )
 
         # Replacing the children with the generated branch
         children = parent.children

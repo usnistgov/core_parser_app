@@ -16,6 +16,7 @@ class DataStructureElement(Document):
     value = fields.StringField(blank=True)
     options = fields.DictField(default={}, blank=True)
     children = fields.ListField(fields.ReferenceField("self"), blank=True)
+    data_structure = fields.GenericLazyReferenceField("DataStructure")
 
     @staticmethod
     def get_all_by_child_id(child_id):
