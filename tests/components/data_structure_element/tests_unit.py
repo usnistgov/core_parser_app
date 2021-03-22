@@ -15,7 +15,7 @@ from core_parser_app.components.data_structure_element.models import (
 
 
 class TestDataStructureElementGetById(TestCase):
-    @patch.object(DataStructureElement, "get_by_id")
+    @patch.object(DataStructureElement, "get_by_id_and_user")
     def test_data_structure_element_get_by_id_raises_does_not_exist_error_if_not_found(
         self, mock_get
     ):
@@ -35,7 +35,7 @@ class TestDataStructureElementGetById(TestCase):
         with self.assertRaises(exceptions.ModelError):
             data_structure_element_api.get_by_id(1, mock_request)
 
-    @patch.object(DataStructureElement, "get_by_id")
+    @patch.object(DataStructureElement, "get_by_id_and_user")
     def test_data_structure_element_get_by_id_return_data_if_found(self, mock_get):
         # Arrange
         mock_data_structure_element = DataStructureElement(
@@ -52,7 +52,7 @@ class TestDataStructureElementGetById(TestCase):
 
 
 class TestDataStructureElementGetByXpath(TestCase):
-    @patch.object(DataStructureElement, "get_by_xpath")
+    @patch.object(DataStructureElement, "get_by_xpath_and_user")
     def test_data_structure_element_get_by_xpath_raises_does_not_exist_error_if_not_found(
         self, mock_get
     ):
@@ -87,7 +87,7 @@ class TestDataStructureElementGetAllByChildId(TestCase):
         with self.assertRaises(exceptions.ModelError):
             data_structure_element_api.get_all_by_child_id(1, mock_request)
 
-    @patch.object(DataStructureElement, "get_all_by_child_id")
+    @patch.object(DataStructureElement, "get_all_by_child_id_and_user")
     def test_data_structure_element_get_all_by_id_return_data_if_found(self, mock_get):
         # Arrange
         mock_data_structure_element = DataStructureElement(
