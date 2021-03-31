@@ -4,7 +4,7 @@ kombu==4.3.0
 Django==2.2.13
 django-mongoengine==0.3.3
 djangorestframework==3.9.1
-lxml==4.6.2
+lxml==4.6.3
 mock==2.0.0
 mongoengine==0.18.2
 xlrd==1.1.0
