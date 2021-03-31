@@ -69,7 +69,7 @@ class TestDataStructureElementGetByXpath(TestCase):
     def test_data_structure_element_get_by_xpath_return_data_if_found(self, mock_get):
         # Arrange
         mock_data_structure_element = DataStructureElement(
-            "tag", "value", {"xpath.xml": "value_xpath"}
+            tag="tag", value="value", options={"xpath.xml": "value_xpath"}
         )
         mock_get.return_value = mock_data_structure_element
         # Act
