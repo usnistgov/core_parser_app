@@ -97,8 +97,8 @@ class XmlRenderer(AbstractXmlRenderer):
             return ""
 
     def _get_parent_element(self, element):
-        """Gets the parent element (tag is element not direct parent) of the
-        current element
+        """Gets the parent element (with tag element, not the direct parent)
+        of the current element.
 
         Args:
             element:
@@ -106,19 +106,31 @@ class XmlRenderer(AbstractXmlRenderer):
         Returns:
 
         """
-        try:
-            parent = data_structure_element_api.get_all_by_child_id(
-                ObjectId(element.id), self.request
+
+        def _retrieve_parent_element(child_id, request):
+            parent_element_list = data_structure_element_api.get_all_by_child_id(
+                child_id, self.request
             )
+
+            # Ensure we receive exactly one element in the resulting QuerySet
+            if len(parent_element_list) == 0:
+                raise ValueError("No Data Structure Element found")
+            elif len(parent_element_list) > 1:
+                raise ValueError("More than one Data Structure Element found")
+
+            return parent_element_list.first()
+
+        try:
+            parent = _retrieve_parent_element(ObjectId(element.id), self.request)
+
             while parent.tag != "element":
-                parent = data_structure_element_api.get_all_by_child_id(
-                    ObjectId(parent.id), self.request
-                )
+                parent = _retrieve_parent_element(ObjectId(parent.id), self.request)
+
             return parent
         except Exception as e:
             logger.warning(
-                "Exception caught while running 'XMLRendere._get_parent_element': %s"
-                % str(e)
+                f"Exception caught while running 'XMLRenderer._get_parent_element': "
+                f"{str(e)}"
             )
             return None
 
