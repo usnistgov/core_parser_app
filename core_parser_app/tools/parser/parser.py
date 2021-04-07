@@ -845,14 +845,14 @@ class XSDParser(object):
             clean_parser = etree.XMLParser(
                 remove_blank_text=True, remove_comments=True, remove_pis=True
             )
-            # set the parser
-            etree.set_default_parser(parser=clean_parser)
             # xml data not empty
             if xml_doc_data != "":
                 # TODO: check from curate that editing works
                 self.editing = True
                 # load the XML tree from the text
-                edit_data_tree = XSDTree.transform_to_xml(xml_doc_data)
+                edit_data_tree = XSDTree.transform_to_xml(
+                    xml_doc_data, parser=clean_parser
+                )
             else:
                 self.editing = False
         else:  # no data found, not editing
