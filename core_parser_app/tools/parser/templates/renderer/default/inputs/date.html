@@ -1,4 +1,9 @@
 <input type="date" id="{{ id }}" class="default"
     {% if value %} value="{{ value | escape }}"{% else %} value=""{% endif %}
-    {% if tooltip != "" %} title="{{ tooltip }}"{% endif %}
+    {% if placeholder != "" %} placeholder="{{ placeholder }}"{% endif %}
     {% if fixed %} disabled {% endif %} />
+{% if tooltip != "" %}
+<div class="tooltip-use"><i class="fas fa-question-circle"></i>
+  <span class="tooltip-text">{{tooltip}}</span>
+</div>
+{% endif %}
