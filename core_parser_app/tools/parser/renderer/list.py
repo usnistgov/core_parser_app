@@ -533,14 +533,20 @@ class ListRenderer(AbstractListRenderer):
 
                     element_html = self.render_sequence(child)
                 elif child.tag == "simple_type":
-                    options.append(
-                        (str(child.pk), child.options["name"], is_selected_element)
+                    name = (
+                        child.options["label"]
+                        if "label" in child.options
+                        else child.options["name"]
                     )
+                    options.append((str(child.pk), name, is_selected_element))
                     element_html = self.render_simple_type(child)
                 elif child.tag == "complex_type":
-                    options.append(
-                        (str(child.pk), child.options["name"], is_selected_element)
+                    name = (
+                        child.options["label"]
+                        if "label" in child.options
+                        else child.options["name"]
                     )
+                    options.append((str(child.pk), name, is_selected_element))
                     element_html = self.render_complex_type(child)
                 else:
                     message = "render_choice: " + child.tag + " not handled"
@@ -551,9 +557,11 @@ class ListRenderer(AbstractListRenderer):
                         element_html, str(child.pk), (not is_selected_element)
                     )
 
+            label = element.options["label"] if "label" in element.options else "Choice"
+
             if children_number == 0:  # Choice has no child
                 li_class = "removed"
-                html_content = "Choice " + buttons
+                html_content = f"{label} {buttons}"
             else:  # Choice has children
                 li_class = str(element.pk)
 
@@ -561,10 +569,7 @@ class ListRenderer(AbstractListRenderer):
                 if len(children[iter_element]) == 1:
                     html_content += options[0][1] + sub_content
                 else:  # Choice contains a list
-                    html_content += "Choice %s%s" % (
-                        self._render_select(None, "choice", options),
-                        buttons,
-                    )
+                    html_content += f"{label} {self._render_select(None, 'choice', options, element_options=element.options)}{buttons}"
                     html_content += sub_content
 
             # FIXME temp fix, do it in a cleaner way
@@ -708,7 +713,9 @@ class ListRenderer(AbstractListRenderer):
                 self.warnings.append(message)
 
         if subhtml == "" or len(options) != 0:
-            return self._render_select(element, "restriction", options)
+            return self._render_select(
+                element.pk, "restriction", options, element.options
+            )
         else:
             return subhtml
 

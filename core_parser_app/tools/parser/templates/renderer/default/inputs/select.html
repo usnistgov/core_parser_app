@@ -3,3 +3,8 @@
     <option value="{{ option.0 }}" {% if option.2 %}selected="selected"{% endif %}>{{ option.1 }}</option>
     {% endfor %}
 </select>
+{% if tooltip != "" %}
+<div class="tooltip-use"><i class="fas fa-question-circle"></i>
+  <span class="tooltip-text">{{tooltip}}</span>
+</div>
+{% endif %}

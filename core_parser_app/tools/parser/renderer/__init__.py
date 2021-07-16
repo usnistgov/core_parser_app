@@ -190,29 +190,31 @@ class DefaultRenderer(object):
 
         return self._load_template("input", data)
 
-    def _render_select(self, select, select_class, option_list):
+    def _render_select(self, select_id, select_class, option_list, element_options):
         """Renders a drop down list
 
         Args:
-            select:
+            select_id:
             select_class:
             option_list:
+            element_options:
 
         Returns:
 
         """
-        if select is None:
-            select_id = ""
+        if select_id is None:
             is_fixed = False
         else:
-            select_id = select.pk
-            is_fixed = select.options["fixed"] if "fixed" in select.options else False
+            is_fixed = element_options["fixed"] if "fixed" in element_options else False
 
         data = {
             "select_id": select_id,
             "select_class": select_class,
             "option_list": option_list,
             "fixed": is_fixed,
+            "tooltip": element_options["tooltip"]
+            if "tooltip" in element_options
+            else "",
         }
 
         return self._load_template("select", data)

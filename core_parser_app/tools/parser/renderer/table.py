@@ -340,7 +340,9 @@ class TableRenderer(AbstractTableRenderer):
                 logger.debug("%s not handled (rend_ext)" % child["tag"])
 
         if subhtml == "" or len(options) != 0:
-            return self._render_select(element, "restriction", options)
+            return self._render_select(
+                element.pk, "restriction", options, element.options
+            )
         else:
             return subhtml
 

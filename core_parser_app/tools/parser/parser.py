@@ -1687,6 +1687,12 @@ class XSDParser(object):
             "children": [],
         }
 
+        app_info = get_app_info_options(element)
+        if "label" in app_info:
+            db_element["options"]["label"] = app_info["label"]
+        if "tooltip" in app_info:
+            db_element["options"]["tooltip"] = format_tooltip(app_info["tooltip"])
+
         # init variables for buttons management
         # nb of occurrences to render (can't be 0 or the user won't see this
         # element at all)
@@ -2438,6 +2444,11 @@ class XSDParser(object):
 
                         if len(ns_elements) != 0 or len(elements) != 0:
                             db_child["value"] = counter
+
+                    # get label from app_info if present
+                    app_info = get_app_info_options(choiceChild)
+                    if "label" in app_info:
+                        result["options"]["label"] = app_info["label"]
 
                     db_child["children"].append(result)
 
