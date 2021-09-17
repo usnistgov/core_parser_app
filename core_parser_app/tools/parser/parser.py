@@ -35,6 +35,7 @@ from core_parser_app.tools.parser.utils.xml import (
     get_element_occurrences,
     get_attribute_occurrences,
     get_module_url,
+    delete_annotations,
 )
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.operations.appinfo import add_appinfo_child_to_element
@@ -1124,6 +1125,16 @@ class XSDParser(object):
                 use = "removed"
                 removed = True
 
+        # get the use from app info element
+        app_info_use = app_info["use"] if "use" in app_info else ""
+        app_info_use = app_info_use if app_info_use is not None else ""
+        use += " " + app_info_use
+
+        label = app_info["label"] if "label" in app_info else text_capitalized
+        label = label if label is not None else ""
+
+        db_element["options"]["label"] = label
+
         if _has_module and _is_multiple:
             # block maxOccurs to one, the module should take care of
             # occurrences when the element is replaced
@@ -1194,16 +1205,6 @@ class XSDParser(object):
 
         for x in range(0, int(nb_occurrences)):
             db_elem_iter = {"tag": "elem-iter", "value": None, "children": []}
-
-            # get the use from app info element
-            app_info_use = app_info["use"] if "use" in app_info else ""
-            app_info_use = app_info_use if app_info_use is not None else ""
-            use += " " + app_info_use
-
-            label = app_info["label"] if "label" in app_info else text_capitalized
-            label = label if label is not None else ""
-
-            db_element["options"]["label"] = label
 
             # if element not removed
             if not removed:
@@ -1688,10 +1689,13 @@ class XSDParser(object):
         }
 
         app_info = get_app_info_options(element)
-        if "label" in app_info:
-            db_element["options"]["label"] = app_info["label"]
-        if "tooltip" in app_info:
-            db_element["options"]["tooltip"] = format_tooltip(app_info["tooltip"])
+        if app_info:
+            if "label" in app_info:
+                db_element["options"]["label"] = app_info["label"]
+            if "tooltip" in app_info:
+                db_element["options"]["tooltip"] = format_tooltip(app_info["tooltip"])
+            # remove annotation tag from choice element to not break algorithm (choice_counter loading first element)
+            delete_annotations(element)
 
         # init variables for buttons management
         # nb of occurrences to render (can't be 0 or the user won't see this

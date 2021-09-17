@@ -29,6 +29,7 @@
                     },
                     "max": 1,
                     "name": "id10",
+                    "label": "id10",
                     "module": null,
                     "min": 1,
                     "ns_prefix": null,

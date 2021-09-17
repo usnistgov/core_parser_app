@@ -517,9 +517,12 @@ class ListRenderer(AbstractListRenderer):
                 is_selected_element = str(child.pk) == choice_values[iter_element]
 
                 if child.tag == "element":
-                    options.append(
-                        (str(child.pk), child.options["name"], is_selected_element)
+                    name = (
+                        child.options["label"]
+                        if "label" in child.options
+                        else child.options["name"]
                     )
+                    options.append((str(child.pk), name, is_selected_element))
                     element_html = self.render_element(child)
                 elif child.tag == "sequence":
                     options.append(

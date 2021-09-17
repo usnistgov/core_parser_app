@@ -50,6 +50,20 @@ def get_app_info_options(element):
     return app_info
 
 
+def delete_annotations(element):
+    """Delete annotations from element
+
+    Args:
+        element:
+
+    Returns:
+
+    """
+    annotations = element.findall("./{0}annotation".format(LXML_SCHEMA_NAMESPACE))
+    for annotation in annotations:
+        element.remove(annotation)
+
+
 def get_element_occurrences(element):
     """Gets min/max occurrences information of the element
 
