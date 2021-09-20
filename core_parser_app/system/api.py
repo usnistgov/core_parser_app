@@ -15,7 +15,7 @@ def delete_branch_from_db(element_id):
 
     Returns:
     """
-    element = DataStructureElement.get_by_id(element_id, user=None)
+    element = DataStructureElement.get_by_id(element_id)
 
     for child in element.children:
         delete_branch_from_db(str(child.pk))
