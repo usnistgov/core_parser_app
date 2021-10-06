@@ -3,13 +3,12 @@
 import json
 from unittest.case import TestCase
 
-from bson.objectid import ObjectId
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from mock.mock import Mock, patch
 
 from core_main_app.utils.tests_tools.MockUser import create_mock_user
-from core_parser_app.components.data_structure_element.models import (
+from core_parser_app.components.data_structure.models import (
     DataStructureElement,
 )
 from core_parser_app.tools.modules.exceptions import ModuleError
@@ -62,7 +61,7 @@ class TestGet(TestCase):
     ):
         request = HttpRequest()
         request.GET = {
-            "module_id": str(ObjectId()),
+            "module_id": "1",
             "url": "/url",
         }
         request.user = create_mock_user("1")
@@ -88,7 +87,7 @@ class TestGet(TestCase):
     ):
         request = HttpRequest()
         request.GET = {
-            "module_id": str(ObjectId()),
+            "module_id": "1",
             "url": "/url",
         }
         request.user = create_mock_user("1")
@@ -104,14 +103,14 @@ class TestGet(TestCase):
         self.assertTrue(data_structure_element.options["data"] == "module result")
 
     @patch(
-        "core_parser_app.components.data_structure_element.models.DataStructureElement.get_by_id"
+        "core_parser_app.components.data_structure.models.DataStructureElement.get_by_id"
     )
     def test_get_http_response_raises_error_when_module_returns_None(
         self, data_structure_element_get_by_id
     ):
         request = HttpRequest()
         request.GET = {
-            "module_id": str(ObjectId()),
+            "module_id": "1",
             "url": "/url",
         }
         module_object = ModuleImplementationNone()
@@ -145,7 +144,7 @@ class TestPost(TestCase):
     ):
         mock_request = Mock(spec=HttpRequest)
         mock_request.POST = {
-            "module_id": str(ObjectId()),
+            "module_id": "1",
         }
         mock_request.user = create_mock_user("1")
 
@@ -172,7 +171,7 @@ class TestPost(TestCase):
         mock_module_template = "mock_module_template"
         mock_request = Mock(spec=HttpRequest)
         mock_request.POST = {
-            "module_id": str(ObjectId()),
+            "module_id": "1",
         }
         mock_request.user = create_mock_user("1")
 

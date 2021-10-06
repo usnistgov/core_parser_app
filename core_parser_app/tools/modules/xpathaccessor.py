@@ -54,7 +54,7 @@ class XPathAccessor(object, metaclass=ABCMeta):
         if element.tag in input_elements:
             return element
 
-        for child in element.children:
+        for child in element.children.all():
             return self.get_input(child)
 
     def _get_element(self, form_id, xpath):
@@ -63,10 +63,10 @@ class XPathAccessor(object, metaclass=ABCMeta):
         if self.element_has_xpath(form_root, xpath):
             return form_root
 
-        if len(form_root.children) == 0:
+        if form_root.children.count() == 0:
             return None
 
-        for child in form_root.children:
+        for child in form_root.children.all():
             element = self._get_element(child.pk, xpath)
 
             if element is not None:

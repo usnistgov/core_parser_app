@@ -7,7 +7,6 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View
 
 from core_main_app.components.template import api as template_api
-from core_main_app.components.version_manager import api as version_manager_api
 from core_main_app.utils.rendering import render
 from core_parser_app.components.module import api as module_api
 from core_parser_app.utils.xml import transform_xsd_to_html_with_modules
@@ -76,7 +75,7 @@ def get_context(template_id, url_previous_button, read_only, title, request):
     """
 
     # get the template
-    template = template_api.get(template_id, request=request)
+    template = template_api.get_by_id(template_id, request=request)
 
     # get template content as HTML
     xsd_tree_html = transform_xsd_to_html_with_modules(template.content)
@@ -85,7 +84,7 @@ def get_context(template_id, url_previous_button, read_only, title, request):
     modules = module_api.get_all()
 
     # get version manager
-    version_manager = version_manager_api.get_from_version(template, request=request)
+    version_manager = template.version_manager
 
     # reverse url
     try:

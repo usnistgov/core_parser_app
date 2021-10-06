@@ -1,10 +1,9 @@
 from unittest.case import TestCase
 
-from bson.objectid import ObjectId
 from django.core import exceptions as django_exceptions
 from mock.mock import Mock, patch
-from mongoengine import errors as mongoengine_errors
 
+from core_main_app.commons.exceptions import DoesNotExist
 from core_parser_app.components.module import api as module_api
 from core_parser_app.components.module.models import Module
 
@@ -28,11 +27,11 @@ class TestModuleGetById(TestCase):
         self, mock_get_by_id
     ):
         # Arrange
-        mock_absent_id = ObjectId()
-        mock_get_by_id.side_effect = mongoengine_errors.DoesNotExist
+        mock_absent_id = -1
+        mock_get_by_id.side_effect = DoesNotExist("")
 
         # Act + Assert
-        with self.assertRaises(mongoengine_errors.DoesNotExist):
+        with self.assertRaises(DoesNotExist):
             module_api.get_by_id(mock_absent_id)
 
 
@@ -56,10 +55,10 @@ class TestModuleGetByUrl(TestCase):
     ):
         # Arrange
         mock_absent_url = "/absent"
-        mock_get_by_url.side_effect = mongoengine_errors.DoesNotExist
+        mock_get_by_url.side_effect = DoesNotExist("")
 
         # Act + Assert
-        with self.assertRaises(mongoengine_errors.DoesNotExist):
+        with self.assertRaises(DoesNotExist):
             module_api.get_by_url(mock_absent_url)
 
 
@@ -116,7 +115,7 @@ def _create_module():
     Returns:
 
     """
-    return Module(id=ObjectId(), name="module", url="/module", view="Module.view")
+    return Module(id=1, name="module", url="/module", view="Module.view")
 
 
 def _create_mock_module():
@@ -128,5 +127,5 @@ def _create_mock_module():
     mock_module.name = "module"
     mock_module.url = "/module"
     mock_module.view = "Module.view"
-    mock_module.id = ObjectId()
+    mock_module.id = 1
     return mock_module

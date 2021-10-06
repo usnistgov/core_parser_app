@@ -1,10 +1,5 @@
 """ System APIs for the parser app
 """
-from core_parser_app.components.data_structure_element.models import (
-    DataStructureElement,
-)
-
-
 # TODO: look into using delete cascade
 # FIXME: not removing all data structure elements
 def delete_branch_from_db(element_id):
@@ -15,9 +10,13 @@ def delete_branch_from_db(element_id):
 
     Returns:
     """
+    from core_parser_app.components.data_structure.models import (
+        DataStructureElement,
+    )
+
     element = DataStructureElement.get_by_id(element_id)
 
-    for child in element.children:
+    for child in element.children.all():
         delete_branch_from_db(str(child.pk))
 
     element.delete()

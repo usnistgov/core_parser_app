@@ -23,7 +23,7 @@ def delete_module(request):
         xpath = request.POST.get("xpath", None)
 
         # get the template
-        template = template_api.get(template_id, request=request)
+        template = template_api.get_by_id(template_id, request=request)
 
         # delete the module
         module_api.delete_module(template, xpath, request=request)
@@ -49,7 +49,7 @@ def insert_module(request):
         xpath = request.POST.get("xpath", None)
 
         # get the template
-        template = template_api.get(template_id, request=request)
+        template = template_api.get_by_id(template_id, request=request)
         # add the module
         module_api.add_module(template, module_id, xpath, request=request)
     except Exception as e:

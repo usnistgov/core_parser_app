@@ -2,7 +2,6 @@
 """
 from unittest.mock import Mock
 
-from bson import ObjectId
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpRequest
 
@@ -12,11 +11,11 @@ from core_main_app.utils.integration_tests.integration_base_test_case import (
     MongoIntegrationBaseTestCase,
 )
 from core_parser_app.access_control import _check_data_structure_elements_access
+from core_parser_app.components.data_structure.models import (
+    DataStructureElement,
+)
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
-)
-from core_parser_app.components.data_structure_element.models import (
-    DataStructureElement,
 )
 from tests.components.data_structure_element.fixtures.fixtures import (
     DataStructureElementFixtures,
@@ -37,7 +36,7 @@ class TestUpsert(MongoIntegrationBaseTestCase):
         }
 
         self.mock_data_structure_element = DataStructureElement(
-            id=ObjectId(),
+            id=10,
             user=str(self.users["owner"].id),
             tag="mock_tag",
             value="mock_value",
@@ -104,73 +103,6 @@ class TestUpsert(MongoIntegrationBaseTestCase):
                 self.mock_data_structure_element.id, self.mock_request
             ),
             self.mock_data_structure_element,
-        )
-
-
-class TestGetAllByChildId(MongoIntegrationBaseTestCase):
-    def setUp(self):
-        self.fixtures = DataStructureElementFixtures()
-        self.fixtures.insert_data(user=self.fixtures.default_owner_with_perm)
-
-        self.users = {
-            "anon": AnonymousUser(),
-            "user": self.fixtures.other_user_with_perm,
-            "owner": self.fixtures.default_owner_with_perm,
-            "superuser": self.fixtures.superuser,
-        }
-
-        self.mock_request = Mock(spec=HttpRequest)
-
-    def test_anonymous_cannot_perform_operation(self):
-        self.mock_request.user = self.users["anon"]
-
-        result = list(
-            data_structure_element_api.get_all_by_child_id(
-                self.fixtures.data_structure_element_collection["1121"].id,
-                self.mock_request,
-            )
-        )
-
-        self.assertEquals(len(result), 0)
-
-    def test_user_not_owner_cannot_perform_operation(self):
-        self.mock_request.user = self.users["user"]
-
-        result = list(
-            data_structure_element_api.get_all_by_child_id(
-                self.fixtures.data_structure_element_collection["1121"].id,
-                self.mock_request,
-            )
-        )
-
-        self.assertEquals(len(result), 0)
-
-    def test_owner_can_perform_operation(self):
-        self.mock_request.user = self.users["owner"]
-
-        result = list(
-            data_structure_element_api.get_all_by_child_id(
-                self.fixtures.data_structure_element_collection["1121"].id,
-                self.mock_request,
-            )
-        )
-        self.assertEquals(len(result), 1)
-        self.assertEquals(
-            result[0], self.fixtures.data_structure_element_collection["1120"]
-        )
-
-    def test_superuser_can_perform_operation(self):
-        self.mock_request.user = self.users["superuser"]
-
-        result = list(
-            data_structure_element_api.get_all_by_child_id(
-                self.fixtures.data_structure_element_collection["1121"].id,
-                self.mock_request,
-            )
-        )
-        self.assertEquals(len(result), 1)
-        self.assertEquals(
-            result[0], self.fixtures.data_structure_element_collection["1120"]
         )
 
 
@@ -335,36 +267,36 @@ class TestRemoveChild(MongoIntegrationBaseTestCase):
     def test_owner_can_perform_operation(self):
         self.mock_request.user = self.users["owner"]
 
-        orig_children_count = len(
-            self.fixtures.data_structure_element_collection["1000"].children
-        )
+        orig_children_count = self.fixtures.data_structure_element_collection[
+            "1000"
+        ].children.count()
 
-        result = data_structure_element_api.remove_child(
+        data_structure_element_api.remove_child(
             self.fixtures.data_structure_element_collection["1000"],
             self.fixtures.data_structure_element_collection["1200"],
             self.mock_request,
         )
 
         self.assertEquals(
-            len(result.children),
+            self.fixtures.data_structure_element_collection["1000"].children.count(),
             orig_children_count - 1,
         )
 
     def test_superuser_can_perform_operation(self):
         self.mock_request.user = self.users["superuser"]
 
-        orig_children_count = len(
-            self.fixtures.data_structure_element_collection["1000"].children
-        )
+        orig_children_count = self.fixtures.data_structure_element_collection[
+            "1000"
+        ].children.count()
 
-        result = data_structure_element_api.remove_child(
+        data_structure_element_api.remove_child(
             self.fixtures.data_structure_element_collection["1000"],
             self.fixtures.data_structure_element_collection["1200"],
             self.mock_request,
         )
 
         self.assertEquals(
-            len(result.children),
+            self.fixtures.data_structure_element_collection["1000"].children.count(),
             orig_children_count - 1,
         )
 
@@ -386,7 +318,8 @@ class TestAddChild(MongoIntegrationBaseTestCase):
             tag="mock_tag",
             value="mock_value",
             data_structure=self.fixtures.data_structure,
-        ).save()
+        )
+        self.mock_data_structure_element.save()
         self.mock_request = Mock(spec=HttpRequest)
 
     def test_anonymous_cannot_perform_operation(self):
@@ -412,36 +345,36 @@ class TestAddChild(MongoIntegrationBaseTestCase):
     def test_owner_can_perform_operation(self):
         self.mock_request.user = self.users["owner"]
 
-        orig_children_count = len(
-            self.fixtures.data_structure_element_collection["1000"].children
-        )
+        orig_children_count = self.fixtures.data_structure_element_collection[
+            "1000"
+        ].children.count()
 
-        result = data_structure_element_api.add_child(
+        data_structure_element_api.add_child(
             self.fixtures.data_structure_element_collection["1000"],
             self.mock_data_structure_element,
             self.mock_request,
         )
 
         self.assertEquals(
-            len(result.children),
+            self.fixtures.data_structure_element_collection["1000"].children.count(),
             orig_children_count + 1,
         )
 
     def test_superuser_can_perform_operation(self):
         self.mock_request.user = self.users["superuser"]
 
-        orig_children_count = len(
-            self.fixtures.data_structure_element_collection["1000"].children
-        )
+        orig_children_count = self.fixtures.data_structure_element_collection[
+            "1000"
+        ].children.count()
 
-        result = data_structure_element_api.add_child(
+        data_structure_element_api.add_child(
             self.fixtures.data_structure_element_collection["1000"],
             self.mock_data_structure_element,
             self.mock_request,
         )
 
         self.assertEquals(
-            len(result.children),
+            self.fixtures.data_structure_element_collection["1000"].children.count(),
             orig_children_count + 1,
         )
 

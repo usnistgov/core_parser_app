@@ -3,9 +3,8 @@
 import logging
 
 from django.contrib.auth.models import Group, User
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.http import HttpRequest
-from mongoengine import QuerySet
 from rest_framework.request import Request
 
 import core_main_app.permissions.rights as rights
@@ -26,9 +25,7 @@ def _check_data_structure_elements_access(data_structure_element_list, user):
     Returns:
     """
     for data_structure_element in data_structure_element_list:
-        permission = (
-            data_structure_element.data_structure.document_type.get_permission()
-        )
+        permission = data_structure_element.data_structure.get_object_permission()
         codename = permission.split(".")[1]
         # check if user can access this type of data structure element
         if user.is_anonymous:
@@ -71,7 +68,7 @@ def is_data_structure_element_owner(fn, *args, **kwargs):
 
     Returns:
     """
-    from core_parser_app.components.data_structure_element.models import (
+    from core_parser_app.components.data_structure.models import (
         DataStructureElement,
     )
 

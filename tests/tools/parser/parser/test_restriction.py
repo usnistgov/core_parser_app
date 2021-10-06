@@ -8,7 +8,6 @@ from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.xsd_tree import XSDTree
 
-
 RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 

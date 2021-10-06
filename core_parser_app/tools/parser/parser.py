@@ -19,11 +19,11 @@ from core_main_app.utils.requests_utils.requests_utils import send_get_request
 from core_main_app.utils.xsd_flattener.xsd_flattener_database_url import (
     XSDFlattenerDatabaseOrURL,
 )
+from core_parser_app.components.data_structure.models import (
+    DataStructureElement,
+)
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
-)
-from core_parser_app.components.data_structure_element.models import (
-    DataStructureElement,
 )
 from core_parser_app.components.module import api as module_api
 from core_parser_app.settings import MODULE_TAG_NAME
@@ -54,7 +54,7 @@ standard_library.install_aliases()
 ##################################################
 # Part I: Utilities
 ##################################################
-def load_schema_data_in_db(request, xsd_data, data_structure):
+def load_schema_data_in_db(request, xsd_data, data_structure, parent=None):
     """Load data in database
     Args:
         request:
@@ -66,6 +66,7 @@ def load_schema_data_in_db(request, xsd_data, data_structure):
     xsd_element = DataStructureElement(
         user=str(request.user.id) if request.user.id else None,
         data_structure=data_structure,
+        parent=parent,
     )
     xsd_element.tag = xsd_data["tag"]
 
@@ -88,26 +89,22 @@ def load_schema_data_in_db(request, xsd_data, data_structure):
 
         xsd_element.options = xsd_data["options"]
 
+    data_structure_element_api.upsert(xsd_element, request)
     if "children" in xsd_data:
-        children = []
-
         for child in xsd_data["children"]:
-            child_db = load_schema_data_in_db(
-                request, child, data_structure=data_structure
+            load_schema_data_in_db(
+                request, child, data_structure=data_structure, parent=xsd_element
             )
-            children.append(child_db)
-
-        if len(children) > 0:
-            xsd_element.children = children
 
     if xsd_element.tag == "choice-iter":
         if xsd_element.value is None:
-            xsd_element.value = str(xsd_element.children[0].pk)
+            xsd_element.value = str(xsd_element.children.all()[0].pk)
+            data_structure_element_api.upsert(xsd_element, request)
         else:  # Value set => Put the pk of the displayed child
             child_index = int(xsd_element.value)
-            xsd_element.value = str(xsd_element.children[child_index].pk)
+            xsd_element.value = str(xsd_element.children.all()[child_index].pk)
+            data_structure_element_api.upsert(xsd_element, request)
 
-    data_structure_element_api.upsert(xsd_element, request)
     return xsd_element
 
 
@@ -124,24 +121,25 @@ def delete_branch_from_db(request, element_id):
     """
     element = data_structure_element_api.get_by_id(element_id, request)
 
-    for child in element.children:
+    for child in element.children.all():
         delete_branch_from_db(request, str(child.pk))
 
     element.delete()
 
 
-def update_branch_xpath(element):
+def update_branch_xpath(element, request=None):
     """Update the xpath in a branch
     Args:
         element:
+        request:
 
     Returns:
     """
     element_xpath = element.options["xpath"]["xml"]
     xpath_index = 1
 
-    for child in element.children:
-        update_root_xpath(child, element_xpath, xpath_index)
+    for child in element.children.all():
+        update_root_xpath(child, element_xpath, xpath_index, request)
         xpath_index += 1
 
 
@@ -161,13 +159,13 @@ def remove_child_element(data_structure_element, child_element, request):
         data_structure_element, child_element, request
     )
     # update children xpaths
-    update_branch_xpath(data_structure_element)
+    update_branch_xpath(data_structure_element, request)
 
     # Deleting the branch from the database
     delete_branch_from_db(request, str(child_element.id))
 
     # TODO: Sequence elem might not work
-    if len(data_structure_element.children) == 0:
+    if data_structure_element.children.count() == 0:
         elem_iter = DataStructureElement(
             user=str(request.user.id) if request.user.id else None,
             data_structure=data_structure_element.data_structure,
@@ -186,13 +184,17 @@ def remove_child_element(data_structure_element, child_element, request):
     return data_structure_element
 
 
-def update_root_xpath(element, xpath, index):
-    """
-    Update the Xpath of the root
-    Args: element:
-    Args: xpath:
-    Args: index:
-    Returns::
+def update_root_xpath(element, xpath, index, request=None):
+    """Update the Xpath of the root
+
+    Args:
+        element:
+        xpath:
+        index:
+        request:
+
+    Returns:
+
     """
     element_options = element.options
 
@@ -202,11 +204,11 @@ def update_root_xpath(element, xpath, index):
             xpath + "[1]", xpath + "[" + str(index) + "]", 1
         )
 
-        element.update(set__options=element_options)
-        element.reload()
+        element.options = element_options
+        data_structure_element_api.upsert(element, request)
 
-    for child in element.children:
-        update_root_xpath(child, xpath, index)
+    for child in element.children.all():
+        update_root_xpath(child, xpath, index, request)
 
 
 def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
@@ -1333,19 +1335,11 @@ class XSDParser(object):
         """
 
         sub_element = data_structure_element_api.get_by_id(element_id, self.request)
-        element_list = data_structure_element_api.get_all_by_child_id(
-            element_id, self.request
-        )
 
         if self.auto_key_keyref:
             self.init_key_keyref(sub_element)
 
-        if len(element_list) == 0:
-            raise ValueError("No SchemaElement found")
-        elif len(element_list) > 1:
-            raise ValueError("More than one SchemaElement found")
-
-        schema_element = element_list[0]
+        schema_element = sub_element.parent
 
         schema_location = None
         if "schema_location" in schema_element.options:
@@ -1420,36 +1414,36 @@ class XSDParser(object):
                 force_generation=True,
             )
 
-        # Saving the tree in MongoDB
         tree_root = load_schema_data_in_db(
             self.request, db_tree, data_structure=data_structure
         )
-        generated_element = tree_root.children[0]
+        generated_element = tree_root.children.all()[0]
 
         # Updating the schema element
-        children = schema_element.children
+        children = list(schema_element.children.all())
         element_index = children.index(sub_element)
-
-        children.insert(element_index + 1, generated_element)
-        schema_element.update(set__children=children)
-
-        if len(sub_element.children) == 0:
-            schema_element_to_pull = data_structure_element_api.get_by_id(
-                element_id, self.request
-            )
-            schema_element.update(pull__children=schema_element_to_pull)
-
-        schema_element.reload()
-        update_branch_xpath(schema_element)
 
         tree_root_options = tree_root.options
         tree_root_options["real_root"] = str(schema_element.pk)
 
-        tree_root.update(set__options=tree_root_options)
-        tree_root.reload()
+        tree_root.options = tree_root_options
 
         renderer = renderer_class(tree_root, self.request)
         html_form = renderer.render(True)
+
+        # generated_element.parent = schema_element # this is a test
+        children.insert(element_index + 1, generated_element)
+        # set children - this removes the children from the tree_root
+        schema_element.children.set(children)
+
+        if sub_element.children.count() == 0:
+            schema_element_to_pull = data_structure_element_api.get_by_id(
+                element_id, self.request
+            )
+
+            schema_element.children.remove(schema_element_to_pull)
+
+        update_branch_xpath(schema_element, self.request)
 
         tree_root.delete()
         return html_form
@@ -1888,19 +1882,10 @@ class XSDParser(object):
 
         """
         element = data_structure_element_api.get_by_id(element_id, self.request)
-        parents = data_structure_element_api.get_all_by_child_id(
-            element_id, self.request
-        )
+        parent = element.parent
 
         if self.auto_key_keyref:
             self.init_key_keyref(element)
-
-        if len(parents) == 0:
-            raise ValueError("No SchemaElement found")
-        elif len(parents) > 1:
-            raise ValueError("More than one SchemaElement found")
-
-        parent = parents[0]
 
         schema_location = None
         if "schema_location" in element.options:
@@ -1965,16 +1950,13 @@ class XSDParser(object):
             self.request, db_tree, data_structure=data_structure
         )
 
-        # Replacing the children with the generated branch
-        children = parent.children
-        element_index = children.index(element)
-
-        children[element_index] = tree_root
-
-        parent.update(set__children=children)
-        parent.update(set__value=str(tree_root.pk))
-
-        parent.reload()
+        element.parent = None
+        tree_root.parent = parent
+        parent.value = str(tree_root.pk)
+        # Save data structure elements
+        data_structure_element_api.upsert(element, request=self.request)
+        data_structure_element_api.upsert(tree_root, request=self.request)
+        data_structure_element_api.upsert(parent, request=self.request)
 
         renderer = renderer_class(tree_root, self.request)
         html_form = renderer.render(False)

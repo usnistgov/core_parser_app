@@ -3,33 +3,144 @@
 import logging
 from abc import abstractmethod
 
-from django_mongoengine import fields, Document
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 
 from core_main_app.commons import exceptions
 from core_main_app.components.template.models import Template
-from core_parser_app.components.data_structure_element.models import (
-    DataStructureElement,
-)
 from core_parser_app.tasks import delete_branch_task
 
 logger = logging.getLogger(__name__)
 
 
-class DataStructure(Document):
-    """Stores data being entered and not yet curated"""
+class DataStructureElement(models.Model):
+    """Represents data structure object"""
 
-    user = fields.StringField()
-    template = fields.ReferenceField(Template)
-    name = fields.StringField(unique_with=["user", "template"])
-    data_structure_element_root = fields.ReferenceField(
-        DataStructureElement, blank=True
+    user = models.CharField(blank=False, max_length=200)
+    tag = models.CharField(blank=False, max_length=200)
+    value = models.CharField(blank=True, max_length=200, null=True)
+    options = models.JSONField(default=dict, blank=True)
+    parent = models.ForeignKey(
+        "self",
+        blank=True,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="children",
+    )
+    data_structure = models.ForeignKey(
+        "DataStructure", on_delete=models.CASCADE, default=None, null=True, blank=True
     )
 
-    meta = {"abstract": True}
+    @staticmethod
+    def get_by_id(data_structure_element_id):
+        """Returns the object with the given id.
+
+        Args:
+            data_structure_element_id:
+
+        Returns:
+            DataStructureElement (obj): DataStructureElement object with the given id
+
+        """
+        try:
+            return DataStructureElement.objects.get(pk=str(data_structure_element_id))
+        except ObjectDoesNotExist as e:
+            raise exceptions.DoesNotExist(str(e))
+        except Exception as ex:
+            raise exceptions.ModelError(str(ex))
+
+    @staticmethod
+    def get_by_id_and_user(data_structure_element_id, user=None):
+        """Returns the object with the given id and the given owner.
+
+        Args:
+            data_structure_element_id:
+            user:
+
+        Returns:
+            DataStructureElement (obj): DataStructureElement object with the given id
+
+        """
+        try:
+            return DataStructureElement.objects.get(
+                pk=str(data_structure_element_id), user=user
+            )
+        except ObjectDoesNotExist as e:
+            raise exceptions.DoesNotExist(str(e))
+        except Exception as ex:
+            raise exceptions.ModelError(str(ex))
+
+    @staticmethod
+    def get_by_xpath(xpath):
+        """Returns the object with the given id.
+
+        Args:
+            xpath:
+
+        Returns:
+            DataStructureElement (obj): DataStructureElement object with the given id
+
+        """
+        try:
+            return DataStructureElement.objects.filter(
+                options__xpath__xml=str(xpath)
+            ).all()
+        except ObjectDoesNotExist as e:
+            raise exceptions.DoesNotExist(str(e))
+        except Exception as ex:
+            raise exceptions.ModelError(str(ex))
+
+    @staticmethod
+    def get_by_xpath_and_user(xpath, user=None):
+        """Returns the object with the given id and owner.
+
+        Args:
+            xpath:
+            user:
+
+        Returns:
+            DataStructureElement (obj): DataStructureElement object with the given id
+
+        """
+        try:
+            return DataStructureElement.objects.filter(
+                options__xpath__xml=xpath, user=user
+            ).all()
+        except ObjectDoesNotExist as e:
+            raise exceptions.DoesNotExist(str(e))
+        except Exception as ex:
+            raise exceptions.ModelError(str(ex))
+
+
+class DataStructure(models.Model):
+    """Stores data being entered and not yet curated"""
+
+    user = models.CharField(blank=False, max_length=200)
+    template = models.ForeignKey(Template, on_delete=models.CASCADE)
+    name = models.CharField(blank=False, max_length=200)
+    data_structure_element_root = models.ForeignKey(
+        DataStructureElement, blank=True, null=True, on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        unique_together = (
+            "user",
+            "template",
+            "name",
+        )
 
     @staticmethod
     @abstractmethod
     def get_permission():
+        raise NotImplementedError("Permission is not set")
+
+    def get_object_permission(self):
+        # FIXME: temporary solution to query concrete children of abstract class
+        # iterate concrete data structure classes
+        for subclass in DataStructure.__subclasses__():
+            if hasattr(self, subclass._meta.model_name):
+                return subclass.get_permission()
+
         raise NotImplementedError("Permission is not set")
 
     @staticmethod
@@ -70,14 +181,14 @@ class DataStructure(Document):
             raise exceptions.DoesNotExist("No data structure found for the given id.")
 
     @classmethod
-    def pre_delete(cls, sender, document, **kwargs):
+    def pre_delete(cls, sender, instance, **kwargs):
         """Pre delete operations
 
         Returns:
 
         """
         # Delete data structure elements
-        document.delete_data_structure_elements_from_root()
+        instance.delete_data_structure_elements_from_root()
 
     def delete_data_structure_elements_from_root(self):
         """Delete all data structure elements from the root

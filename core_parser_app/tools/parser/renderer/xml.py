@@ -4,7 +4,6 @@ import logging
 import numbers
 from os.path import join
 
-from bson.objectid import ObjectId
 from django.template import loader
 
 from core_parser_app.components.data_structure_element import (
@@ -74,7 +73,7 @@ class XmlRenderer(AbstractXmlRenderer):
             return self.render_element(self.data)
         elif self.data.tag == "choice":
             content = self.render_choice(self.data)
-            root = self.data.children[0]
+            root = self.data.children.all()[0]
             root_elem_id = root.value
             root_elem = data_structure_element_api.get_by_id(root_elem_id, self.request)
             root_name = root_elem.options["name"]
@@ -106,25 +105,11 @@ class XmlRenderer(AbstractXmlRenderer):
         Returns:
 
         """
-
-        def _retrieve_parent_element(child_id, request):
-            parent_element_list = data_structure_element_api.get_all_by_child_id(
-                child_id, self.request
-            )
-
-            # Ensure we receive exactly one element in the resulting QuerySet
-            if len(parent_element_list) == 0:
-                raise ValueError("No Data Structure Element found")
-            elif len(parent_element_list) > 1:
-                raise ValueError("More than one Data Structure Element found")
-
-            return parent_element_list.first()
-
         try:
-            parent = _retrieve_parent_element(ObjectId(element.id), self.request)
+            parent = element.parent
 
             while parent.tag != "element":
-                parent = _retrieve_parent_element(ObjectId(parent.id), self.request)
+                parent = parent.parent
 
             return parent
         except Exception as e:
@@ -148,12 +133,12 @@ class XmlRenderer(AbstractXmlRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children:
+        for child in element.children.all():
             if child.tag == "elem-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all()
                 child_keys.append(child.pk)
 
-                if len(child.children) > 0:
+                if child.children.count() > 0:
                     children_number += 1
             else:
                 message = "render_element (iteration): " + child.tag + " not handled"
@@ -247,9 +232,9 @@ class XmlRenderer(AbstractXmlRenderer):
         attr_list = []
         children = []
 
-        for child in element.children:
+        for child in element.children.all():
             if child.tag == "elem-iter":
-                children += child.children
+                children += child.children.all()
             else:
                 message = "render_attribute (iteration): " + child.tag + " not handled"
                 self.warnings.append(message)
@@ -324,7 +309,7 @@ class XmlRenderer(AbstractXmlRenderer):
         # XML content: attributes, inner content, outer content
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all():
             tmp_content = ["", "", ""]
 
             # add XML Schema instance prefix if root
@@ -370,9 +355,9 @@ class XmlRenderer(AbstractXmlRenderer):
         content = ["", "", ""]
         children = []
 
-        for child in element.children:
+        for child in element.children.all():
             if child.tag == "sequence-iter":
-                children += child.children
+                children += child.children.all()
             else:
                 message = "render_sequence (iteration): " + child.tag + " not handled"
                 self.warnings.append(message)
@@ -407,7 +392,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all():
             tmp_content = ["", "", ""]
 
             if child.tag == "extension":
@@ -435,7 +420,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all():
             tmp_content = ["", "", ""]
 
             if child.tag == "extension":
@@ -466,9 +451,9 @@ class XmlRenderer(AbstractXmlRenderer):
         child_keys = []
         choice_values = {}
 
-        for child in element.children:
+        for child in element.children.all():
             if child.tag == "choice-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all()
                 child_keys.append(child.pk)
                 choice_values[child.pk] = child.value
             else:
@@ -557,7 +542,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all():
             tmp_content = ["", "", ""]
 
             if child.tag == "restriction":
@@ -597,7 +582,7 @@ class XmlRenderer(AbstractXmlRenderer):
         content = ["", "", ""]
         value = element.value
 
-        for child in element.children:
+        for child in element.children.all():
             tmp_content = ["", "", ""]
 
             if child.tag == "enumeration":
@@ -630,7 +615,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all():
             tmp_content = ["", "", ""]
 
             if child.tag == "input":

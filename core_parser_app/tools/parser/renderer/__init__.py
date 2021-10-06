@@ -6,7 +6,7 @@ from os.path import join
 from django.template import loader
 from django.template.backends.django import Template
 
-from core_parser_app.components.data_structure_element.models import (
+from core_parser_app.components.data_structure.models import (
     DataStructureElement,
 )
 

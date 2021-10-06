@@ -5,6 +5,10 @@ from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import re_path
 
+from core_main_app.admin import core_admin_site
+from core_parser_app.components.data_structure.models import DataStructure
+from core_parser_app.components.data_structure.models import DataStructureElement
+from core_parser_app.components.module.models import Module
 from core_parser_app.views.admin import views as admin_views
 
 admin_urls = [
@@ -12,12 +16,15 @@ admin_urls = [
         r"^template/modules/(?P<pk>\w+)",
         staff_member_required(
             admin_views.ManageModulesAdminView.as_view(
-                back_to_previous_url="admin:core_main_app_manage_template_versions",
+                back_to_previous_url="core-admin:core_main_app_manage_template_versions",
             )
         ),
         name="core_parser_app_template_modules",
     ),
 ]
 
-urls = admin.site.get_urls()
-admin.site.get_urls = lambda: admin_urls + urls
+admin.site.register(DataStructureElement)
+admin.site.register(DataStructure)
+admin.site.register(Module)
+urls = core_admin_site.get_urls()
+core_admin_site.get_urls = lambda: admin_urls + urls

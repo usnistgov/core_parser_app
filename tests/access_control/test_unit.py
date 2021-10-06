@@ -1,11 +1,10 @@
-from unittest.mock import Mock
-
 from unittest.case import TestCase
+from unittest.mock import Mock
 
 from core_main_app.access_control.exceptions import AccessControlError
 from core_main_app.utils.tests_tools.MockUser import create_mock_user
 from core_parser_app.access_control import _check_data_structure_element_ownership
-from core_parser_app.components.data_structure_element.models import (
+from core_parser_app.components.data_structure.models import (
     DataStructureElement,
 )
 

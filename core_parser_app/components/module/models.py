@@ -1,18 +1,18 @@
 """Module models
 """
-from django_mongoengine import fields, Document
-from mongoengine import errors as mongoengine_errors
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 
 from core_main_app.commons import exceptions
 
 
-class Module(Document):
+class Module(models.Model):
     """Represents a module, that will replace the default rendering of an element"""
 
-    name = fields.StringField(unique=True)
-    url = fields.StringField(unique=True)
-    view = fields.StringField()
-    multiple = fields.BooleanField(default=False)
+    name = models.CharField(unique=True, max_length=200)
+    url = models.CharField(unique=True, max_length=200)
+    view = models.CharField(max_length=200)
+    multiple = models.BooleanField(default=False)
 
     @staticmethod
     def get_by_id(module_id):
@@ -25,8 +25,8 @@ class Module(Document):
 
         """
         try:
-            return Module.objects().get(pk=str(module_id))
-        except mongoengine_errors.DoesNotExist as e:
+            return Module.objects.get(pk=str(module_id))
+        except ObjectDoesNotExist as e:
             raise exceptions.DoesNotExist(str(e))
         except Exception as e:
             raise exceptions.ModelError(str(e))
@@ -42,8 +42,8 @@ class Module(Document):
 
         """
         try:
-            return Module.objects().get(url=module_url)
-        except mongoengine_errors.DoesNotExist as e:
+            return Module.objects.get(url=module_url)
+        except ObjectDoesNotExist as e:
             raise exceptions.DoesNotExist(str(e))
         except Exception as e:
             raise exceptions.ModelError(str(e))
@@ -64,7 +64,7 @@ class Module(Document):
         Returns:
 
         """
-        return Module.objects.all().values_list("url")
+        return Module.objects.all().values_list("url", flat=True)
 
     @staticmethod
     def delete_all():

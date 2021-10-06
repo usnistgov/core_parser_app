@@ -2,9 +2,9 @@
 """
 import logging
 
-from mongoengine import NotUniqueError
-from mongoengine.errors import ValidationError
+from django.db import OperationalError, IntegrityError
 
+from core_main_app.commons.exceptions import ModelError
 from core_parser_app.components.module import api as module_api
 from core_parser_app.components.module.models import Module
 from core_parser_app.tools.modules.exceptions import ModuleError
@@ -20,8 +20,12 @@ def discover_modules(urls):
     """
     logger.info("START discover modules.")
 
-    # Remove all existing modules
-    module_api.delete_all()
+    try:
+        # Remove all existing modules
+        module_api.delete_all()
+    except OperationalError:
+        logger.warning("Module table is not ready yet")
+        return
 
     # Look for modules in project urls
     try:
@@ -47,13 +51,13 @@ def discover_modules(urls):
                             )
                             try:
                                 module_api.upsert(module_object)
-                            except NotUniqueError:
+                            except IntegrityError:
                                 logger.error(
                                     "The module %s is already present in the database."
                                     "Please check the list of urls for duplicates."
                                     % url_pattern.name
                                 )
-    except ValidationError:
+    except ModelError:
         # something went wrong, delete already added modules
         module_api.delete_all()
 

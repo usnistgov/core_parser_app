@@ -110,12 +110,12 @@ class TableRenderer(AbstractTableRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children:
+        for child in element.children.all():
             if child.tag == "elem-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all()
                 child_keys.append(child.pk)
 
-                if len(child.children) > 0:
+                if child.children.count() > 0:
                     children_number += 1
             else:
                 message = "render_element (iteration): " + child.tag + " not handled"
