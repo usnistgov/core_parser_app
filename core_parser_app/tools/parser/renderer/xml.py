@@ -602,6 +602,8 @@ class XmlRenderer(AbstractXmlRenderer):
 
             if child.tag == "enumeration":
                 tmp_content[1] = value if value is not None else ""
+                if AUTO_ESCAPE_XML_ENTITIES:
+                    tmp_content[1] = XmlEntities().escape_xml_entities(tmp_content[1])
                 value = None  # Avoid to copy the value several times
             elif child.tag == "input":
                 tmp_content[1] = child.value if child.value is not None else ""
