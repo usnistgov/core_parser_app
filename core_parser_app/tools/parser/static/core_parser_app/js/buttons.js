@@ -40,16 +40,16 @@
 
                 // Displaying the data on the screen
                 showButton($data, 'remove');
-                $element.after($data);
-
-                if ( $element.hasClass('removed') ) {  // If the element was one of occurence 0
+                if ( $element.hasClass('removed') ) {  // If the element was one of occurrence 0
+                    $element.after($data);
                     $element.remove();
                 } else {
                     var elementClass = $element.attr('class');
+                    $element.parent().children("."+elementClass+":last").after($data);
 
                     // Update every button
-                    $.each($('.'+elementClass), function(index, occurence) {
-                        showButton($(occurence), 'remove');
+                    $.each($('.'+elementClass), function(index, occurrence) {
+                        showButton($(occurrence), 'remove');
                     });
 
                     // Updating the class with the good parent

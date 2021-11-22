@@ -1419,10 +1419,6 @@ class XSDParser(object):
         )
         generated_element = tree_root.children.all()[0]
 
-        # Updating the schema element
-        children = list(schema_element.children.all())
-        element_index = children.index(sub_element)
-
         tree_root_options = tree_root.options
         tree_root_options["real_root"] = str(schema_element.pk)
 
@@ -1431,10 +1427,7 @@ class XSDParser(object):
         renderer = renderer_class(tree_root, self.request)
         html_form = renderer.render(True)
 
-        # generated_element.parent = schema_element # this is a test
-        children.insert(element_index + 1, generated_element)
-        # set children - this removes the children from the tree_root
-        schema_element.children.set(children)
+        schema_element.children.add(generated_element)
 
         if sub_element.children.count() == 0:
             schema_element_to_pull = data_structure_element_api.get_by_id(
