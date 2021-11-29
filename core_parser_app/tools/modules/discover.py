@@ -2,7 +2,7 @@
 """
 import logging
 
-from django.db import OperationalError, IntegrityError
+from django.db import IntegrityError
 
 from core_main_app.commons.exceptions import ModelError
 from core_parser_app.components.module import api as module_api
@@ -23,7 +23,7 @@ def discover_modules(urls):
     try:
         # Remove all existing modules
         module_api.delete_all()
-    except OperationalError:
+    except Exception:
         logger.warning("Module table is not ready yet")
         return
 
