@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class DataStructureElement(models.Model):
     """Represents data structure object"""
 
-    user = models.CharField(blank=False, max_length=200)
+    user = models.CharField(blank=True, null=True, max_length=200)
     tag = models.CharField(blank=False, max_length=200)
     value = models.CharField(blank=True, max_length=200, null=True)
     options = models.JSONField(default=dict, blank=True)
@@ -115,7 +115,7 @@ class DataStructureElement(models.Model):
 class DataStructure(models.Model):
     """Stores data being entered and not yet curated"""
 
-    user = models.CharField(blank=False, max_length=200)
+    user = models.CharField(blank=True, max_length=200)
     template = models.ForeignKey(Template, on_delete=models.CASCADE)
     name = models.CharField(blank=False, max_length=200)
     data_structure_element_root = models.ForeignKey(
