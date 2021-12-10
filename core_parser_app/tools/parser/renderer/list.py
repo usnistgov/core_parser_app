@@ -138,9 +138,9 @@ class ListRenderer(AbstractListRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "elem-iter":
-                children[child.pk] = child.children.all()
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
                 if child.children.count() > 0:
@@ -176,7 +176,7 @@ class ListRenderer(AbstractListRenderer):
             sub_inputs = []
             sub_buttons = []
 
-            for child in children[child_key].all():
+            for child in children[child_key].all().order_by("pk"):
                 if child.tag == "complex_type":
                     sub_elements.append(self.render_complex_type(child))
                     sub_inputs.append(False)
@@ -241,7 +241,7 @@ class ListRenderer(AbstractListRenderer):
         attributes = []
         simple = False
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "sequence":
                 html_content += self.render_sequence(child)
             elif child.tag == "simple_content":
@@ -278,9 +278,9 @@ class ListRenderer(AbstractListRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "elem-iter":
-                children[child.pk] = child.children.all()
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
                 if child.children.count() > 0:
@@ -314,7 +314,7 @@ class ListRenderer(AbstractListRenderer):
             sub_inputs = []
             sub_buttons = []
 
-            for child in children[child_key].all():
+            for child in children[child_key].all().order_by("pk"):
                 if child.tag == "simple_type":
                     sub_elements.append(self.render_simple_type(child))
                     sub_inputs.append(True)
@@ -374,9 +374,9 @@ class ListRenderer(AbstractListRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "sequence-iter":
-                children[child.pk] = child.children.all()
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
                 if child.children.count() > 0:
@@ -414,7 +414,7 @@ class ListRenderer(AbstractListRenderer):
             sub_elements = []
             html_content = ""
 
-            for child in children[child_key].all():
+            for child in children[child_key].all().order_by("pk"):
                 if child.tag == "element":
                     sub_elements.append(self.render_element(child))
                 elif child.tag == "sequence":
@@ -477,9 +477,9 @@ class ListRenderer(AbstractListRenderer):
         choice_values = {}
         children_number = 0
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "choice-iter":
-                children[child.pk] = child.children.all()
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
                 if child.children.count() > 0:
@@ -512,7 +512,7 @@ class ListRenderer(AbstractListRenderer):
             html_content = ""
             options = []
 
-            for child in children[iter_element].all():
+            for child in children[iter_element].all().order_by("pk"):
                 element_html = ""
                 is_selected_element = str(child.pk) == choice_values[iter_element]
 
@@ -594,7 +594,7 @@ class ListRenderer(AbstractListRenderer):
         """
         html_content = ""
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "extension":
                 html_content += self.render_extension(child)
             elif child.tag == "restriction":
@@ -616,7 +616,7 @@ class ListRenderer(AbstractListRenderer):
         """
         html_content = ""
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "extension":
                 html_content += self.render_extension(child)
             elif child.tag == "restriction":
@@ -638,7 +638,7 @@ class ListRenderer(AbstractListRenderer):
         """
         html_content = ""
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "restriction":
                 html_content += self.render_restriction(child)
             elif child.tag == "list":
@@ -671,7 +671,7 @@ class ListRenderer(AbstractListRenderer):
         attributes = []
         simple = True
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "input":
                 html_content += self._render_input(child)
             elif child.tag == "attribute":
@@ -704,7 +704,7 @@ class ListRenderer(AbstractListRenderer):
         options = []
         subhtml = ""
 
-        for child in element.children.all():
+        for child in element.children.all().order_by("pk"):
             if child.tag == "enumeration":
                 options.append((child.value, child.value, child.value == element.value))
             elif child.tag == "simple_type":

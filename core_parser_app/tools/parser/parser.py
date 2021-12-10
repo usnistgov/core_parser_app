@@ -98,11 +98,13 @@ def load_schema_data_in_db(request, xsd_data, data_structure, parent=None):
 
     if xsd_element.tag == "choice-iter":
         if xsd_element.value is None:
-            xsd_element.value = str(xsd_element.children.all()[0].pk)
+            xsd_element.value = str(xsd_element.children.all().order_by("pk")[0].pk)
             data_structure_element_api.upsert(xsd_element, request)
         else:  # Value set => Put the pk of the displayed child
             child_index = int(xsd_element.value)
-            xsd_element.value = str(xsd_element.children.all()[child_index].pk)
+            xsd_element.value = str(
+                xsd_element.children.all().order_by("pk")[child_index].pk
+            )
             data_structure_element_api.upsert(xsd_element, request)
 
     return xsd_element
@@ -121,7 +123,7 @@ def delete_branch_from_db(request, element_id):
     """
     element = data_structure_element_api.get_by_id(element_id, request)
 
-    for child in element.children.all():
+    for child in element.children.all().order_by("pk"):
         delete_branch_from_db(request, str(child.pk))
 
     element.delete()
@@ -138,7 +140,7 @@ def update_branch_xpath(element, request=None):
     element_xpath = element.options["xpath"]["xml"]
     xpath_index = 1
 
-    for child in element.children.all():
+    for child in element.children.all().order_by("pk"):
         update_root_xpath(child, element_xpath, xpath_index, request)
         xpath_index += 1
 
@@ -207,7 +209,7 @@ def update_root_xpath(element, xpath, index, request=None):
         element.options = element_options
         data_structure_element_api.upsert(element, request)
 
-    for child in element.children.all():
+    for child in element.children.all().order_by("pk"):
         update_root_xpath(child, xpath, index, request)
 
 
@@ -1417,7 +1419,7 @@ class XSDParser(object):
         tree_root = load_schema_data_in_db(
             self.request, db_tree, data_structure=data_structure
         )
-        generated_element = tree_root.children.all()[0]
+        generated_element = tree_root.children.all().order_by("pk")[0]
 
         tree_root_options = tree_root.options
         tree_root_options["real_root"] = str(schema_element.pk)
