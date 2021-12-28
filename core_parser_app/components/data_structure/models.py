@@ -30,6 +30,7 @@ class DataStructureElement(models.Model):
     data_structure = models.ForeignKey(
         "DataStructure", on_delete=models.CASCADE, default=None, null=True, blank=True
     )
+    creation_date = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
     def get_by_id(data_structure_element_id):
@@ -121,6 +122,7 @@ class DataStructure(models.Model):
     data_structure_element_root = models.ForeignKey(
         DataStructureElement, blank=True, null=True, on_delete=models.SET_NULL
     )
+    creation_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = (
