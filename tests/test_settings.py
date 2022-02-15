@@ -35,3 +35,4 @@ TEMPLATES = [
 ROOT_URLCONF = "core_parser_app.urls"
 LOGIN_URL = "/login"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
