@@ -1688,15 +1688,6 @@ class XSDParser(object):
             "children": [],
         }
 
-        app_info = get_app_info_options(element)
-        if app_info:
-            if "label" in app_info:
-                db_element["options"]["label"] = app_info["label"]
-            if "tooltip" in app_info:
-                db_element["options"]["tooltip"] = format_tooltip(app_info["tooltip"])
-            # remove annotation tag from choice element to not break algorithm (choice_counter loading first element)
-            delete_annotations(element)
-
         # init variables for buttons management
         # nb of occurrences to render (can't be 0 or the user won't see this
         # element at all)
@@ -1710,6 +1701,18 @@ class XSDParser(object):
         # not multiple roots
         # FIXME process differently this part
         if not isinstance(element, list):
+
+            app_info = get_app_info_options(element)
+            if app_info:
+                if "label" in app_info:
+                    db_element["options"]["label"] = app_info["label"]
+                if "tooltip" in app_info:
+                    db_element["options"]["tooltip"] = format_tooltip(
+                        app_info["tooltip"]
+                    )
+                # remove annotation tag from choice element to not break algorithm (choice_counter loading first element)
+                delete_annotations(element)
+
             # XSD xpath: don't need it when multiple root (can't duplicate a root)
             xsd_xpath = xml_tree.getpath(element)
 
