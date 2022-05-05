@@ -1767,15 +1767,6 @@ class XSDParser(object):
             for (counter, choiceChild) in enumerate(list(element)):
                 # For unbounded choice, explicitly don't generate the choices not selected
                 if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-                    # Find the default element
-                    if choiceChild.attrib.get("name") is not None:
-                        opt_label = choiceChild.attrib.get("name")
-                    else:
-                        opt_label = choiceChild.attrib.get("ref")
-
-                        if ":" in choiceChild.attrib.get("ref"):
-                            opt_label = opt_label.split(":")[1]
-
                     # get the schema namespaces
                     xml_tree_str = XSDTree.tostring(xml_tree)
                     namespaces = get_namespaces(xml_tree_str)
@@ -1784,6 +1775,17 @@ class XSDParser(object):
                     target_namespace, target_namespace_prefix = get_target_namespace(
                         xml_tree, namespaces
                     )
+                    # Find the default element
+                    if choiceChild.attrib.get("name") is not None:
+                        opt_label = choiceChild.attrib.get("name")
+                    else:
+                        opt_label = choiceChild.attrib.get("ref")
+
+                        if ":" in choiceChild.attrib.get("ref"):
+                            target_namespace_prefix = opt_label.split(":")[0]
+                            if target_namespace_prefix in namespaces:
+                                target_namespace = namespaces[target_namespace_prefix]
+                            opt_label = opt_label.split(":")[1]
 
                     if self.editing:
                         # TODO: manage unbounded choices for sequences/choices as well
