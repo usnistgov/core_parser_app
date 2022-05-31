@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 ),
                 ("user", models.CharField(blank=True, max_length=200, null=True)),
                 ("tag", models.CharField(max_length=200)),
-                ("value", models.CharField(blank=True, max_length=200, null=True)),
+                ("value", models.TextField(blank=True, null=True)),
                 ("creation_date", models.DateTimeField(auto_now_add=True)),
                 ("options", models.JSONField(blank=True, default=dict)),
                 (

@@ -18,7 +18,7 @@ class DataStructureElement(models.Model):
 
     user = models.CharField(blank=True, null=True, max_length=200)
     tag = models.CharField(blank=False, max_length=200)
-    value = models.CharField(blank=True, max_length=200, null=True)
+    value = models.TextField(blank=True, null=True)
     options = models.JSONField(default=dict, blank=True)
     parent = models.ForeignKey(
         "self",
