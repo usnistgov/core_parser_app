@@ -26,7 +26,7 @@ from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
 )
 from core_parser_app.components.module import api as module_api
-from core_parser_app.settings import MODULE_TAG_NAME
+from core_parser_app.settings import MODULE_TAG_NAME, PARSER_MAX_IN_MEMORY_ELEMENTS
 from core_parser_app.tools.parser.exceptions import ParserError
 from core_parser_app.tools.parser.renderer.list import ListRenderer
 from core_parser_app.tools.parser.utils.rendering import format_tooltip
@@ -830,6 +830,7 @@ class XSDParser(object):
         self.editing = False
         self.keys = {}
         self.keyrefs = {}
+        self.in_memory_elements = 0
 
     def generate_form(
         self, xsd_doc_data, xml_doc_data=None, data_structure=None, request=None
@@ -1035,6 +1036,7 @@ class XSDParser(object):
             "value": None,
             "children": [],
         }
+        self.check_in_memory_elements()
 
         is_ref = False
         # get the name of the element, go find the reference if there's one
@@ -1209,6 +1211,7 @@ class XSDParser(object):
 
         for x in range(0, int(nb_occurrences)):
             db_elem_iter = {"tag": "elem-iter", "value": None, "children": []}
+            self.check_in_memory_elements()
 
             # if element not removed
             if not removed:
@@ -1286,6 +1289,7 @@ class XSDParser(object):
                             },
                             "value": default_value,
                         }
+                        self.check_in_memory_elements()
                     else:  # complex/simple type
                         if element_type.tag == "{0}complexType".format(
                             LXML_SCHEMA_NAMESPACE
@@ -1486,6 +1490,7 @@ class XSDParser(object):
             "value": None,
             "children": [],
         }
+        self.check_in_memory_elements()
 
         if min_occurs != 1 or max_occurs != 1:
             # init variables for buttons management
@@ -1530,6 +1535,7 @@ class XSDParser(object):
 
             for x in range(0, int(nb_occurrences)):
                 db_elem_iter = {"tag": "sequence-iter", "value": None, "children": []}
+                self.check_in_memory_elements()
 
                 # generates the sequence
                 for child in element:
@@ -1575,6 +1581,7 @@ class XSDParser(object):
 
         else:  # min_occurs == 1 and max_occurs == 1
             db_elem_iter = {"tag": "sequence-iter", "value": None, "children": []}
+            self.check_in_memory_elements()
 
             # XSD xpath
             # xsd_xpath = xml_tree.getpath(element)
@@ -1676,6 +1683,7 @@ class XSDParser(object):
             "value": None,
             "children": [],
         }
+        self.check_in_memory_elements()
 
         # init variables for buttons management
         # nb of occurrences to render (can't be 0 or the user won't see this
@@ -1754,6 +1762,7 @@ class XSDParser(object):
 
         for x in range(0, int(nb_occurrences)):
             db_child = {"tag": "choice-iter", "value": None, "children": []}
+            self.check_in_memory_elements()
 
             element_found = None
             if elements_found is not None:
@@ -1999,6 +2008,7 @@ class XSDParser(object):
                 "xmlns": get_element_namespace(element, xml_tree),
             },
         }
+        self.check_in_memory_elements()
 
         # get namespace prefix to reference extension in xsi:type
         xml_tree_str = XSDTree.tostring(xml_tree)
@@ -2073,13 +2083,16 @@ class XSDParser(object):
                     default_value = ""
 
                 db_child = {"tag": "list", "value": default_value, "children": []}
+                self.check_in_memory_elements()
             else:
                 union_child = element.find("{0}union".format(LXML_SCHEMA_NAMESPACE))
                 if union_child is not None:
                     # TODO: provide UI for unions
                     db_child = {"tag": "union", "value": default_value, "children": []}
+                    self.check_in_memory_elements()
                 else:
                     db_child = {"tag": "error"}
+                    self.check_in_memory_elements()
 
         db_element["children"].append(db_child)
 
@@ -2133,6 +2146,7 @@ class XSDParser(object):
                 "xmlns": get_element_namespace(element, xml_tree),
             },
         }
+        self.check_in_memory_elements()
 
         # get namespace prefix to reference extension in xsi:type
         xml_tree_str = XSDTree.tostring(xml_tree)
@@ -2315,6 +2329,7 @@ class XSDParser(object):
             "value": None,
             "children": [],
         }
+        self.check_in_memory_elements()
 
         # init variables for buttons management
         # nb of occurrences to render (can't be 0 or the user won't see
@@ -2354,6 +2369,7 @@ class XSDParser(object):
                 "children": [],
                 "options": {},
             }
+            self.check_in_memory_elements()
 
             for (counter, choiceChild) in enumerate(list(element)):
 
@@ -2467,6 +2483,7 @@ class XSDParser(object):
         # (annotation?,(restriction|extension))
 
         db_element = {"tag": "complex_content", "value": None, "children": []}
+        self.check_in_memory_elements()
 
         # generates the content
         restriction_child = element.find("{0}restriction".format(LXML_SCHEMA_NAMESPACE))
@@ -2532,6 +2549,7 @@ class XSDParser(object):
             },
             "children": [],
         }
+        self.check_in_memory_elements()
         # FIXME: refactor get module url
         module_url = get_module_url(element)
 
@@ -2622,6 +2640,7 @@ class XSDParser(object):
         # FIXME better support for extension
 
         db_element = {"tag": "simple_content", "value": None, "children": []}
+        self.check_in_memory_elements()
 
         # generates the content
         restriction_child = element.find("{0}restriction".format(LXML_SCHEMA_NAMESPACE))
@@ -2693,6 +2712,7 @@ class XSDParser(object):
             "value": None,
             "children": [],
         }
+        self.check_in_memory_elements()
 
         enumeration = element.findall("{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
 
@@ -2703,6 +2723,7 @@ class XSDParser(object):
                 # Fixed
                 for enum in enumeration:
                     db_child = {"tag": "enumeration", "value": enum.attrib.get("value")}
+                    self.check_in_memory_elements()
 
                     if enum.attrib.get("value") == default_value:
                         entry = (
@@ -2726,7 +2747,7 @@ class XSDParser(object):
 
                 for enum in enumeration:
                     db_child = {"tag": "enumeration", "value": enum.attrib.get("value")}
-
+                    self.check_in_memory_elements()
                     if (
                         default_value is not None
                         and enum.attrib.get("value") == default_value
@@ -2750,7 +2771,7 @@ class XSDParser(object):
                 # New document
                 for enum in enumeration:
                     db_child = {"tag": "enumeration", "value": enum.attrib.get("value")}
-
+                    self.check_in_memory_elements()
                     entry = (enum.attrib.get("value"), enum.attrib.get("value"), False)
                     option_list.append(entry)
 
@@ -2777,6 +2798,7 @@ class XSDParser(object):
                     default_value = ""
 
                 db_child = {"tag": "input", "value": default_value}
+                self.check_in_memory_elements()
 
             db_element["children"].append(db_child)
 
@@ -2809,6 +2831,7 @@ class XSDParser(object):
         # FIXME doesn't represent all the possibilities
         #  (http://www.w3schools.com/xml/el_extension.asp)
         db_element: Dict[str, Any] = {"tag": "extension", "value": None, "children": []}
+        self.check_in_memory_elements()
 
         ##################################################
         # Parsing attributes
@@ -3082,3 +3105,18 @@ class XSDParser(object):
             self.keys = root.options["keys"]
         if "keyrefs" in root.options:
             self.keyrefs = root.options["keyrefs"]
+
+    def check_in_memory_elements(self):
+        """Check if maximum number of in-memory elements is reached"""
+        # Increment element counter
+        self.in_memory_elements += 1
+
+        # Check that number of created elements below limit
+        if self.in_memory_elements > PARSER_MAX_IN_MEMORY_ELEMENTS:
+            logger.error(
+                "Maximum number of in-memory elements has been reached. "
+                "Check the value of PARSER_MAX_IN_MEMORY_ELEMENTS."
+            )
+            raise ParserError(
+                "A memory error occurred, please contact the system administrator. "
+            )
