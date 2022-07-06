@@ -2,6 +2,6 @@ celery
 Django
 django-mongoengine
 djangorestframework
-lxml==4.6.5
+lxml==4.9.1
 mock
 mongoengine
