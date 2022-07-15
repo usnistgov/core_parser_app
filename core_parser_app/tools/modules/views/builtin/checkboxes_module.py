@@ -97,7 +97,7 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
                 item_nb = 0
                 col_id += 1
 
-            checkboxes_html += CheckboxesModule._create_html_checkbox(
+            checkboxes_html += AbstractCheckboxesModule._create_html_checkbox(
                 key, val, checked=(key in self.selected)
             )
             item_nb += 1
