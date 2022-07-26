@@ -6,8 +6,15 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import re_path
 
 from core_main_app.admin import core_admin_site
+from core_parser_app.components.data_structure.admin_site import (
+    CustomDataStructureAdmin,
+)
 from core_parser_app.components.data_structure.models import DataStructure
 from core_parser_app.components.data_structure.models import DataStructureElement
+from core_parser_app.components.data_structure_element.admin_site import (
+    CustomDataStructureElementAdmin,
+)
+from core_parser_app.components.module.admin_site import CustomModuleAdmin
 from core_parser_app.components.module.models import Module
 from core_parser_app.views.admin import views as admin_views
 
@@ -23,8 +30,8 @@ admin_urls = [
     ),
 ]
 
-admin.site.register(DataStructureElement)
-admin.site.register(DataStructure)
-admin.site.register(Module)
+admin.site.register(DataStructureElement, CustomDataStructureElementAdmin)
+admin.site.register(DataStructure, CustomDataStructureAdmin)
+admin.site.register(Module, CustomModuleAdmin)
 urls = core_admin_site.get_urls()
 core_admin_site.get_urls = lambda: admin_urls + urls

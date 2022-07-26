@@ -112,6 +112,14 @@ class DataStructureElement(models.Model):
         except Exception as ex:
             raise exceptions.ModelError(str(ex))
 
+    def __str__(self):
+        """Data Structure Element as string
+
+        Returns:
+
+        """
+        return f"{self.tag} ({str(self.id)})"
+
 
 class DataStructure(models.Model):
     """Stores data being entered and not yet curated"""
@@ -200,3 +208,11 @@ class DataStructure(models.Model):
         """
         if self.data_structure_element_root is not None:
             delete_branch_task.apply_async((str(self.data_structure_element_root.id),))
+
+    def __str__(self):
+        """Data Structure as string
+
+        Returns:
+
+        """
+        return f"{self.name} ({str(self.id)})"

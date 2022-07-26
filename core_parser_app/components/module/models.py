@@ -74,3 +74,11 @@ class Module(models.Model):
 
         """
         Module.objects.all().delete()
+
+    def __str__(self):
+        """Module as string
+
+        Returns:
+
+        """
+        return self.url
