@@ -1,12 +1,12 @@
 """API for modules
 """
 from core_main_app.components.template import api as template_api
-from core_parser_app.components.module.models import Module
-from core_parser_app.settings import MODULE_TAG_NAME
 from xml_utils.xsd_tree.operations.appinfo import (
     add_appinfo_element,
     delete_appinfo_element,
 )
+from core_parser_app.components.module.models import Module
+from core_parser_app.settings import MODULE_TAG_NAME
 
 
 def get_by_id(module_id):

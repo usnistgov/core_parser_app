@@ -29,9 +29,9 @@ def _check_data_structure_elements_access(data_structure_element_list, user):
         codename = permission.split(".")[1]
         # check if user can access this type of data structure element
         if user.is_anonymous:
-            # Check in the anonymous_group
+            # Check in the ANONYMOUS_GROUP
             if not Group.objects.filter(
-                Q(name=rights.anonymous_group) & Q(permissions__codename=codename)
+                Q(name=rights.ANONYMOUS_GROUP) & Q(permissions__codename=codename)
             ):
                 raise AccessControlError(
                     "User does not have the permission to access this data structure."
@@ -72,9 +72,8 @@ def is_data_structure_element_owner(fn, *args, **kwargs):
         DataStructureElement,
     )
 
-    if "request" in kwargs.keys() and (
-        isinstance(kwargs["request"], HttpRequest)
-        or isinstance(kwargs["request"], Request)
+    if "request" in kwargs.keys() and isinstance(
+        kwargs["request"], (HttpRequest, Request)
     ):
         request_user = kwargs["request"].user
     else:

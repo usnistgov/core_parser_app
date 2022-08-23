@@ -34,14 +34,13 @@ def get_by_id(data_structure_element_id, request):
     """
     if request.user.is_superuser:
         return DataStructureElement.get_by_id(data_structure_element_id)
-    elif request.user.is_anonymous:
+    if request.user.is_anonymous:
         return DataStructureElement.get_by_id_and_user(
             data_structure_element_id, user=None
         )
-    else:
-        return DataStructureElement.get_by_id_and_user(
-            data_structure_element_id, user=str(request.user.id)
-        )
+    return DataStructureElement.get_by_id_and_user(
+        data_structure_element_id, user=str(request.user.id)
+    )
 
 
 @access_control(parser_access_control.is_data_structure_element_owner)
@@ -55,12 +54,10 @@ def get_by_xpath(xpath, request):
     """
     if request.user.is_superuser:
         return DataStructureElement.get_by_xpath(xpath)
-    elif request.user.is_anonymous:
+    if request.user.is_anonymous:
         return DataStructureElement.get_by_xpath_and_user(xpath, user=None)
-    else:
-        return DataStructureElement.get_by_xpath_and_user(
-            xpath, user=str(request.user.id)
-        )
+
+    return DataStructureElement.get_by_xpath_and_user(xpath, user=str(request.user.id))
 
 
 @access_control(parser_access_control.is_data_structure_element_owner)

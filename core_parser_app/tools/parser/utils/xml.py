@@ -3,9 +3,11 @@
 import logging
 from urllib.parse import urlparse
 
+from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
+
 from core_parser_app.components.module import api as module_api
 from core_parser_app.settings import MODULE_TAG_NAME
-from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE
+
 
 logger = logging.getLogger(__name__)
 

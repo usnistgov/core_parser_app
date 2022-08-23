@@ -5,7 +5,6 @@ import numbers
 import re
 import sys
 import traceback
-from builtins import object
 from builtins import range
 from builtins import str
 from typing import Dict, Any
@@ -380,7 +379,7 @@ def get_xml_element_data(xsd_element, xml_element):
                     reload_data = ""
                     for child in list(xml_element):
                         reload_data += XSDTree.tostring(child)
-            except Exception as e:
+            except Exception as exception:
                 # FIXME in which case would we need that?
                 logger.warning("Exception thrown: %s" % str(e))
                 reload_data = str(xml_element)
@@ -489,8 +488,10 @@ def get_element_type(
                         LXML_SCHEMA_NAMESPACE, type_name
                     )
                     element_type = xml_tree.find(xpath)
-    except Exception as e:
-        exception_message = "Something went wrong in get_element_type:  " + str(e)
+    except Exception as exception:
+        exception_message = "Something went wrong in get_element_type:  " + str(
+            exception
+        )
         logger.fatal(exception_message)
 
         element_type = None
@@ -511,30 +512,31 @@ def import_xml_tree(el_import, download_enabled=True, request=None):
     # get the location of the schema
     ref_xml_schema_url = el_import.attrib["schemaLocation"]
     schema_location = ref_xml_schema_url
+
+    if not download_enabled:
+        raise ParserError("Dependency could not be downloaded")
+
     # download the file
-    if download_enabled:
-        ref_xml_schema_file = send_get_request(ref_xml_schema_url)
-        # read the content of the file
-        ref_xml_schema_content = ref_xml_schema_file.content
+    ref_xml_schema_file = send_get_request(ref_xml_schema_url)
+    # read the content of the file
+    ref_xml_schema_content = ref_xml_schema_file.content
+    # build the tree
+    xml_tree = XSDTree.build_tree(ref_xml_schema_content)
+    # look for includes
+    includes = xml_tree.findall("//{}include".format(LXML_SCHEMA_NAMESPACE))
+    # if includes are present
+    if len(includes) > 0:
+        # create a flattener with the file content
+        flattener = XSDFlattenerDatabaseOrURL(
+            ref_xml_schema_content,
+            request=request,
+            download_enabled=download_enabled,
+        )
+        # flatten the includes
+        ref_xml_schema_content = flattener.get_flat()
         # build the tree
         xml_tree = XSDTree.build_tree(ref_xml_schema_content)
-        # look for includes
-        includes = xml_tree.findall("//{}include".format(LXML_SCHEMA_NAMESPACE))
-        # if includes are present
-        if len(includes) > 0:
-            # create a flattener with the file content
-            flattener = XSDFlattenerDatabaseOrURL(
-                ref_xml_schema_content,
-                request=request,
-                download_enabled=download_enabled,
-            )
-            # flatten the includes
-            ref_xml_schema_content = flattener.get_flat()
-            # build the tree
-            xml_tree = XSDTree.build_tree(ref_xml_schema_content)
-        return xml_tree, schema_location
-    else:
-        raise ParserError("Dependency could not be downloaded")
+    return xml_tree, schema_location
 
 
 def get_ref_element(
@@ -794,7 +796,9 @@ def get_xml_xpath(
 ##################################################
 # Part II: Schema parsing
 ##################################################
-class XSDParser(object):
+class XSDParser:
+    """XSD Parser"""
+
     def __init__(
         self,
         min_tree=True,
@@ -948,11 +952,11 @@ class XSDParser(object):
 
             self.editing = False
             return root_element.pk
-        except Exception as e:
+        except Exception as exception:
             exc_info = sys.exc_info()
 
             # Adding information to the Exception message
-            exception_message = "Schema parsing failed: " + str(e)
+            exception_message = "Schema parsing failed: " + str(exception)
             logger.fatal(exception_message)
 
             traceback.print_exception(*exc_info)
@@ -1155,8 +1159,8 @@ class XSDParser(object):
         # tag_ns = ' xmlns="{0}" '.format(element_ns) if element_ns is not None else ''
         ns_prefix = None
         if element_tag == "attribute" and target_namespace is not None:
-            for prefix, ns in namespaces.items():
-                if ns == target_namespace:
+            for prefix, namespace in namespaces.items():
+                if namespace == target_namespace:
                     ns_prefix = prefix
                     break
 
@@ -1768,9 +1772,9 @@ class XSDParser(object):
             if elements_found is not None:
                 try:
                     element_found = elements_found[x]
-                except Exception as e:
+                except Exception as exception:
                     logger.warning(
-                        "generate_choice threw an exception: {0}".format(str(e))
+                        "generate_choice threw an exception: {0}".format(str(exception))
                     )
 
             for (counter, choiceChild) in enumerate(list(element)):
@@ -2018,8 +2022,8 @@ class XSDParser(object):
         )
         ns_prefix = None
         if target_namespace is not None:
-            for prefix, ns in namespaces.items():
-                if ns == target_namespace:
+            for prefix, namespace in namespaces.items():
+                if namespace == target_namespace:
                     ns_prefix = prefix
                     break
         db_element["options"]["ns_prefix"] = ns_prefix
@@ -2157,8 +2161,8 @@ class XSDParser(object):
         ns_prefix = None
 
         if target_namespace is not None:
-            for prefix, ns in namespaces.items():
-                if ns == target_namespace:
+            for prefix, namespace in namespaces.items():
+                if namespace == target_namespace:
                     ns_prefix = prefix
                     break
 
@@ -2606,8 +2610,8 @@ class XSDParser(object):
                 db_element["options"]["url"] = module_url.path
                 db_element["options"]["data"] = reload_data
                 db_element["options"]["attributes"] = reload_attrib
-            except Exception as e:
-                logger.error(str(e))
+            except Exception as exception:
+                logger.error(str(exception))
                 raise ParserError("Module not found.")
 
         return db_element

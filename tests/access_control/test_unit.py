@@ -10,6 +10,8 @@ from core_parser_app.components.data_structure.models import (
 
 
 class TestCheckDataStructureElementOwnership(TestCase):
+    """Test Check Data Structure Element Ownership"""
+
     def setUp(self) -> None:
         self.users = {
             "owner": create_mock_user("1"),
@@ -22,26 +24,36 @@ class TestCheckDataStructureElementOwnership(TestCase):
         self.mock_anon_dse.user = None
 
     def test_owned_data_structure_owner_pass(self):
+        """test_owned_data_structure_owner_pass"""
+
         _check_data_structure_element_ownership(
             self.mock_owned_dse, self.users["owner"]
         )
 
     def test_owned_data_structure_non_owner_fail(self):
+        """test_owned_data_structure_non_owner_fail"""
+
         with self.assertRaises(AccessControlError):
             _check_data_structure_element_ownership(
                 self.mock_owned_dse, self.users["random"]
             )
 
     def test_owned_data_structure_anon_user_fail(self):
+        """test_owned_data_structure_anon_user_fail"""
+
         with self.assertRaises(AccessControlError):
             _check_data_structure_element_ownership(
                 self.mock_owned_dse, self.users["anon"]
             )
 
     def test_anon_data_structure_random_user_pass(self):
+        """test_anon_data_structure_random_user_pass"""
+
         _check_data_structure_element_ownership(
             self.mock_anon_dse, self.users["random"]
         )
 
     def test_anon_data_structure_anon_user_pass(self):
+        """test_anon_data_structure_anon_user_pass"""
+
         _check_data_structure_element_ownership(self.mock_anon_dse, self.users["anon"])

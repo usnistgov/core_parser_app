@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractListRenderer(DefaultRenderer):
+    """Abstract List Renderer"""
+
     def __init__(self, xsd_data):
         """Initializes renderer object
 
@@ -29,7 +31,7 @@ class AbstractListRenderer(DefaultRenderer):
             ),
         }
 
-        super(AbstractListRenderer, self).__init__(xsd_data, templates)
+        super().__init__(xsd_data, templates)
 
     def _render_ul(self, content, element_id, is_hidden=False):
         """Renders HTML ul element
@@ -90,7 +92,7 @@ class ListRenderer(AbstractListRenderer):
             xsd_data:
             request:
         """
-        super(ListRenderer, self).__init__(xsd_data)
+        super().__init__(xsd_data)
         self.request = request  # FIXME Find a way to avoid the use of request
         self.partial = False
 
@@ -122,8 +124,8 @@ class ListRenderer(AbstractListRenderer):
             return self._render_warnings() + self._render_ul(
                 html_content, str(self.data.pk)
             )
-        else:
-            return html_content
+
+        return html_content
 
     def render_element(self, element):
         """Renders an element
@@ -719,8 +721,8 @@ class ListRenderer(AbstractListRenderer):
             return self._render_select(
                 element.pk, "restriction", options, element.options
             )
-        else:
-            return subhtml
+
+        return subhtml
 
     def render_module(self, element):
         """Renders a module

@@ -9,7 +9,9 @@ from lxml import etree
 from xml_utils.xsd_tree.xsd_tree import XSDTree
 
 
-class DataHandler(object):
+class DataHandler:
+    """Data Handler"""
+
     def __init__(self, dir_name):
         """Init data handler"""
         self.dir_name = dir_name
@@ -111,9 +113,9 @@ def convert(data):
     """
     if type(data) == str:
         return str(data)
-    elif isinstance(data, collections.Mapping):
+    if isinstance(data, collections.Mapping):
         return dict(list(map(convert, iter(data.items()))))
-    elif isinstance(data, collections.Iterable):
+    if isinstance(data, collections.Iterable):
         return type(data)(list(map(convert, data)))
-    else:
-        return data
+
+    return data

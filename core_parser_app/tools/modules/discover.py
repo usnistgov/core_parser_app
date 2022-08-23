@@ -54,8 +54,8 @@ def discover_modules(urls):
                             except IntegrityError:
                                 logger.error(
                                     "The module %s is already present in the database."
-                                    "Please check the list of urls for duplicates."
-                                    % url_pattern.name
+                                    "Please check the list of urls for duplicates.",
+                                    url_pattern.name,
                                 )
     except ModelError:
         # something went wrong, delete already added modules
@@ -66,13 +66,13 @@ def discover_modules(urls):
             "Please provide a name to all modules urls using the name argument."
         )
 
-        logger.error("Discover modules failed with %s." % error_msg)
+        logger.error("Discover modules failed with %s.", error_msg)
 
         raise ModuleError(error_msg)
-    except Exception as e:
+    except Exception as exception:
         # something went wrong, delete already added modules
         module_api.delete_all()
-        logger.error("Discover modules failed with %s." % str(e))
-        raise e
+        logger.error("Discover modules failed with %s.", str(exception))
+        raise exception
 
     logger.info("FINISH discover modules.")

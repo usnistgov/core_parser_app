@@ -17,11 +17,17 @@ from tests.components.data_structure_element.fixtures.fixtures import (
 
 
 class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
+    """Test Data Structure Element Get By Id"""
+
     def setUp(self):
+        """setUp"""
+
         self.fixtures = DataStructureElementFixtures()
         self.fixtures.insert_data()
 
     def test_data_get_by_id_raises_does_not_exist_error_if_not_found(self):
+        """test_data_get_by_id_raises_does_not_exist_error_if_not_found"""
+
         # Arrange
         mock_request = Mock(spec=HttpRequest)
         mock_request.user = self.fixtures.default_owner_with_perm
@@ -30,6 +36,8 @@ class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
             data_structure_element_api.get_by_id(-1, mock_request)
 
     def test_data_get_by_id_return_data_if_found(self):
+        """test_data_get_by_id_return_data_if_found"""
+
         # Arrange
         mock_request = Mock(spec=HttpRequest)
         mock_request.user = self.fixtures.default_owner_with_perm
@@ -43,6 +51,8 @@ class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
         )
 
     def test_data_get_by_id_raises_exception_if_fail(self):
+        """test_data_get_by_id_raises_exception_if_fail"""
+
         mock_request = Mock(spec=HttpRequest)
         # Act # Assert
         with self.assertRaises(Exception):
@@ -50,7 +60,11 @@ class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
 
 
 class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
+    """Test Data Structure Element Get By Xpath"""
+
     def setUp(self):
+        """setUp"""
+
         self.fixtures = DataStructureElementFixtures()
         self.user = self.fixtures.default_owner_with_perm
         self.mock_request = Mock(spec=HttpRequest)
@@ -59,6 +73,8 @@ class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
         self.fixtures.insert_data(user=self.user)
 
     def test_data_get_by_xpath_return_data_if_found(self):
+        """test_data_get_by_xpath_return_data_if_found"""
+
         # Act
         expected_element = self.fixtures.data_structure_element_collection["1121"]
         result = data_structure_element_api.get_by_xpath(
@@ -68,6 +84,8 @@ class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
         self.assertEqual(result[0], expected_element)
 
     def test_data_get_by_xpath_return_empty_if_xpath_not_found(self):
+        """test_data_get_by_xpath_return_empty_if_xpath_not_found"""
+
         # Act
         result = data_structure_element_api.get_by_xpath(
             "wrong_xpath_value", self.mock_request
@@ -77,11 +95,17 @@ class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
 
 
 class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
+    """Test Data Structure Element Get Root Element"""
+
     def setUp(self):
+        """setUp"""
+
         self.fixtures = DataStructureElementFixtures()
         self.fixtures.insert_data()
 
     def test_get_root_element_returns_root_for_leaf(self):
+        """test_get_root_element_returns_root_for_leaf"""
+
         # Arrange
         mock_request = Mock(spec=HttpRequest)
         mock_request.user = self.fixtures.default_owner_with_perm
@@ -96,6 +120,8 @@ class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
         )
 
     def test_get_root_element_returns_root_for_branch(self):
+        """test_get_root_element_returns_root_for_branch"""
+
         # Arrange
         mock_request = Mock(spec=HttpRequest)
         mock_request.user = self.fixtures.default_owner_with_perm
@@ -110,6 +136,8 @@ class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
         )
 
     def test_get_root_element_returns_root_for_root(self):
+        """test_get_root_element_returns_root_for_root"""
+
         # Arrange
         mock_request = Mock(spec=HttpRequest)
         mock_request.user = self.fixtures.default_owner_with_perm
@@ -124,6 +152,8 @@ class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
         )
 
     def test_get_root_element_return_same_root_for_elements_of_same_tree(self):
+        """test_get_root_element_return_same_root_for_elements_of_same_tree"""
+
         # Arrange
         mock_request = Mock(spec=HttpRequest)
         mock_request.user = self.fixtures.default_owner_with_perm

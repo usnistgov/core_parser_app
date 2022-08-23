@@ -14,6 +14,8 @@ from core_parser_app.utils.xml import transform_xsd_to_html_with_modules
 
 @method_decorator(login_required, name="dispatch")
 class ManageModulesUserView(View):
+    """Manage Modules User View"""
+
     back_to_previous_url = None
     read_only = False
     title = "Modules Manager"
@@ -59,11 +61,11 @@ class ManageModulesUserView(View):
                     request=request,
                 ),
             )
-        except Exception as e:
+        except Exception as exception:
             return render(
                 request,
                 "core_main_app/common/commons/error.html",
-                context={"error": str(e)},
+                context={"error": str(exception)},
             )
 
 

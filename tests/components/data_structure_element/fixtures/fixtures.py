@@ -38,7 +38,7 @@ class DataStructureElementFixtures(FixtureInterface):
         if add_user_perm:
             default_group, created = Group.objects.get_or_create(name="default")
             mock_data_structure_access_perm = Permission.objects.get(
-                codename=rights.mock_data_structure_access
+                codename=rights.MOCK_DATA_STRUCTURE_ACCESS
             )
             default_group.permissions.add(mock_data_structure_access_perm)
             default_group.user_set.add(self.default_owner_with_perm)
@@ -47,7 +47,7 @@ class DataStructureElementFixtures(FixtureInterface):
             anonymous_group, created = Group.objects.get_or_create(name="anonymous")
 
             mock_anon_data_structure_access_perm = Permission.objects.get(
-                codename=rights.mock_anon_data_structure_access
+                codename=rights.MOCK_ANON_DATA_STRUCTURE_ACCESS
             )
             anonymous_group.permissions.add(mock_anon_data_structure_access_perm)
 
@@ -66,6 +66,10 @@ class DataStructureElementFixtures(FixtureInterface):
         self.generate_data_structure_elements(user=user)
 
     def generate_template(self):
+        """generate_template
+
+        Returns:
+        """
         xsd = (
             '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">'
             '<xs:element name="tag"></xs:element></xs:schema>'
@@ -80,6 +84,14 @@ class DataStructureElementFixtures(FixtureInterface):
         self.template.save()
 
     def generate_data_structure(self, user, data_structure_class):
+        """generate_template
+
+        Args:
+            user:
+            data_structure_class:
+
+        Returns:
+        """
         self.data_structure = data_structure_class(
             user=str(user.id), template=self.template, name="name"
         )
@@ -104,8 +116,8 @@ class DataStructureElementFixtures(FixtureInterface):
 
         data_structure_element = DataStructureElement(
             user=user,
-            tag="tag_%s" % element_id,
-            value="value_%s" % element_id,
+            tag=f"tag_{element_id}",
+            value=f"value_{element_id}",
             options=options,
             parent=parent,
             data_structure=data_structure,

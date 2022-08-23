@@ -45,8 +45,8 @@ class DataStructureElement(models.Model):
         """
         try:
             return DataStructureElement.objects.get(pk=str(data_structure_element_id))
-        except ObjectDoesNotExist as e:
-            raise exceptions.DoesNotExist(str(e))
+        except ObjectDoesNotExist as exception:
+            raise exceptions.DoesNotExist(str(exception))
         except Exception as ex:
             raise exceptions.ModelError(str(ex))
 
@@ -66,8 +66,8 @@ class DataStructureElement(models.Model):
             return DataStructureElement.objects.get(
                 pk=str(data_structure_element_id), user=user
             )
-        except ObjectDoesNotExist as e:
-            raise exceptions.DoesNotExist(str(e))
+        except ObjectDoesNotExist as exception:
+            raise exceptions.DoesNotExist(str(exception))
         except Exception as ex:
             raise exceptions.ModelError(str(ex))
 
@@ -86,8 +86,8 @@ class DataStructureElement(models.Model):
             return DataStructureElement.objects.filter(
                 options__xpath__xml=str(xpath)
             ).all()
-        except ObjectDoesNotExist as e:
-            raise exceptions.DoesNotExist(str(e))
+        except ObjectDoesNotExist as exception:
+            raise exceptions.DoesNotExist(str(exception))
         except Exception as ex:
             raise exceptions.ModelError(str(ex))
 
@@ -107,8 +107,8 @@ class DataStructureElement(models.Model):
             return DataStructureElement.objects.filter(
                 options__xpath__xml=xpath, user=user
             ).all()
-        except ObjectDoesNotExist as e:
-            raise exceptions.DoesNotExist(str(e))
+        except ObjectDoesNotExist as exception:
+            raise exceptions.DoesNotExist(str(exception))
         except Exception as ex:
             raise exceptions.ModelError(str(ex))
 
@@ -133,6 +133,8 @@ class DataStructure(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        """Meta"""
+
         unique_together = (
             "user",
             "template",
@@ -142,9 +144,13 @@ class DataStructure(models.Model):
     @staticmethod
     @abstractmethod
     def get_permission():
+        """get_permission"""
+
         raise NotImplementedError("Permission is not set")
 
     def get_object_permission(self):
+        """get_object_permission"""
+
         # FIXME: temporary solution to query concrete children of abstract class
         # iterate concrete data structure classes
         for subclass in DataStructure.__subclasses__():
@@ -174,21 +180,21 @@ class DataStructure(models.Model):
                 data_structure = subclass.get_by_id(data_structure_id)
                 # break if found
                 break
-            except exceptions.DoesNotExist as e:
+            except exceptions.DoesNotExist as exception:
                 # data structure not found, continue search
                 logger.warning(
-                    "Dependency {0} threw an exception: {1}".format(
-                        subclass.__name__, str(e)
-                    )
+                    "Dependency %s threw an exception: %s",
+                    subclass.__name__,
+                    str(exception),
                 )
 
         # data structure found
         if data_structure is not None:
             # return data structure
             return data_structure
-        else:
-            # raise exception
-            raise exceptions.DoesNotExist("No data structure found for the given id.")
+
+        # raise exception
+        raise exceptions.DoesNotExist("No data structure found for the given id.")
 
     @classmethod
     def pre_delete(cls, sender, instance, **kwargs):

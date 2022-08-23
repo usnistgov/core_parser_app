@@ -6,13 +6,13 @@ from os.path import join
 
 from django.template import loader
 
+from xml_utils.xsd_tree.operations.xml_entities import XmlEntities
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
 )
 from core_parser_app.settings import AUTO_ESCAPE_XML_ENTITIES
 from core_parser_app.tools.parser.exceptions import RendererError
 from core_parser_app.tools.parser.renderer import DefaultRenderer
-from xml_utils.xsd_tree.operations.xml_entities import XmlEntities
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class AbstractXmlRenderer(DefaultRenderer):
             "xml": loader.get_template(join(xml_renderer_path, "element.html"))
         }
 
-        super(AbstractXmlRenderer, self).__init__(xsd_data, templates)
+        super().__init__(xsd_data, templates)
 
     def _render_xml(self, name, attributes, content):
         """Renders form as XML
@@ -59,7 +59,7 @@ class XmlRenderer(AbstractXmlRenderer):
         Args:
             xsd_data:
         """
-        super(XmlRenderer, self).__init__(xsd_data)
+        super().__init__(xsd_data)
         self.request = request
         self.isRoot = True
 
@@ -71,7 +71,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         if self.data.tag == "element":
             return self.render_element(self.data)
-        elif self.data.tag == "choice":
+        if self.data.tag == "choice":
             content = self.render_choice(self.data)
             root = self.data.children.all().order_by("pk")[0]
             root_elem_id = root.value
@@ -82,18 +82,15 @@ class XmlRenderer(AbstractXmlRenderer):
                 content[0] == ""
             ):  # Multi-root with element (no need for an element wrapper)
                 return content[1]
-            else:  # Multi-root with complexType
-                if (
-                    "xmlns" in root_elem.options
-                    and root_elem.options["xmlns"] is not None
-                ):
-                    xml_ns = ' xmlns="{}"'.format(root_elem.options["xmlns"])
-                    content[0] += xml_ns
-                return self._render_xml(root_name, content[0], content[1])
-        else:
-            message = "render: " + self.data.tag + " not handled"
-            self.warnings.append(message)
-            return ""
+            # Multi-root with complexType
+            if "xmlns" in root_elem.options and root_elem.options["xmlns"] is not None:
+                xml_ns = ' xmlns="{}"'.format(root_elem.options["xmlns"])
+                content[0] += xml_ns
+            return self._render_xml(root_name, content[0], content[1])
+
+        message = "render: " + self.data.tag + " not handled"
+        self.warnings.append(message)
+        return ""
 
     def _get_parent_element(self, element):
         """Gets the parent element (with tag element, not the direct parent)
@@ -114,8 +111,8 @@ class XmlRenderer(AbstractXmlRenderer):
             return parent
         except Exception as e:
             logger.warning(
-                f"Exception caught while running 'XMLRenderer._get_parent_element': "
-                f"{str(e)}"
+                "Exception caught while running 'XMLRenderer._get_parent_element': %s",
+                {str(e)},
             )
             return None
 

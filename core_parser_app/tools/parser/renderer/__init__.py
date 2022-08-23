@@ -13,7 +13,9 @@ from core_parser_app.components.data_structure.models import (
 logger = logging.getLogger(__name__)
 
 
-class DefaultRenderer(object):
+class DefaultRenderer:
+    """Default Renderer"""
+
     def __init__(self, xsd_data, template_list=None):
         """Default renderer for the HTML form
 
@@ -185,7 +187,7 @@ class DefaultRenderer(object):
                 if element.options["input_type"] == "boolean":
                     data["class"] = "restriction"
                     return self._load_template("boolean", data)
-                elif element.options["input_type"] == "date":
+                if element.options["input_type"] == "date":
                     return self._load_template("date", data)
 
         return self._load_template("input", data)
