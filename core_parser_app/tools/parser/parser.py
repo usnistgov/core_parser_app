@@ -381,7 +381,7 @@ def get_xml_element_data(xsd_element, xml_element):
                         reload_data += XSDTree.tostring(child)
             except Exception as exception:
                 # FIXME in which case would we need that?
-                logger.warning("Exception thrown: %s" % str(e))
+                logger.warning("Exception thrown: %s" % str(exception))
                 reload_data = str(xml_element)
 
     return reload_data
