@@ -52,9 +52,8 @@ def discover_modules(urls):
                             try:
                                 module_api.upsert(module_object)
                             except IntegrityError:
-                                logger.error(
-                                    "The module %s is already present in the database."
-                                    "Please check the list of urls for duplicates.",
+                                logger.info(
+                                    "The module %s is already present in the database.",
                                     url_pattern.name,
                                 )
     except ModelError:
