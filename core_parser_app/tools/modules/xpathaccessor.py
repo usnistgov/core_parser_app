@@ -9,7 +9,9 @@ from core_parser_app.components.data_structure_element import (
 )
 
 
-class XPathAccessor(object, metaclass=ABCMeta):
+class XPathAccessor(metaclass=ABCMeta):
+    """XPath Accessor"""
+
     def __init__(self, request):
         self.request = request
 
@@ -20,15 +22,28 @@ class XPathAccessor(object, metaclass=ABCMeta):
 
             self.xpath = element.options["xpath"]["xml"]
             self.values = {}
-            self.set_XpathAccessor(request)
-        except Exception as e:
+            self.set_xpath_accessor(request)
+        except Exception as exception:
             message = "XPathAccessor error: "
-            raise XPathAccessorError(message + str(e))
+            raise XPathAccessorError(message + str(exception))
 
     def get_xpath(self):
+        """get_xpath
+
+        Return:
+        """
         return self.xpath
 
     def set_xpath_value(self, form_id, xpath, value):
+        """get_xpath
+
+        Args:
+            form_id:
+            xpath:
+            value:
+
+        Return:
+        """
         root_id = data_structure_api.get_by_id(form_id).data_structure_element_root.id
         form_element = self._get_element(root_id, xpath)
         input_element = self.get_input(form_element)
@@ -54,7 +69,7 @@ class XPathAccessor(object, metaclass=ABCMeta):
         if element.tag in input_elements:
             return element
 
-        for child in element.children:
+        for child in element.children.all():
             return self.get_input(child)
 
     def _get_element(self, form_id, xpath):
@@ -63,10 +78,10 @@ class XPathAccessor(object, metaclass=ABCMeta):
         if self.element_has_xpath(form_root, xpath):
             return form_root
 
-        if len(form_root.children) == 0:
+        if form_root.children.count() == 0:
             return None
 
-        for child in form_root.children:
+        for child in form_root.children.all():
             element = self._get_element(child.pk, xpath)
 
             if element is not None:
@@ -77,7 +92,7 @@ class XPathAccessor(object, metaclass=ABCMeta):
         return "xpath" in element.options and element.options["xpath"]["xml"] == xpath
 
     @abstractmethod
-    def set_XpathAccessor(self, request):
+    def set_xpath_accessor(self, request):
         """Set xpath accessor
 
         Args:
@@ -85,7 +100,7 @@ class XPathAccessor(object, metaclass=ABCMeta):
         """
         raise NotImplementedError("This method is not implemented.")
 
-    def get_XpathAccessor(self):
+    def get_xpath_accessor(self):
         """Return xpath accessor values
 
         Returns:

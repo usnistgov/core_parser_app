@@ -1,3 +1,5 @@
+""" Setup for core parser app
+"""
 from os import chdir, pardir
 from os.path import join, exists, dirname, normpath, abspath
 from re import sub
@@ -6,6 +8,12 @@ from setuptools import find_packages, setup
 
 
 def req_link(external_url):
+    """Req_link
+    Args:
+        external_url:
+
+    Return:
+    """
     egg_link = sub(r"https://[^=]+=", "", external_url)
     return "==".join(egg_link.rsplit("-", 1))
 
@@ -33,7 +41,7 @@ required = [req_link(r) if r.startswith("https://") else r for r in required]
 
 setup(
     name="core_parser_app",
-    version="1.21.0",
+    version="2.0.0-beta2",
     description="XSD parser tools for the curator core project",
     long_description=long_desc,
     author="NIST IT Lab",

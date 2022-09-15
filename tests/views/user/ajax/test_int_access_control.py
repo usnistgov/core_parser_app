@@ -2,7 +2,6 @@
 """
 import json
 
-from bson import ObjectId
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory
 from django.urls import reverse
@@ -10,8 +9,7 @@ from django.urls import reverse
 from core_main_app.utils.integration_tests.integration_base_test_case import (
     MongoIntegrationBaseTestCase,
 )
-from core_main_app.utils.tests_tools.MockUser import create_mock_user
-from core_parser_app.components.data_structure_element.models import (
+from core_parser_app.components.data_structure.models import (
     DataStructureElement,
 )
 from core_parser_app.views.user.ajax import data_structure_element_value
@@ -23,7 +21,11 @@ from tests.views.user.ajax.fixtures import DataStructureElementFixture
 
 
 class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
+    """Test Get Data Structure Element Value"""
+
     def setUp(self):
+        """setUp"""
+
         self.fixtures = DataStructureElementFixtures()
         self.fixtures.insert_data(user=self.fixtures.default_owner_with_perm)
 
@@ -35,7 +37,7 @@ class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
         }
 
         self.mock_data_structure_element = DataStructureElement(
-            id=ObjectId(),
+            id=1,
             user=str(self.users["owner"].id),
             tag="mock_tag",
             value="mock_value",
@@ -50,6 +52,8 @@ class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
         }
 
     def test_anonymous_cannot_retrieve_object(self):
+        """test_anonymous_cannot_retrieve_object"""
+
         self.request.user = self.users["anon"]
 
         response = data_structure_element_value(self.request)
@@ -65,6 +69,8 @@ class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
         )
 
     def test_user_not_owner_cannot_retrieve_object(self):
+        """test_user_not_owner_cannot_retrieve_object"""
+
         self.request.user = self.users["user"]
 
         response = data_structure_element_value(self.request)
@@ -72,6 +78,8 @@ class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_owner_can_retrieve_object(self):
+        """test_owner_can_retrieve_object"""
+
         self.request.user = self.users["owner"]
 
         response = data_structure_element_value(self.request)
@@ -84,7 +92,11 @@ class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
 
 
 class TestPostDataStructureElementValue(MongoIntegrationBaseTestCase):
+    """Test Post Data Structure Element Value"""
+
     def setUp(self):
+        """setUp"""
+
         self.fixtures = DataStructureElementFixtures()
         self.fixtures.insert_data(user=self.fixtures.default_owner_with_perm)
 
@@ -108,6 +120,8 @@ class TestPostDataStructureElementValue(MongoIntegrationBaseTestCase):
         }
 
     def test_anonymous_cannot_edit_object(self):
+        """test_anonymous_cannot_edit_object"""
+
         self.request.user = self.users["anon"]
 
         response = data_structure_element_value(self.request)
@@ -115,14 +129,12 @@ class TestPostDataStructureElementValue(MongoIntegrationBaseTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            "%s?next=%s"
-            % (
-                test_settings.LOGIN_URL,
-                reverse("core_parser_app_data_structure_element_value"),
-            ),
+            f'{ test_settings.LOGIN_URL}?next={reverse("core_parser_app_data_structure_element_value")}',
         )
 
     def test_user_not_owner_cannot_edit_object(self):
+        """test_user_not_owner_cannot_edit_object"""
+
         self.request.user = self.users["user"]
 
         response = data_structure_element_value(self.request)
@@ -130,6 +142,8 @@ class TestPostDataStructureElementValue(MongoIntegrationBaseTestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_owner_can_edit_object(self):
+        """test_owner_can_edit_object"""
+
         self.request.user = self.users["owner"]
 
         response = data_structure_element_value(self.request)

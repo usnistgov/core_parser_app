@@ -4,16 +4,15 @@ import logging
 import numbers
 from os.path import join
 
-from bson.objectid import ObjectId
 from django.template import loader
 
+from xml_utils.xsd_tree.operations.xml_entities import XmlEntities
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
 )
 from core_parser_app.settings import AUTO_ESCAPE_XML_ENTITIES
 from core_parser_app.tools.parser.exceptions import RendererError
 from core_parser_app.tools.parser.renderer import DefaultRenderer
-from xml_utils.xsd_tree.operations.xml_entities import XmlEntities
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +32,7 @@ class AbstractXmlRenderer(DefaultRenderer):
             "xml": loader.get_template(join(xml_renderer_path, "element.html"))
         }
 
-        super(AbstractXmlRenderer, self).__init__(xsd_data, templates)
+        super().__init__(xsd_data, templates)
 
     def _render_xml(self, name, attributes, content):
         """Renders form as XML
@@ -60,7 +59,7 @@ class XmlRenderer(AbstractXmlRenderer):
         Args:
             xsd_data:
         """
-        super(XmlRenderer, self).__init__(xsd_data)
+        super().__init__(xsd_data)
         self.request = request
         self.isRoot = True
 
@@ -72,9 +71,9 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         if self.data.tag == "element":
             return self.render_element(self.data)
-        elif self.data.tag == "choice":
+        if self.data.tag == "choice":
             content = self.render_choice(self.data)
-            root = self.data.children[0]
+            root = self.data.children.all().order_by("pk")[0]
             root_elem_id = root.value
             root_elem = data_structure_element_api.get_by_id(root_elem_id, self.request)
             root_name = root_elem.options["name"]
@@ -83,18 +82,15 @@ class XmlRenderer(AbstractXmlRenderer):
                 content[0] == ""
             ):  # Multi-root with element (no need for an element wrapper)
                 return content[1]
-            else:  # Multi-root with complexType
-                if (
-                    "xmlns" in root_elem.options
-                    and root_elem.options["xmlns"] is not None
-                ):
-                    xml_ns = ' xmlns="{}"'.format(root_elem.options["xmlns"])
-                    content[0] += xml_ns
-                return self._render_xml(root_name, content[0], content[1])
-        else:
-            message = "render: " + self.data.tag + " not handled"
-            self.warnings.append(message)
-            return ""
+            # Multi-root with complexType
+            if "xmlns" in root_elem.options and root_elem.options["xmlns"] is not None:
+                xml_ns = ' xmlns="{}"'.format(root_elem.options["xmlns"])
+                content[0] += xml_ns
+            return self._render_xml(root_name, content[0], content[1])
+
+        message = "render: " + self.data.tag + " not handled"
+        self.warnings.append(message)
+        return ""
 
     def _get_parent_element(self, element):
         """Gets the parent element (with tag element, not the direct parent)
@@ -106,31 +102,17 @@ class XmlRenderer(AbstractXmlRenderer):
         Returns:
 
         """
-
-        def _retrieve_parent_element(child_id, request):
-            parent_element_list = data_structure_element_api.get_all_by_child_id(
-                child_id, self.request
-            )
-
-            # Ensure we receive exactly one element in the resulting QuerySet
-            if len(parent_element_list) == 0:
-                raise ValueError("No Data Structure Element found")
-            elif len(parent_element_list) > 1:
-                raise ValueError("More than one Data Structure Element found")
-
-            return parent_element_list.first()
-
         try:
-            parent = _retrieve_parent_element(ObjectId(element.id), self.request)
+            parent = element.parent
 
             while parent.tag != "element":
-                parent = _retrieve_parent_element(ObjectId(parent.id), self.request)
+                parent = parent.parent
 
             return parent
         except Exception as e:
             logger.warning(
-                f"Exception caught while running 'XMLRenderer._get_parent_element': "
-                f"{str(e)}"
+                "Exception caught while running 'XMLRenderer._get_parent_element': %s",
+                {str(e)},
             )
             return None
 
@@ -148,12 +130,12 @@ class XmlRenderer(AbstractXmlRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "elem-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
-                if len(child.children) > 0:
+                if child.children.count() > 0:
                     children_number += 1
             else:
                 message = "render_element (iteration): " + child.tag + " not handled"
@@ -247,9 +229,9 @@ class XmlRenderer(AbstractXmlRenderer):
         attr_list = []
         children = []
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "elem-iter":
-                children += child.children
+                children += child.children.all().order_by("pk")
             else:
                 message = "render_attribute (iteration): " + child.tag + " not handled"
                 self.warnings.append(message)
@@ -324,7 +306,7 @@ class XmlRenderer(AbstractXmlRenderer):
         # XML content: attributes, inner content, outer content
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             tmp_content = ["", "", ""]
 
             # add XML Schema instance prefix if root
@@ -370,9 +352,9 @@ class XmlRenderer(AbstractXmlRenderer):
         content = ["", "", ""]
         children = []
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "sequence-iter":
-                children += child.children
+                children += child.children.all().order_by("pk")
             else:
                 message = "render_sequence (iteration): " + child.tag + " not handled"
                 self.warnings.append(message)
@@ -407,7 +389,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             tmp_content = ["", "", ""]
 
             if child.tag == "extension":
@@ -435,7 +417,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             tmp_content = ["", "", ""]
 
             if child.tag == "extension":
@@ -466,9 +448,9 @@ class XmlRenderer(AbstractXmlRenderer):
         child_keys = []
         choice_values = {}
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "choice-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
                 choice_values[child.pk] = child.value
             else:
@@ -557,7 +539,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             tmp_content = ["", "", ""]
 
             if child.tag == "restriction":
@@ -597,7 +579,7 @@ class XmlRenderer(AbstractXmlRenderer):
         content = ["", "", ""]
         value = element.value
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             tmp_content = ["", "", ""]
 
             if child.tag == "enumeration":
@@ -632,7 +614,7 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ["", "", ""]
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             tmp_content = ["", "", ""]
 
             if child.tag == "input":

@@ -5,7 +5,6 @@ import numbers
 import re
 import sys
 import traceback
-from builtins import object
 from builtins import range
 from builtins import str
 from typing import Dict, Any
@@ -19,11 +18,11 @@ from core_main_app.utils.requests_utils.requests_utils import send_get_request
 from core_main_app.utils.xsd_flattener.xsd_flattener_database_url import (
     XSDFlattenerDatabaseOrURL,
 )
+from core_parser_app.components.data_structure.models import (
+    DataStructureElement,
+)
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
-)
-from core_parser_app.components.data_structure_element.models import (
-    DataStructureElement,
 )
 from core_parser_app.components.module import api as module_api
 from core_parser_app.settings import MODULE_TAG_NAME, PARSER_MAX_IN_MEMORY_ELEMENTS
@@ -54,7 +53,7 @@ standard_library.install_aliases()
 ##################################################
 # Part I: Utilities
 ##################################################
-def load_schema_data_in_db(request, xsd_data, data_structure):
+def load_schema_data_in_db(request, xsd_data, data_structure, parent=None):
     """Load data in database
     Args:
         request:
@@ -66,6 +65,7 @@ def load_schema_data_in_db(request, xsd_data, data_structure):
     xsd_element = DataStructureElement(
         user=str(request.user.id) if request.user.id else None,
         data_structure=data_structure,
+        parent=parent,
     )
     xsd_element.tag = xsd_data["tag"]
 
@@ -88,26 +88,24 @@ def load_schema_data_in_db(request, xsd_data, data_structure):
 
         xsd_element.options = xsd_data["options"]
 
+    data_structure_element_api.upsert(xsd_element, request)
     if "children" in xsd_data:
-        children = []
-
         for child in xsd_data["children"]:
-            child_db = load_schema_data_in_db(
-                request, child, data_structure=data_structure
+            load_schema_data_in_db(
+                request, child, data_structure=data_structure, parent=xsd_element
             )
-            children.append(child_db)
-
-        if len(children) > 0:
-            xsd_element.children = children
 
     if xsd_element.tag == "choice-iter":
         if xsd_element.value is None:
-            xsd_element.value = str(xsd_element.children[0].pk)
+            xsd_element.value = str(xsd_element.children.all().order_by("pk")[0].pk)
+            data_structure_element_api.upsert(xsd_element, request)
         else:  # Value set => Put the pk of the displayed child
             child_index = int(xsd_element.value)
-            xsd_element.value = str(xsd_element.children[child_index].pk)
+            xsd_element.value = str(
+                xsd_element.children.all().order_by("pk")[child_index].pk
+            )
+            data_structure_element_api.upsert(xsd_element, request)
 
-    data_structure_element_api.upsert(xsd_element, request)
     return xsd_element
 
 
@@ -124,24 +122,25 @@ def delete_branch_from_db(request, element_id):
     """
     element = data_structure_element_api.get_by_id(element_id, request)
 
-    for child in element.children:
+    for child in element.children.all().order_by("pk"):
         delete_branch_from_db(request, str(child.pk))
 
     element.delete()
 
 
-def update_branch_xpath(element):
+def update_branch_xpath(element, request=None):
     """Update the xpath in a branch
     Args:
         element:
+        request:
 
     Returns:
     """
     element_xpath = element.options["xpath"]["xml"]
     xpath_index = 1
 
-    for child in element.children:
-        update_root_xpath(child, element_xpath, xpath_index)
+    for child in element.children.all().order_by("pk"):
+        update_root_xpath(child, element_xpath, xpath_index, request)
         xpath_index += 1
 
 
@@ -161,13 +160,13 @@ def remove_child_element(data_structure_element, child_element, request):
         data_structure_element, child_element, request
     )
     # update children xpaths
-    update_branch_xpath(data_structure_element)
+    update_branch_xpath(data_structure_element, request)
 
     # Deleting the branch from the database
     delete_branch_from_db(request, str(child_element.id))
 
     # TODO: Sequence elem might not work
-    if len(data_structure_element.children) == 0:
+    if data_structure_element.children.count() == 0:
         elem_iter = DataStructureElement(
             user=str(request.user.id) if request.user.id else None,
             data_structure=data_structure_element.data_structure,
@@ -186,13 +185,17 @@ def remove_child_element(data_structure_element, child_element, request):
     return data_structure_element
 
 
-def update_root_xpath(element, xpath, index):
-    """
-    Update the Xpath of the root
-    Args: element:
-    Args: xpath:
-    Args: index:
-    Returns::
+def update_root_xpath(element, xpath, index, request=None):
+    """Update the Xpath of the root
+
+    Args:
+        element:
+        xpath:
+        index:
+        request:
+
+    Returns:
+
     """
     element_options = element.options
 
@@ -202,11 +205,11 @@ def update_root_xpath(element, xpath, index):
             xpath + "[1]", xpath + "[" + str(index) + "]", 1
         )
 
-        element.update(set__options=element_options)
-        element.reload()
+        element.options = element_options
+        data_structure_element_api.upsert(element, request)
 
-    for child in element.children:
-        update_root_xpath(child, xpath, index)
+    for child in element.children.all().order_by("pk"):
+        update_root_xpath(child, xpath, index, request)
 
 
 def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
@@ -376,9 +379,9 @@ def get_xml_element_data(xsd_element, xml_element):
                     reload_data = ""
                     for child in list(xml_element):
                         reload_data += XSDTree.tostring(child)
-            except Exception as e:
+            except Exception as exception:
                 # FIXME in which case would we need that?
-                logger.warning("Exception thrown: %s" % str(e))
+                logger.warning("Exception thrown: %s" % str(exception))
                 reload_data = str(xml_element)
 
     return reload_data
@@ -485,8 +488,10 @@ def get_element_type(
                         LXML_SCHEMA_NAMESPACE, type_name
                     )
                     element_type = xml_tree.find(xpath)
-    except Exception as e:
-        exception_message = "Something went wrong in get_element_type:  " + str(e)
+    except Exception as exception:
+        exception_message = "Something went wrong in get_element_type:  " + str(
+            exception
+        )
         logger.fatal(exception_message)
 
         element_type = None
@@ -507,30 +512,31 @@ def import_xml_tree(el_import, download_enabled=True, request=None):
     # get the location of the schema
     ref_xml_schema_url = el_import.attrib["schemaLocation"]
     schema_location = ref_xml_schema_url
+
+    if not download_enabled:
+        raise ParserError("Dependency could not be downloaded")
+
     # download the file
-    if download_enabled:
-        ref_xml_schema_file = send_get_request(ref_xml_schema_url)
-        # read the content of the file
-        ref_xml_schema_content = ref_xml_schema_file.content
+    ref_xml_schema_file = send_get_request(ref_xml_schema_url)
+    # read the content of the file
+    ref_xml_schema_content = ref_xml_schema_file.content
+    # build the tree
+    xml_tree = XSDTree.build_tree(ref_xml_schema_content)
+    # look for includes
+    includes = xml_tree.findall("//{}include".format(LXML_SCHEMA_NAMESPACE))
+    # if includes are present
+    if len(includes) > 0:
+        # create a flattener with the file content
+        flattener = XSDFlattenerDatabaseOrURL(
+            ref_xml_schema_content,
+            request=request,
+            download_enabled=download_enabled,
+        )
+        # flatten the includes
+        ref_xml_schema_content = flattener.get_flat()
         # build the tree
         xml_tree = XSDTree.build_tree(ref_xml_schema_content)
-        # look for includes
-        includes = xml_tree.findall("//{}include".format(LXML_SCHEMA_NAMESPACE))
-        # if includes are present
-        if len(includes) > 0:
-            # create a flattener with the file content
-            flattener = XSDFlattenerDatabaseOrURL(
-                ref_xml_schema_content,
-                request=request,
-                download_enabled=download_enabled,
-            )
-            # flatten the includes
-            ref_xml_schema_content = flattener.get_flat()
-            # build the tree
-            xml_tree = XSDTree.build_tree(ref_xml_schema_content)
-        return xml_tree, schema_location
-    else:
-        raise ParserError("Dependency could not be downloaded")
+    return xml_tree, schema_location
 
 
 def get_ref_element(
@@ -790,7 +796,9 @@ def get_xml_xpath(
 ##################################################
 # Part II: Schema parsing
 ##################################################
-class XSDParser(object):
+class XSDParser:
+    """XSD Parser"""
+
     def __init__(
         self,
         min_tree=True,
@@ -944,11 +952,11 @@ class XSDParser(object):
 
             self.editing = False
             return root_element.pk
-        except Exception as e:
+        except Exception as exception:
             exc_info = sys.exc_info()
 
             # Adding information to the Exception message
-            exception_message = "Schema parsing failed: " + str(e)
+            exception_message = "Schema parsing failed: " + str(exception)
             logger.fatal(exception_message)
 
             traceback.print_exception(*exc_info)
@@ -1151,8 +1159,8 @@ class XSDParser(object):
         # tag_ns = ' xmlns="{0}" '.format(element_ns) if element_ns is not None else ''
         ns_prefix = None
         if element_tag == "attribute" and target_namespace is not None:
-            for prefix, ns in namespaces.items():
-                if ns == target_namespace:
+            for prefix, namespace in namespaces.items():
+                if namespace == target_namespace:
                     ns_prefix = prefix
                     break
 
@@ -1337,19 +1345,11 @@ class XSDParser(object):
         """
 
         sub_element = data_structure_element_api.get_by_id(element_id, self.request)
-        element_list = data_structure_element_api.get_all_by_child_id(
-            element_id, self.request
-        )
 
         if self.auto_key_keyref:
             self.init_key_keyref(sub_element)
 
-        if len(element_list) == 0:
-            raise ValueError("No SchemaElement found")
-        elif len(element_list) > 1:
-            raise ValueError("More than one SchemaElement found")
-
-        schema_element = element_list[0]
+        schema_element = sub_element.parent
 
         schema_location = None
         if "schema_location" in schema_element.options:
@@ -1424,36 +1424,29 @@ class XSDParser(object):
                 force_generation=True,
             )
 
-        # Saving the tree in MongoDB
         tree_root = load_schema_data_in_db(
             self.request, db_tree, data_structure=data_structure
         )
-        generated_element = tree_root.children[0]
-
-        # Updating the schema element
-        children = schema_element.children
-        element_index = children.index(sub_element)
-
-        children.insert(element_index + 1, generated_element)
-        schema_element.update(set__children=children)
-
-        if len(sub_element.children) == 0:
-            schema_element_to_pull = data_structure_element_api.get_by_id(
-                element_id, self.request
-            )
-            schema_element.update(pull__children=schema_element_to_pull)
-
-        schema_element.reload()
-        update_branch_xpath(schema_element)
+        generated_element = tree_root.children.all().order_by("pk")[0]
 
         tree_root_options = tree_root.options
         tree_root_options["real_root"] = str(schema_element.pk)
 
-        tree_root.update(set__options=tree_root_options)
-        tree_root.reload()
+        tree_root.options = tree_root_options
 
         renderer = renderer_class(tree_root, self.request)
         html_form = renderer.render(True)
+
+        schema_element.children.add(generated_element)
+
+        if sub_element.children.count() == 0:
+            schema_element_to_pull = data_structure_element_api.get_by_id(
+                element_id, self.request
+            )
+
+            schema_element.children.remove(schema_element_to_pull)
+
+        update_branch_xpath(schema_element, self.request)
 
         tree_root.delete()
         return html_form
@@ -1779,23 +1772,14 @@ class XSDParser(object):
             if elements_found is not None:
                 try:
                     element_found = elements_found[x]
-                except Exception as e:
+                except Exception as exception:
                     logger.warning(
-                        "generate_choice threw an exception: {0}".format(str(e))
+                        "generate_choice threw an exception: {0}".format(str(exception))
                     )
 
             for (counter, choiceChild) in enumerate(list(element)):
                 # For unbounded choice, explicitly don't generate the choices not selected
                 if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-                    # Find the default element
-                    if choiceChild.attrib.get("name") is not None:
-                        opt_label = choiceChild.attrib.get("name")
-                    else:
-                        opt_label = choiceChild.attrib.get("ref")
-
-                        if ":" in choiceChild.attrib.get("ref"):
-                            opt_label = opt_label.split(":")[1]
-
                     # get the schema namespaces
                     xml_tree_str = XSDTree.tostring(xml_tree)
                     namespaces = get_namespaces(xml_tree_str)
@@ -1804,6 +1788,17 @@ class XSDParser(object):
                     target_namespace, target_namespace_prefix = get_target_namespace(
                         xml_tree, namespaces
                     )
+                    # Find the default element
+                    if choiceChild.attrib.get("name") is not None:
+                        opt_label = choiceChild.attrib.get("name")
+                    else:
+                        opt_label = choiceChild.attrib.get("ref")
+
+                        if ":" in choiceChild.attrib.get("ref"):
+                            target_namespace_prefix = opt_label.split(":")[0]
+                            if target_namespace_prefix in namespaces:
+                                target_namespace = namespaces[target_namespace_prefix]
+                            opt_label = opt_label.split(":")[1]
 
                     if self.editing:
                         # TODO: manage unbounded choices for sequences/choices as well
@@ -1900,19 +1895,10 @@ class XSDParser(object):
 
         """
         element = data_structure_element_api.get_by_id(element_id, self.request)
-        parents = data_structure_element_api.get_all_by_child_id(
-            element_id, self.request
-        )
+        parent = element.parent
 
         if self.auto_key_keyref:
             self.init_key_keyref(element)
-
-        if len(parents) == 0:
-            raise ValueError("No SchemaElement found")
-        elif len(parents) > 1:
-            raise ValueError("More than one SchemaElement found")
-
-        parent = parents[0]
 
         schema_location = None
         if "schema_location" in element.options:
@@ -1977,16 +1963,13 @@ class XSDParser(object):
             self.request, db_tree, data_structure=data_structure
         )
 
-        # Replacing the children with the generated branch
-        children = parent.children
-        element_index = children.index(element)
-
-        children[element_index] = tree_root
-
-        parent.update(set__children=children)
-        parent.update(set__value=str(tree_root.pk))
-
-        parent.reload()
+        element.parent = None
+        tree_root.parent = parent
+        parent.value = str(tree_root.pk)
+        # Save data structure elements
+        data_structure_element_api.upsert(element, request=self.request)
+        data_structure_element_api.upsert(tree_root, request=self.request)
+        data_structure_element_api.upsert(parent, request=self.request)
 
         renderer = renderer_class(tree_root, self.request)
         html_form = renderer.render(False)
@@ -2039,8 +2022,8 @@ class XSDParser(object):
         )
         ns_prefix = None
         if target_namespace is not None:
-            for prefix, ns in namespaces.items():
-                if ns == target_namespace:
+            for prefix, namespace in namespaces.items():
+                if namespace == target_namespace:
                     ns_prefix = prefix
                     break
         db_element["options"]["ns_prefix"] = ns_prefix
@@ -2178,8 +2161,8 @@ class XSDParser(object):
         ns_prefix = None
 
         if target_namespace is not None:
-            for prefix, ns in namespaces.items():
-                if ns == target_namespace:
+            for prefix, namespace in namespaces.items():
+                if namespace == target_namespace:
                     ns_prefix = prefix
                     break
 
@@ -2627,8 +2610,8 @@ class XSDParser(object):
                 db_element["options"]["url"] = module_url.path
                 db_element["options"]["data"] = reload_data
                 db_element["options"]["attributes"] = reload_attrib
-            except Exception as e:
-                logger.error(str(e))
+            except Exception as exception:
+                logger.error(str(exception))
                 raise ParserError("Module not found.")
 
         return db_element

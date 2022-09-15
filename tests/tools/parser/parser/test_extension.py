@@ -2,20 +2,20 @@
 """
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
-
-from core_parser_app.tools.parser.parser import XSDParser
-from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.xsd_tree import XSDTree
+from tests.test_utils import DataHandler
+from core_parser_app.tools.parser.parser import XSDParser
 
 # FIXME: use django finder
 RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateExtensionTestSuite(TestCase):
-    """"""
+    """Parser Create Extension Test Suite"""
 
     def setUp(self):
+        """Setup"""
         extension_data = join(RESOURCES_PATH, "parser", "extension")
         self.extension_data_handler = DataHandler(extension_data)
 
@@ -27,6 +27,7 @@ class ParserCreateExtensionTestSuite(TestCase):
         self.parser = XSDParser()
 
     def test_generate_extension_with_multiple_children_returns_expected_json_dict(self):
+        """test_generate_extension_with_multiple_children_returns_expected_json_dict"""
         xsd_files = join("multiple", "basic")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -44,6 +45,7 @@ class ParserCreateExtensionTestSuite(TestCase):
     def test_generate_extension_with_single_child_attribute_returns_expected_json_dict(
         self,
     ):
+        """test_generate_extension_with_single_child_attribute_returns_expected_json_dict"""
         xsd_files = join("attribute", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -61,6 +63,7 @@ class ParserCreateExtensionTestSuite(TestCase):
     def test_generate_extension_with_single_child_choice_returns_expected_json_dict(
         self,
     ):
+        """test_generate_extension_with_single_child_choice_returns_expected_json_dict"""
         xsd_files = join("choice", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -78,6 +81,7 @@ class ParserCreateExtensionTestSuite(TestCase):
     def test_generate_extension_with_single_child_sequence_returns_expected_json_dict(
         self,
     ):
+        """test_generate_extension_with_single_child_sequence_returns_expected_json_dict"""
         xsd_files = join("sequence", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -94,9 +98,10 @@ class ParserCreateExtensionTestSuite(TestCase):
 
 
 class ParserReloadExtensionTestSuite(TestCase):
-    """"""
+    """Parser Reload Extension Test Suite"""
 
     def setUp(self):
+        """Setup"""
         # Init data path
         extension_data = join(RESOURCES_PATH, "parser", "extension")
         self.extension_data_handler = DataHandler(extension_data)
@@ -110,6 +115,7 @@ class ParserReloadExtensionTestSuite(TestCase):
         self.parser.editing = True
 
     def test_generate_extension_with_multiple_children_returns_expected_json_dict(self):
+        """test_generate_extension_with_multiple_children_returns_expected_json_dict"""
         xsd_files = join("multiple", "basic")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -137,6 +143,7 @@ class ParserReloadExtensionTestSuite(TestCase):
     def test_generate_extension_with_single_child_attribute_returns_expected_json_dict(
         self,
     ):
+        """test_generate_extension_with_single_child_attribute_returns_expected_json_dict"""
         xsd_files = join("attribute", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -164,6 +171,7 @@ class ParserReloadExtensionTestSuite(TestCase):
     def test_generate_extension_with_single_child_choice_returns_expected_json_dict(
         self,
     ):
+        """test_generate_extension_with_single_child_choice_returns_expected_json_dict"""
         xsd_files = join("choice", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -187,6 +195,7 @@ class ParserReloadExtensionTestSuite(TestCase):
     def test_generate_extension_with_single_child_sequence_returns_expected_json_dict(
         self,
     ):
+        """test_generate_extension_with_single_child_sequence_returns_expected_json_dict"""
         xsd_files = join("sequence", "single")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(

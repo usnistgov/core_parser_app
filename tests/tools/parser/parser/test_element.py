@@ -2,11 +2,10 @@
 """
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
-
-from core_parser_app.tools.parser.parser import XSDParser
-from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.xsd_tree import XSDTree
+from tests.test_utils import DataHandler
+from core_parser_app.tools.parser.parser import XSDParser
 
 # FIXME: use django finder
 RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
@@ -15,7 +14,10 @@ RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserGenerateElementTestSuite(TestCase):
+    """Parser Generate Element Test Suite"""
+
     def setUp(self):
+        """setUp"""
         element_data = join(RESOURCES_PATH, "parser", "element")
         self.element_data_handler = DataHandler(element_data)
 
@@ -27,6 +29,7 @@ class ParserGenerateElementTestSuite(TestCase):
         self.parser = XSDParser()
 
     def test_create_simple_type_basic(self):
+        """setUp"""
         xsd_files = join("simple_type", "basic")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -41,6 +44,7 @@ class ParserGenerateElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_create_simple_type_basic_ns(self):
+        """setUp"""
         xsd_files = join("simple_type", "basic_ns")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -55,6 +59,7 @@ class ParserGenerateElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_create_simple_type_unbounded(self):
+        """setUp"""
         xsd_files = join("simple_type", "unbounded")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -72,6 +77,7 @@ class ParserGenerateElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_create_simple_type_unbounded_ns(self):
+        """setUp"""
         xsd_files = join("simple_type", "unbounded_ns")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -89,6 +95,7 @@ class ParserGenerateElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_create_complex_type_basic(self):
+        """setUp"""
         xsd_files = join("complex_type", "basic")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -103,6 +110,7 @@ class ParserGenerateElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_create_complex_type_unbounded(self):
+        """setUp"""
         xsd_files = join("complex_type", "unbounded")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -121,7 +129,10 @@ class ParserGenerateElementTestSuite(TestCase):
 
 
 class ParserReloadElementTestSuite(TestCase):
+    """Parser Reload Element Test Suite"""
+
     def setUp(self):
+        """setUp"""
         # Init data path
         element_data = join(RESOURCES_PATH, "parser", "element")
         self.element_data_handler = DataHandler(element_data)
@@ -135,6 +146,7 @@ class ParserReloadElementTestSuite(TestCase):
         self.parser.editing = True
 
     def test_reload_simple_type_basic(self):
+        """test_reload_simple_type_basic"""
         xsd_files = join("simple_type", "basic")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -155,6 +167,7 @@ class ParserReloadElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_reload_simple_type_basic_ns(self):
+        """test_reload_simple_type_basic_ns"""
         xsd_files = join("simple_type", "basic_ns")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -175,6 +188,7 @@ class ParserReloadElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_reload_simple_type_unbounded(self):
+        """test_reload_simple_type_unbounded"""
         xsd_files = join("simple_type", "unbounded")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -199,6 +213,7 @@ class ParserReloadElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_reload_simple_type_unbounded_ns(self):
+        """test_reload_simple_type_unbounded_ns"""
         xsd_files = join("simple_type", "unbounded_ns")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -220,6 +235,7 @@ class ParserReloadElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_reload_complex_type_basic(self):
+        """test_reload_complex_type_basic"""
         xsd_files = join("complex_type", "basic")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -240,6 +256,7 @@ class ParserReloadElementTestSuite(TestCase):
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_create_complex_type_unbounded(self):
+        """test_create_complex_type_unbounded"""
         xsd_files = join("complex_type", "unbounded")
         xsd_tree = self.element_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(

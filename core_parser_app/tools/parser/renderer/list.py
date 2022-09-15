@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractListRenderer(DefaultRenderer):
+    """Abstract List Renderer"""
+
     def __init__(self, xsd_data):
         """Initializes renderer object
 
@@ -29,7 +31,7 @@ class AbstractListRenderer(DefaultRenderer):
             ),
         }
 
-        super(AbstractListRenderer, self).__init__(xsd_data, templates)
+        super().__init__(xsd_data, templates)
 
     def _render_ul(self, content, element_id, is_hidden=False):
         """Renders HTML ul element
@@ -90,7 +92,7 @@ class ListRenderer(AbstractListRenderer):
             xsd_data:
             request:
         """
-        super(ListRenderer, self).__init__(xsd_data)
+        super().__init__(xsd_data)
         self.request = request  # FIXME Find a way to avoid the use of request
         self.partial = False
 
@@ -122,8 +124,8 @@ class ListRenderer(AbstractListRenderer):
             return self._render_warnings() + self._render_ul(
                 html_content, str(self.data.pk)
             )
-        else:
-            return html_content
+
+        return html_content
 
     def render_element(self, element):
         """Renders an element
@@ -138,12 +140,12 @@ class ListRenderer(AbstractListRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "elem-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
-                if len(child.children) > 0:
+                if child.children.count() > 0:
                     children_number += 1
             else:
                 message = "render_element (iteration): " + child.tag + " not handled"
@@ -176,7 +178,7 @@ class ListRenderer(AbstractListRenderer):
             sub_inputs = []
             sub_buttons = []
 
-            for child in children[child_key]:
+            for child in children[child_key].all().order_by("pk"):
                 if child.tag == "complex_type":
                     sub_elements.append(self.render_complex_type(child))
                     sub_inputs.append(False)
@@ -241,7 +243,7 @@ class ListRenderer(AbstractListRenderer):
         attributes = []
         simple = False
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "sequence":
                 html_content += self.render_sequence(child)
             elif child.tag == "simple_content":
@@ -278,12 +280,12 @@ class ListRenderer(AbstractListRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "elem-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
-                if len(child.children) > 0:
+                if child.children.count() > 0:
                     children_number += 1
             else:
                 message = "render_attribute (iteration): " + child.tag + " not handled"
@@ -314,7 +316,7 @@ class ListRenderer(AbstractListRenderer):
             sub_inputs = []
             sub_buttons = []
 
-            for child in children[child_key]:
+            for child in children[child_key].all().order_by("pk"):
                 if child.tag == "simple_type":
                     sub_elements.append(self.render_simple_type(child))
                     sub_inputs.append(True)
@@ -374,12 +376,12 @@ class ListRenderer(AbstractListRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "sequence-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
-                if len(child.children) > 0:
+                if child.children.count() > 0:
                     children_number += 1
             else:
                 message = "render_sequence (iteration): " + child.tag + " not handled"
@@ -414,7 +416,7 @@ class ListRenderer(AbstractListRenderer):
             sub_elements = []
             html_content = ""
 
-            for child in children[child_key]:
+            for child in children[child_key].all().order_by("pk"):
                 if child.tag == "element":
                     sub_elements.append(self.render_element(child))
                 elif child.tag == "sequence":
@@ -477,12 +479,12 @@ class ListRenderer(AbstractListRenderer):
         choice_values = {}
         children_number = 0
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "choice-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all().order_by("pk")
                 child_keys.append(child.pk)
 
-                if len(child.children) > 0:
+                if child.children.count() > 0:
                     children_number += 1
 
                 choice_values[child.pk] = child.value
@@ -512,7 +514,7 @@ class ListRenderer(AbstractListRenderer):
             html_content = ""
             options = []
 
-            for child in children[iter_element]:
+            for child in children[iter_element].all().order_by("pk"):
                 element_html = ""
                 is_selected_element = str(child.pk) == choice_values[iter_element]
 
@@ -569,7 +571,7 @@ class ListRenderer(AbstractListRenderer):
                 li_class = str(element.pk)
 
                 # Choice contains only one element, we don't generate the select
-                if len(children[iter_element]) == 1:
+                if children[iter_element].count() == 1:
                     html_content += options[0][1] + sub_content
                 else:  # Choice contains a list
                     html_content += f"{label} {self._render_select(None, 'choice', options, element_options=element.options)}{buttons}"
@@ -594,7 +596,7 @@ class ListRenderer(AbstractListRenderer):
         """
         html_content = ""
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "extension":
                 html_content += self.render_extension(child)
             elif child.tag == "restriction":
@@ -616,7 +618,7 @@ class ListRenderer(AbstractListRenderer):
         """
         html_content = ""
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "extension":
                 html_content += self.render_extension(child)
             elif child.tag == "restriction":
@@ -638,7 +640,7 @@ class ListRenderer(AbstractListRenderer):
         """
         html_content = ""
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "restriction":
                 html_content += self.render_restriction(child)
             elif child.tag == "list":
@@ -671,7 +673,7 @@ class ListRenderer(AbstractListRenderer):
         attributes = []
         simple = True
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "input":
                 html_content += self._render_input(child)
             elif child.tag == "attribute":
@@ -704,7 +706,7 @@ class ListRenderer(AbstractListRenderer):
         options = []
         subhtml = ""
 
-        for child in element.children:
+        for child in element.children.all().order_by("pk"):
             if child.tag == "enumeration":
                 options.append((child.value, child.value, child.value == element.value))
             elif child.tag == "simple_type":
@@ -719,8 +721,8 @@ class ListRenderer(AbstractListRenderer):
             return self._render_select(
                 element.pk, "restriction", options, element.options
             )
-        else:
-            return subhtml
+
+        return subhtml
 
     def render_module(self, element):
         """Renders a module

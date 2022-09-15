@@ -10,6 +10,8 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     # Local apps
     "tests",
+    "core_main_app",
+    "core_parser_app",
 ]
 
 # IN-MEMORY TEST DATABASE
@@ -32,3 +34,5 @@ TEMPLATES = [
 
 ROOT_URLCONF = "core_parser_app.urls"
 LOGIN_URL = "/login"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"

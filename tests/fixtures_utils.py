@@ -11,7 +11,7 @@ class MockDataStructure(DataStructure):
 
     @staticmethod
     def get_permission():
-        return f"{rights.tests_content_type}.{rights.mock_data_structure_access}"
+        return f"{rights.TESTS_CONTENT_TYPE}.{rights.MOCK_DATA_STRUCTURE_ACCESS}"
 
 
 class MockAnonDataStructure(DataStructure):
@@ -19,7 +19,7 @@ class MockAnonDataStructure(DataStructure):
 
     @staticmethod
     def get_permission():
-        return f"{rights.tests_content_type}.{rights.mock_anon_data_structure_access}"
+        return f"{rights.TESTS_CONTENT_TYPE}.{rights.MOCK_ANON_DATA_STRUCTURE_ACCESS}"
 
 
 def create_user(

@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractTableRenderer(DefaultRenderer):
+    """Abstract Table Renderer"""
+
     def __init__(self, xsd_data):
         """Initializes table renderer object
 
@@ -26,7 +28,7 @@ class AbstractTableRenderer(DefaultRenderer):
             "tr": loader.get_template(join(table_renderer_path, "tr.html")),
         }
 
-        super(AbstractTableRenderer, self).__init__(xsd_data, table_templates)
+        super().__init__(xsd_data, table_templates)
 
     def _render_table(self, content):
         """Renders table
@@ -71,7 +73,7 @@ class AbstractTableRenderer(DefaultRenderer):
 
 
 class TableRenderer(AbstractTableRenderer):
-    """"""
+    """Table Renderer"""
 
     def __init__(self, xsd_data):
         """Initializes table renderer
@@ -79,7 +81,7 @@ class TableRenderer(AbstractTableRenderer):
         Args:
             xsd_data:
         """
-        super(TableRenderer, self).__init__(xsd_data)
+        super().__init__(xsd_data)
 
     def render(self):
         """Renders the form as a table
@@ -110,12 +112,12 @@ class TableRenderer(AbstractTableRenderer):
         child_keys = []
         children_number = 0
 
-        for child in element.children:
+        for child in element.children.all():
             if child.tag == "elem-iter":
-                children[child.pk] = child.children
+                children[child.pk] = child.children.all()
                 child_keys.append(child.pk)
 
-                if len(child.children) > 0:
+                if child.children.count() > 0:
                     children_number += 1
             else:
                 message = "render_element (iteration): " + child.tag + " not handled"
@@ -162,7 +164,6 @@ class TableRenderer(AbstractTableRenderer):
             if children_number == 0:
                 # FIXME Find a way to make the label grey
                 html_content = ""
-                # li_class = "removed"
             else:
                 html_content = ""
                 for child_index in range(len(sub_elements)):
@@ -178,7 +179,6 @@ class TableRenderer(AbstractTableRenderer):
                             element.options["name"],
                             buttons,
                         )
-                        # html_content += self._render_ul(sub_elements[child_index], None)
 
             final_html += self._render_tr(
                 element["options"]["name"] + buttons, html_content
@@ -205,7 +205,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child["tag"] == "attribute":
                 html_content += self.render_attribute(child)
             else:
-                logger.debug("%s not handled (render_complex_type)" % child["tag"])
+                logger.debug("%s not handled (render_complex_type)", child["tag"])
 
         return html_content
 
@@ -225,7 +225,7 @@ class TableRenderer(AbstractTableRenderer):
             if child["tag"] == "elem-iter":
                 children += child["children"]
             else:
-                logger.debug("%s not handled (render_attribute base)" % child["tag"])
+                logger.debug("%s not handled (render_attribute base)", child["tag"])
 
         for child in children:
             if child["tag"] == "simple_type":
@@ -233,7 +233,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child["tag"] == "input":
                 html_content += self._render_input(child)
             else:
-                logger.debug("%s not handled (render_attribute)" % child["tag"])
+                logger.debug("%s not handled (render_attribute)", child["tag"])
 
         return self._render_tr(element["options"]["name"], html_content)
 
@@ -252,7 +252,7 @@ class TableRenderer(AbstractTableRenderer):
             if child["tag"] == "element":
                 html_content += self.render_element(child)
             else:
-                logger.debug("%s not handled (render_sequence)" % child["tag"])
+                logger.debug("%s not handled (render_sequence)", child["tag"])
 
         return html_content
 
@@ -273,7 +273,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child["tag"] == "extension":
                 html_content += self.render_extension(child)
             else:
-                logger.debug("%s not handled (render_simple_content)" % child["tag"])
+                logger.debug("%s not handled (render_simple_content)", child["tag"])
 
         return html_content
 
@@ -294,7 +294,7 @@ class TableRenderer(AbstractTableRenderer):
             if child["tag"] == "restriction":
                 html_content += self.render_restriction(child)
             else:
-                logger.debug("%s not handled (render_simple_type)" % child["tag"])
+                logger.debug("%s not handled (render_simple_type)", child["tag"])
 
         return html_content
 
@@ -315,7 +315,7 @@ class TableRenderer(AbstractTableRenderer):
             elif child["tag"] == "attribute":
                 html_content += self.render_attribute(child)
             else:
-                logger.debug("%s not handled (render_extension)" % child["tag"])
+                logger.debug("%s not handled (render_extension)", child["tag"])
 
         return html_content
 
@@ -337,14 +337,14 @@ class TableRenderer(AbstractTableRenderer):
             elif child["tag"] == "input":
                 subhtml += self._render_input(child)
             else:
-                logger.debug("%s not handled (rend_ext)" % child["tag"])
+                logger.debug("%s not handled (rend_ext)", child["tag"])
 
         if subhtml == "" or len(options) != 0:
             return self._render_select(
                 element.pk, "restriction", options, element.options
             )
-        else:
-            return subhtml
+
+        return subhtml
 
     def render_module(self, element):
         """Renders a module

@@ -1,17 +1,23 @@
+""" tests unit
+"""
+
 from unittest.case import TestCase
 
-from bson.objectid import ObjectId
 from django.core import exceptions as django_exceptions
 from mock.mock import Mock, patch
-from mongoengine import errors as mongoengine_errors
 
+from core_main_app.commons.exceptions import DoesNotExist
 from core_parser_app.components.module import api as module_api
 from core_parser_app.components.module.models import Module
 
 
 class TestModuleGetById(TestCase):
+    """Test Module Get By Id"""
+
     @patch("core_parser_app.components.module.models.Module.get_by_id")
     def test_module_get_by_id_returns_module(self, mock_get_by_id):
+        """test_module_get_by_id_returns_module"""
+
         # Arrange
         mock_module = _create_mock_module()
 
@@ -27,18 +33,24 @@ class TestModuleGetById(TestCase):
     def test_module_get_by_id_raises_exception_if_object_does_not_exist(
         self, mock_get_by_id
     ):
+        """test_module_get_by_id_raises_exception_if_object_does_not_exist"""
+
         # Arrange
-        mock_absent_id = ObjectId()
-        mock_get_by_id.side_effect = mongoengine_errors.DoesNotExist
+        mock_absent_id = -1
+        mock_get_by_id.side_effect = DoesNotExist("")
 
         # Act + Assert
-        with self.assertRaises(mongoengine_errors.DoesNotExist):
+        with self.assertRaises(DoesNotExist):
             module_api.get_by_id(mock_absent_id)
 
 
 class TestModuleGetByUrl(TestCase):
+    """Test Module Get By Url"""
+
     @patch("core_parser_app.components.module.models.Module.get_by_url")
     def test_module_get_by_url_returns_module(self, mock_get_by_url):
+        """test_module_get_by_url_returns_module"""
+
         # Arrange
         mock_module = _create_mock_module()
 
@@ -54,18 +66,24 @@ class TestModuleGetByUrl(TestCase):
     def test_module_get_by_url_raises_exception_if_object_does_not_exist(
         self, mock_get_by_url
     ):
+        """test_module_get_by_url_raises_exception_if_object_does_not_exist"""
+
         # Arrange
         mock_absent_url = "/absent"
-        mock_get_by_url.side_effect = mongoengine_errors.DoesNotExist
+        mock_get_by_url.side_effect = DoesNotExist("")
 
         # Act + Assert
-        with self.assertRaises(mongoengine_errors.DoesNotExist):
+        with self.assertRaises(DoesNotExist):
             module_api.get_by_url(mock_absent_url)
 
 
 class TestModuleGetAll(TestCase):
+    """Test Module Get All"""
+
     @patch("core_parser_app.components.module.models.Module.get_all")
     def test_module_list_contains_only_module(self, mock_get_all):
+        """test_module_list_contains_only_module"""
+
         # Arrange
         mock_module_1 = _create_mock_module()
         mock_module_2 = _create_mock_module()
@@ -79,8 +97,12 @@ class TestModuleGetAll(TestCase):
 
 
 class TestModuleUpsert(TestCase):
+    """Test Module Upsert"""
+
     @patch("core_parser_app.components.module.models.Module.save")
     def test_module_upsert_valid_returns_module(self, mock_save):
+        """test_module_upsert_valid_returns_module"""
+
         module = _create_module()
 
         mock_save.return_value = module
@@ -89,6 +111,8 @@ class TestModuleUpsert(TestCase):
 
     @patch("core_parser_app.components.module.models.Module.save")
     def test_module_upsert_invalid_raises_validation_error(self, mock_save):
+        """test_module_upsert_invalid_raises_validation_error"""
+
         module = _create_module()
         mock_save.side_effect = django_exceptions.ValidationError("")
         with self.assertRaises(django_exceptions.ValidationError):
@@ -96,8 +120,12 @@ class TestModuleUpsert(TestCase):
 
 
 class TestModuleGetAllUrls(TestCase):
+    """Test Module Get All Urls"""
+
     @patch("core_parser_app.components.module.models.Module.get_all_urls")
     def test_module_list_contains_only_urls(self, mock_get_all_urls):
+        """test_module_list_contains_only_urls"""
+
         # Arrange
         mock_module_1 = _create_mock_module()
         mock_module_2 = _create_mock_module()
@@ -116,7 +144,7 @@ def _create_module():
     Returns:
 
     """
-    return Module(id=ObjectId(), name="module", url="/module", view="Module.view")
+    return Module(id=1, name="module", url="/module", view="Module.view")
 
 
 def _create_mock_module():
@@ -128,5 +156,5 @@ def _create_mock_module():
     mock_module.name = "module"
     mock_module.url = "/module"
     mock_module.view = "Module.view"
-    mock_module.id = ObjectId()
+    mock_module.id = 1
     return mock_module

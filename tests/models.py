@@ -8,16 +8,20 @@ from tests import rights
 
 
 class Parser(models.Model):
-    class Meta(object):
+    """Parser object"""
+
+    class Meta:
+        """Meta"""
+
         verbose_name = "tests"
         default_permissions = ()
         permissions = (
             (
-                rights.mock_data_structure_access,
-                get_formatted_name(rights.mock_data_structure_access),
+                rights.MOCK_DATA_STRUCTURE_ACCESS,
+                get_formatted_name(rights.MOCK_DATA_STRUCTURE_ACCESS),
             ),
             (
-                rights.mock_anon_data_structure_access,
-                get_formatted_name(rights.mock_anon_data_structure_access),
+                rights.MOCK_ANON_DATA_STRUCTURE_ACCESS,
+                get_formatted_name(rights.MOCK_ANON_DATA_STRUCTURE_ACCESS),
             ),
         )

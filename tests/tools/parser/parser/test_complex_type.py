@@ -2,11 +2,11 @@
 """
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
-
-from core_parser_app.tools.parser.parser import XSDParser
-from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.xsd_tree import XSDTree
+from tests.test_utils import DataHandler
+from core_parser_app.tools.parser.parser import XSDParser
+
 
 # FIXME: use django finder
 RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
@@ -16,6 +16,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
     """Element creation unit tests"""
 
     def setUp(self):
+        """setUp"""
         # Setup data handler
         complex_type_data = join(RESOURCES_PATH, "parser", "complex_type")
         self.complex_type_data_handler = DataHandler(complex_type_data)
@@ -28,6 +29,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
         self.parser = XSDParser()
 
     def test_create_choice_basic(self):
+        """test_create_choice_basic"""
         xsd_files = join("choice", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -42,6 +44,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
         self.assertDictEqual(result_string, expected_dict)
 
     def test_create_sequence_basic(self):
+        """test_create_sequence_basic"""
         xsd_files = join("sequence", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -56,6 +59,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
         self.assertDictEqual(result_string, expected_dict)
 
     def test_create_simple_content_basic(self):
+        """test_create_simple_content_basic"""
         xsd_files = join("simple_content", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -70,6 +74,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
         self.assertDictEqual(result_string, expected_dict)
 
     def test_create_complex_content_basic(self):
+        """test_create_complex_content_basic"""
         xsd_files = join("complex_content", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -84,6 +89,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
         self.assertDictEqual(result_string, expected_dict)
 
     def test_create_attribute_basic(self):
+        """test_create_attribute_basic"""
         xsd_files = join("attribute", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -98,6 +104,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
         self.assertDictEqual(result_string, expected_dict)
 
     def test_create_multiple_basic(self):
+        """test_create_multiple_basic"""
         xsd_files = join("multiple", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -116,6 +123,7 @@ class ParserReloadComplexTypeTestSuite(TestCase):
     """Element reload unit tests"""
 
     def setUp(self):
+        """setUp"""
         complex_type_data = join(RESOURCES_PATH, "parser", "complex_type")
         self.complex_type_data_handler = DataHandler(complex_type_data)
 
@@ -128,6 +136,7 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         self.parser.editing = True
 
     def test_reload_choice_basic(self):
+        """test_reload_choice_basic"""
         xsd_files = join("choice", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -144,10 +153,11 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json("%s.reload" % xsd_files)
+        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_sequence_basic(self):
+        """test_reload_sequence_basic"""
         xsd_files = join("sequence", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -164,10 +174,11 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json("%s.reload" % xsd_files)
+        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_simple_content_basic(self):
+        """test_reload_simple_content_basic"""
         xsd_files = join("simple_content", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -190,10 +201,11 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json("%s.reload" % xsd_files)
+        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_complex_content_basic(self):
+        """test_reload_complex_content_basic"""
         xsd_files = join("complex_content", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -210,10 +222,11 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json("%s.reload" % xsd_files)
+        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_attribute_basic(self):
+        """test_reload_attribute_basic"""
         xsd_files = join("attribute", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -230,10 +243,11 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json("%s.reload" % xsd_files)
+        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_multiple_basic(self):
+        """test_reload_multiple_basic"""
         xsd_files = join("multiple", "basic")
         xsd_tree = self.complex_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -250,5 +264,5 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json("%s.reload" % xsd_files)
+        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
         self.assertDictEqual(result_string, expected_dict)

@@ -2,9 +2,9 @@
 """
 import logging
 
-from mongoengine import NotUniqueError
-from mongoengine.errors import ValidationError
+from django.db import IntegrityError
 
+from core_main_app.commons.exceptions import ModelError
 from core_parser_app.components.module import api as module_api
 from core_parser_app.components.module.models import Module
 from core_parser_app.tools.modules.exceptions import ModuleError
@@ -20,8 +20,12 @@ def discover_modules(urls):
     """
     logger.info("START discover modules.")
 
-    # Remove all existing modules
-    module_api.delete_all()
+    try:
+        # Remove all existing modules
+        module_api.delete_all()
+    except Exception:
+        logger.warning("Module table is not ready yet")
+        return
 
     # Look for modules in project urls
     try:
@@ -47,13 +51,12 @@ def discover_modules(urls):
                             )
                             try:
                                 module_api.upsert(module_object)
-                            except NotUniqueError:
-                                logger.error(
-                                    "The module %s is already present in the database."
-                                    "Please check the list of urls for duplicates."
-                                    % url_pattern.name
+                            except IntegrityError:
+                                logger.info(
+                                    "The module %s is already present in the database.",
+                                    url_pattern.name,
                                 )
-    except ValidationError:
+    except ModelError:
         # something went wrong, delete already added modules
         module_api.delete_all()
 
@@ -62,13 +65,13 @@ def discover_modules(urls):
             "Please provide a name to all modules urls using the name argument."
         )
 
-        logger.error("Discover modules failed with %s." % error_msg)
+        logger.error("Discover modules failed with %s.", error_msg)
 
         raise ModuleError(error_msg)
-    except Exception as e:
+    except Exception as exception:
         # something went wrong, delete already added modules
         module_api.delete_all()
-        logger.error("Discover modules failed with %s." % str(e))
-        raise e
+        logger.error("Discover modules failed with %s.", str(exception))
+        raise exception
 
     logger.info("FINISH discover modules.")

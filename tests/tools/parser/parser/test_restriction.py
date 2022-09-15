@@ -3,19 +3,20 @@
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
 
-from core_parser_app.tools.parser.parser import XSDParser
-from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.xsd_tree import XSDTree
-
+from core_parser_app.tools.parser.parser import XSDParser
+from tests.test_utils import DataHandler
 
 RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateRestrictionTestSuite(TestCase):
-    """"""
+    """Parser Create Restriction Test Suite"""
 
     def setUp(self):
+        """setUp"""
+
         restriction_data = join(RESOURCES_PATH, "parser", "restriction")
         self.restriction_data_handler = DataHandler(restriction_data)
 
@@ -40,11 +41,14 @@ class ParserCreateRestrictionTestSuite(TestCase):
         return result_dict, expected_dict
 
     def test_enumeration(self):
+        """test_enumeration"""
+
         xsd_files = join("enumeration", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
         self.assertDictEqual(result_dict, expected_dict)
 
     def test_simple_type(self):
+        """test_simple_type"""
         xsd_files = join("simple_type", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
@@ -52,9 +56,11 @@ class ParserCreateRestrictionTestSuite(TestCase):
 
 
 class ParserReloadRestrictionTestSuite(TestCase):
-    """"""
+    """Parser Reload Restriction Test Suite"""
 
     def setUp(self):
+        """setUp"""
+
         # Init data path
         retriction_data = join(RESOURCES_PATH, "parser", "restriction")
         self.restriction_data_handler = DataHandler(retriction_data)
@@ -92,12 +98,16 @@ class ParserReloadRestrictionTestSuite(TestCase):
         return result_dict, expected_dict
 
     def test_enumeration(self):
+        """test_enumeration"""
+
         xsd_files = join("enumeration", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_simple_type(self):
+        """test_simple_type"""
+
         xsd_files = join("simple_type", "basic")
         result_dict, expected_dict = self._run_test(xsd_files)
 

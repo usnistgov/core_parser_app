@@ -12,10 +12,10 @@ from core_parser_app.components.module import api as module_api
 
 @login_required
 def delete_module(request):
-    """
-    Deletes a module from a template
-    :param request:
-    :return:
+    """Deletes a module from a template
+    Params:
+        request:
+    Return:
     """
     try:
         # get the parameters
@@ -23,13 +23,13 @@ def delete_module(request):
         xpath = request.POST.get("xpath", None)
 
         # get the template
-        template = template_api.get(template_id, request=request)
+        template = template_api.get_by_id(template_id, request=request)
 
         # delete the module
         module_api.delete_module(template, xpath, request=request)
-    except Exception as e:
+    except Exception as exception:
         return HttpResponseBadRequest(
-            escape(str(e)), content_type="application/javascript"
+            escape(str(exception)), content_type="application/javascript"
         )
 
     return HttpResponse(json.dumps({}), content_type="application/javascript")
@@ -49,12 +49,12 @@ def insert_module(request):
         xpath = request.POST.get("xpath", None)
 
         # get the template
-        template = template_api.get(template_id, request=request)
+        template = template_api.get_by_id(template_id, request=request)
         # add the module
         module_api.add_module(template, module_id, xpath, request=request)
-    except Exception as e:
+    except Exception as exception:
         return HttpResponseBadRequest(
-            escape(str(e)), content_type="application/javascript"
+            escape(str(exception)), content_type="application/javascript"
         )
 
     return HttpResponse(json.dumps({}), content_type="application/javascript")

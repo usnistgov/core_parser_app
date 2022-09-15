@@ -3,21 +3,23 @@
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
 
-from core_parser_app.tools.parser.parser import XSDParser
-from tests.test_utils import DataHandler
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.xsd_tree import XSDTree
+from tests.test_utils import DataHandler
+from core_parser_app.tools.parser.parser import XSDParser
 
 # FIXME: use django finder
 RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")
 
 
 class ParserCreateComplexContentTestSuite(TestCase):
-    """"""
+    """Parser Create Complex Content Test Suite"""
 
     maxDiff = None
 
     def setUp(self):
+        """setUp"""
+        """ setUp """
         # Setup data handler
         complex_content_data = join(RESOURCES_PATH, "parser", "complex_content")
         self.complex_content_data_handler = DataHandler(complex_content_data)
@@ -30,6 +32,7 @@ class ParserCreateComplexContentTestSuite(TestCase):
         self.parser = XSDParser()
 
     def test_create_extension_basic(self):
+        """test_create_extension_basic"""
         xsd_files = join("extension", "basic")
         xsd_tree = self.complex_content_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -45,6 +48,7 @@ class ParserCreateComplexContentTestSuite(TestCase):
         self.assertDictEqual(result_string, expected_dict)
 
     def test_create_restriction_basic(self):
+        """test_create_restriction_basic"""
         xsd_files = join("restriction", "basic")
         xsd_tree = self.complex_content_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -63,11 +67,12 @@ class ParserCreateComplexContentTestSuite(TestCase):
 
 
 class ParserReloadComplexContentTestSuite(TestCase):
-    """"""
+    """Parser Reload Complex Content Test Suite"""
 
     maxDiff = None
 
     def setUp(self):
+        """setUp"""
         complex_content_data = join(RESOURCES_PATH, "parser", "complex_content")
         self.complex_content_data_handler = DataHandler(complex_content_data)
 
@@ -80,6 +85,7 @@ class ParserReloadComplexContentTestSuite(TestCase):
         self.parser.editing = True
 
     def test_reload_extension_basic(self):
+        """test_reload_extension_basic"""
         xsd_files = join("extension", "basic")
         xsd_tree = self.complex_content_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -98,11 +104,12 @@ class ParserReloadComplexContentTestSuite(TestCase):
 
         # Load expected dictionary and compare with result
         expected_dict = self.complex_content_data_handler.get_json(
-            "%s.reload" % xsd_files
+            f"{xsd_files}.reload"
         )
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_restriction_basic(self):
+        """test_reload_restriction_basic"""
         xsd_files = join("restriction", "basic")
         xsd_tree = self.complex_content_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
@@ -121,6 +128,6 @@ class ParserReloadComplexContentTestSuite(TestCase):
 
         # Load expected dictionary and compare with result
         expected_dict = self.complex_content_data_handler.get_json(
-            "%s.reload" % xsd_files
+            f"{xsd_files}.reload"
         )
         self.assertDictEqual(result_string, expected_dict)
