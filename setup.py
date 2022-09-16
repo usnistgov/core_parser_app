@@ -41,7 +41,7 @@ required = [req_link(r) if r.startswith("https://") else r for r in required]
 
 setup(
     name="core_parser_app",
-    version="2.0.0-beta2",
+    version="2.0.0",
     description="XSD parser tools for the curator core project",
     long_description=long_desc,
     author="NIST IT Lab",
