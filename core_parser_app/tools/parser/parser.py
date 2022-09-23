@@ -437,7 +437,8 @@ def get_element_type(
                 # if default prefix in type name
                 if element_type.startswith(default_prefix) and default_prefix != "":
                     # remove default prefix and ':'
-                    element_type = element_type[len(default_prefix) + 1 :]
+                    prefix_length = len(default_prefix) + 1
+                    element_type = element_type[prefix_length:]
             elif element.attrib.get(attr) is not None:  # FIXME is it possible?
                 # TODO: manage namespaces
                 # test if type of the element is a simpleType
