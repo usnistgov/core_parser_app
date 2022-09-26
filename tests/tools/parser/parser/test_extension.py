@@ -26,7 +26,9 @@ class ParserCreateExtensionTestSuite(TestCase):
         # Get an instance of the XSDParser
         self.parser = XSDParser()
 
-    def test_generate_extension_with_multiple_children_returns_expected_json_dict(self):
+    def test_generate_extension_with_multiple_children_returns_expected_json_dict(
+        self,
+    ):
         """test_generate_extension_with_multiple_children_returns_expected_json_dict"""
         xsd_files = join("multiple", "basic")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
@@ -114,7 +116,9 @@ class ParserReloadExtensionTestSuite(TestCase):
         self.parser = XSDParser()
         self.parser.editing = True
 
-    def test_generate_extension_with_multiple_children_returns_expected_json_dict(self):
+    def test_generate_extension_with_multiple_children_returns_expected_json_dict(
+        self,
+    ):
         """test_generate_extension_with_multiple_children_returns_expected_json_dict"""
         xsd_files = join("multiple", "basic")
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
@@ -137,7 +141,9 @@ class ParserReloadExtensionTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.extension_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.extension_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_generate_extension_with_single_child_attribute_returns_expected_json_dict(
@@ -165,7 +171,9 @@ class ParserReloadExtensionTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.extension_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.extension_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_generate_extension_with_single_child_choice_returns_expected_json_dict(
@@ -185,11 +193,16 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         # Generate result dict
         result_dict = self.parser.generate_extension(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.extension_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.extension_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_generate_extension_with_single_child_sequence_returns_expected_json_dict(
@@ -209,9 +222,14 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         # Generate result dict
         result_dict = self.parser.generate_extension(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.extension_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.extension_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)

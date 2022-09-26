@@ -48,7 +48,9 @@ class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
             reverse("core_parser_app_data_structure_element_value")
         )
         self.request.GET = {
-            "id": str(self.fixtures.data_structure_element_collection["root"].id)
+            "id": str(
+                self.fixtures.data_structure_element_collection["root"].id
+            )
         }
 
     def test_anonymous_cannot_retrieve_object(self):
@@ -87,7 +89,11 @@ class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
             json.loads(response.content),
-            {"value": self.fixtures.data_structure_element_collection["root"].value},
+            {
+                "value": self.fixtures.data_structure_element_collection[
+                    "root"
+                ].value
+            },
         )
 
 

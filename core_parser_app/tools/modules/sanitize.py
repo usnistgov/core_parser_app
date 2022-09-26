@@ -31,13 +31,18 @@ def sanitize(input_value):
         return clean_value
     # input is a dict
     elif input_type == dict:
-        return {sanitize(key): sanitize(val) for key, val in list(input_value.items())}
+        return {
+            sanitize(key): sanitize(val)
+            for key, val in list(input_value.items())
+        }
     # input is a string of characters
     elif input_type == str:
         try:
             # XML cleaning
             xml_cleaner_parser = etree.XMLParser(remove_blank_text=True)
-            xml_data = XSDTree.fromstring(input_value, parser=xml_cleaner_parser)
+            xml_data = XSDTree.fromstring(
+                input_value, parser=xml_cleaner_parser
+            )
 
             input_value = XSDTree.tostring(xml_data)
         except XMLError as e:

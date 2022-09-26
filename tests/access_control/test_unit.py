@@ -3,7 +3,9 @@ from unittest.mock import Mock
 
 from core_main_app.access_control.exceptions import AccessControlError
 from core_main_app.utils.tests_tools.MockUser import create_mock_user
-from core_parser_app.access_control import _check_data_structure_element_ownership
+from core_parser_app.access_control import (
+    _check_data_structure_element_ownership,
+)
 from core_parser_app.components.data_structure.models import (
     DataStructureElement,
 )
@@ -56,4 +58,6 @@ class TestCheckDataStructureElementOwnership(TestCase):
     def test_anon_data_structure_anon_user_pass(self):
         """test_anon_data_structure_anon_user_pass"""
 
-        _check_data_structure_element_ownership(self.mock_anon_dse, self.users["anon"])
+        _check_data_structure_element_ownership(
+            self.mock_anon_dse, self.users["anon"]
+        )

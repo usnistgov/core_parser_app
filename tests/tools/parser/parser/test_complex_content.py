@@ -21,7 +21,9 @@ class ParserCreateComplexContentTestSuite(TestCase):
         """setUp"""
         """ setUp """
         # Setup data handler
-        complex_content_data = join(RESOURCES_PATH, "parser", "complex_content")
+        complex_content_data = join(
+            RESOURCES_PATH, "parser", "complex_content"
+        )
         self.complex_content_data_handler = DataHandler(complex_content_data)
 
         # Set default namespace
@@ -73,7 +75,9 @@ class ParserReloadComplexContentTestSuite(TestCase):
 
     def setUp(self):
         """setUp"""
-        complex_content_data = join(RESOURCES_PATH, "parser", "complex_content")
+        complex_content_data = join(
+            RESOURCES_PATH, "parser", "complex_content"
+        )
         self.complex_content_data_handler = DataHandler(complex_content_data)
 
         # Set default namespace
@@ -99,7 +103,10 @@ class ParserReloadComplexContentTestSuite(TestCase):
 
         # Generate result dict
         result_string = self.parser.generate_complex_content(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
@@ -123,7 +130,10 @@ class ParserReloadComplexContentTestSuite(TestCase):
 
         # Generate result dict
         result_string = self.parser.generate_complex_content(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result

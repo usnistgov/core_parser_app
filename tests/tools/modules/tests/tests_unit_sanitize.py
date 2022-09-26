@@ -33,7 +33,9 @@ class TestSanitize(TestCase):
         """test_sanitize_xml_returns_encoded_xml"""
 
         xml = "<root><element>value</element></root>"
-        expected = "&lt;root&gt;&lt;element&gt;value&lt;/element&gt;&lt;/root&gt;"
+        expected = (
+            "&lt;root&gt;&lt;element&gt;value&lt;/element&gt;&lt;/root&gt;"
+        )
         self.assertEqual(expected, sanitize(xml))
 
     def test_sanitize_bad_xml_returns_encoded_xml(self):
@@ -47,7 +49,9 @@ class TestSanitize(TestCase):
         """test_sanitize_list_of_xml_returns_list_of_encoded_xml"""
 
         xml = "<root><element>value</element></root>"
-        expected = "&lt;root&gt;&lt;element&gt;value&lt;/element&gt;&lt;/root&gt;"
+        expected = (
+            "&lt;root&gt;&lt;element&gt;value&lt;/element&gt;&lt;/root&gt;"
+        )
         xml_list = [xml, xml]
         expected_list = [expected, expected]
         self.assertEqual(expected_list, sanitize(xml_list))
@@ -56,7 +60,9 @@ class TestSanitize(TestCase):
         """test_sanitize_dict_of_xml_returns_dict_of_encoded_xml"""
 
         xml = "<root><element>value</element></root>"
-        expected = "&lt;root&gt;&lt;element&gt;value&lt;/element&gt;&lt;/root&gt;"
+        expected = (
+            "&lt;root&gt;&lt;element&gt;value&lt;/element&gt;&lt;/root&gt;"
+        )
         xml_dict = {xml: xml}
         expected_dict = {expected: expected}
         self.assertEqual(expected_dict, sanitize(xml_dict))

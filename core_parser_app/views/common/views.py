@@ -44,7 +44,10 @@ class ManageModulesUserView(View):
         if not self.read_only:
             modals = ["core_parser_app/common/modals/add_module.html"]
             assets["js"].append(
-                {"path": "core_parser_app/common/js/module_manager.js", "is_raw": False}
+                {
+                    "path": "core_parser_app/common/js/module_manager.js",
+                    "is_raw": False,
+                }
             )
 
         try:
@@ -91,7 +94,8 @@ def get_context(template_id, url_previous_button, read_only, title, request):
     # reverse url
     try:
         url_back_to = reverse(
-            url_previous_button, kwargs={"version_manager_id": version_manager.id}
+            url_previous_button,
+            kwargs={"version_manager_id": version_manager.id},
         )
     except NoReverseMatch:
         url_back_to = reverse(url_previous_button)

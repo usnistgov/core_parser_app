@@ -3,7 +3,10 @@
 from django.conf.urls import include
 from django.urls import re_path
 
-from core_parser_app.views.common import views as common_views, ajax as common_ajax
+from core_parser_app.views.common import (
+    views as common_views,
+    ajax as common_ajax,
+)
 from core_parser_app.views.user import ajax as user_ajax
 
 urlpatterns = [

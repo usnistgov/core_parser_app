@@ -24,7 +24,10 @@ from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
 )
 from core_parser_app.components.module import api as module_api
-from core_parser_app.settings import MODULE_TAG_NAME, PARSER_MAX_IN_MEMORY_ELEMENTS
+from core_parser_app.settings import (
+    MODULE_TAG_NAME,
+    PARSER_MAX_IN_MEMORY_ELEMENTS,
+)
 from core_parser_app.tools.parser.exceptions import ParserError
 from core_parser_app.tools.parser.renderer.list import ListRenderer
 from core_parser_app.tools.parser.utils.rendering import format_tooltip
@@ -79,7 +82,10 @@ def load_schema_data_in_db(request, xsd_data, data_structure, parent=None):
     xsd_element.value = xsd_data["value"]
 
     if "options" in xsd_data:
-        if xsd_element.tag == "module" and xsd_data["options"]["data"] is not None:
+        if (
+            xsd_element.tag == "module"
+            and xsd_data["options"]["data"] is not None
+        ):
             module_data = xsd_data["options"]["data"]
             module_data = module_data.lstrip()
             xsd_data["options"]["data"] = module_data.rstrip()
@@ -90,12 +96,17 @@ def load_schema_data_in_db(request, xsd_data, data_structure, parent=None):
     if "children" in xsd_data:
         for child in xsd_data["children"]:
             load_schema_data_in_db(
-                request, child, data_structure=data_structure, parent=xsd_element
+                request,
+                child,
+                data_structure=data_structure,
+                parent=xsd_element,
             )
 
     if xsd_element.tag == "choice-iter":
         if xsd_element.value is None:
-            xsd_element.value = str(xsd_element.children.all().order_by("pk")[0].pk)
+            xsd_element.value = str(
+                xsd_element.children.all().order_by("pk")[0].pk
+            )
             data_structure_element_api.upsert(xsd_element, request)
         else:  # Value set => Put the pk of the displayed child
             child_index = int(xsd_element.value)
@@ -178,7 +189,9 @@ def remove_child_element(data_structure_element, child_element, request):
             elem_iter.tag = "sequence-iter"
 
         data_structure_element_api.upsert(elem_iter, request)
-        data_structure_element_api.add_child(data_structure_element, elem_iter, request)
+        data_structure_element_api.add_child(
+            data_structure_element, elem_iter, request
+        )
 
     return data_structure_element
 
@@ -232,12 +245,16 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
     for element in elements:
         if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
             if "name" in element.attrib:
-                xpaths.append({"name": element.attrib["name"], "element": element})
+                xpaths.append(
+                    {"name": element.attrib["name"], "element": element}
+                )
             elif "ref" in element.attrib:
                 # check if XML element or attribute
                 if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                     element_tag = "element"
-                elif element.tag == "{0}attribute".format(LXML_SCHEMA_NAMESPACE):
+                elif element.tag == "{0}attribute".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     element_tag = "attribute"
 
                 # get schema namespaces
@@ -256,7 +273,10 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
 
                 if ref_element is not None:
                     xpaths.append(
-                        {"name": ref_element.attrib.get("name"), "element": ref_element}
+                        {
+                            "name": ref_element.attrib.get("name"),
+                            "element": ref_element,
+                        }
                     )
         else:
             xpaths.extend(
@@ -271,7 +291,12 @@ def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
 
 
 def lookup_occurs(
-    element, xml_tree, full_path, edit_data_tree, download_enabled=True, request=None
+    element,
+    xml_tree,
+    full_path,
+    edit_data_tree,
+    download_enabled=True,
+    request=None,
 ):
     """Lookup in data to get the number of occurrences of a sequence or  choice
     without a name (i.e. not within a named complextype).
@@ -317,7 +342,9 @@ def lookup_occurs(
             target_namespace,
             target_namespace_prefix,
         )
-        edit_elements = edit_data_tree.xpath(element_path, namespaces=namespaces)
+        edit_elements = edit_data_tree.xpath(
+            element_path, namespaces=namespaces
+        )
         elements_found.extend(edit_elements)
 
     return elements_found
@@ -428,14 +455,19 @@ def get_element_type(
             for i in range(len(list(element))):
                 if element[i].tag == "{0}simpleType".format(
                     LXML_SCHEMA_NAMESPACE
-                ) or element[i].tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                ) or element[i].tag == "{0}complexType".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     element_type = element[i]
                     break
         else:  # element with type attribute
             if element.attrib.get(attr) in get_xsd_types(default_prefix):
                 element_type = element.attrib.get(attr)
                 # if default prefix in type name
-                if element_type.startswith(default_prefix) and default_prefix != "":
+                if (
+                    element_type.startswith(default_prefix)
+                    and default_prefix != ""
+                ):
                     # remove default prefix and ':'
                     prefix_length = len(default_prefix) + 1
                     element_type = element_type[prefix_length:]
@@ -459,7 +491,10 @@ def get_element_type(
                             for el_import in imports:
                                 import_ns = el_import.attrib["namespace"]
                                 if element.nsmap[type_ns_prefix] == import_ns:
-                                    xml_tree, schema_location = import_xml_tree(
+                                    (
+                                        xml_tree,
+                                        schema_location,
+                                    ) = import_xml_tree(
                                         el_import,
                                         download_enabled=download_enabled,
                                         request=request,
@@ -470,7 +505,10 @@ def get_element_type(
                                 for el_import in imports:
                                     import_ns = el_import.attrib["namespace"]
                                     if namespaces[type_ns_prefix] == import_ns:
-                                        xml_tree, schema_location = import_xml_tree(
+                                        (
+                                            xml_tree,
+                                            schema_location,
+                                        ) = import_xml_tree(
                                             el_import,
                                             download_enabled=download_enabled,
                                             request=request,
@@ -488,8 +526,8 @@ def get_element_type(
                     )
                     element_type = xml_tree.find(xpath)
     except Exception as exception:
-        exception_message = "Something went wrong in get_element_type:  " + str(
-            exception
+        exception_message = (
+            "Something went wrong in get_element_type:  " + str(exception)
         )
         logger.fatal(exception_message)
 
@@ -585,13 +623,17 @@ def get_ref_element(
             )
         else:  # the ref might be in one of the imports
             # get all import elements
-            imports = xml_tree.findall("//{}import".format(LXML_SCHEMA_NAMESPACE))
+            imports = xml_tree.findall(
+                "//{}import".format(LXML_SCHEMA_NAMESPACE)
+            )
             # find the referred document using the prefix
             for el_import in imports:
                 import_ns = el_import.attrib["namespace"]
                 if namespaces[ref_namespace_prefix] == import_ns:
                     xml_tree, schema_location = import_xml_tree(
-                        el_import, download_enabled=download_enabled, request=request
+                        el_import,
+                        download_enabled=download_enabled,
+                        request=request,
                     )
 
                     ref_element = xml_tree.find(
@@ -602,7 +644,9 @@ def get_ref_element(
                     break
     else:
         ref_element = xml_tree.find(
-            "./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE, element_tag, ref)
+            "./{0}{1}[@name='{2}']".format(
+                LXML_SCHEMA_NAMESPACE, element_tag, ref
+            )
         )
 
     return ref_element, xml_tree, schema_location
@@ -701,7 +745,9 @@ def get_extensions(xml_doc_tree, base_type_name):
     """
     # TODO: look for extensions in imported documents
     # get all extensions of the document
-    extensions = xml_doc_tree.findall(".//{0}extension".format(LXML_SCHEMA_NAMESPACE))
+    extensions = xml_doc_tree.findall(
+        ".//{0}extension".format(LXML_SCHEMA_NAMESPACE)
+    )
     # keep only simple/complex type extensions, no built-in types
     custom_type_extensions = []
     for extension in extensions:
@@ -836,7 +882,11 @@ class XSDParser:
         self.in_memory_elements = 0
 
     def generate_form(
-        self, xsd_doc_data, xml_doc_data=None, data_structure=None, request=None
+        self,
+        xsd_doc_data,
+        xml_doc_data=None,
+        data_structure=None,
+        request=None,
     ):
         """Generate form data structure form XML Schema
 
@@ -852,7 +902,9 @@ class XSDParser:
 
         # flatten the includes
         xml_doc_tree_str = XSDFlattenerDatabaseOrURL(
-            xsd_doc_data, request=request, download_enabled=self.download_dependencies
+            xsd_doc_data,
+            request=request,
+            download_enabled=self.download_dependencies,
         ).get_flat()
         xml_doc_tree = XSDTree.build_tree(xml_doc_tree_str)
 
@@ -880,7 +932,9 @@ class XSDParser:
             self.editing = False
 
         # find all root elements
-        elements = xml_doc_tree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
+        elements = xml_doc_tree.findall(
+            "./{0}element".format(LXML_SCHEMA_NAMESPACE)
+        )
 
         try:
             form_content = ""
@@ -895,7 +949,9 @@ class XSDParser:
                     app_info = get_app_info_options(element)
                     if "default" in app_info:
                         form_content = self.generate_element(
-                            element, xml_doc_tree, edit_data_tree=edit_data_tree
+                            element,
+                            xml_doc_tree,
+                            edit_data_tree=edit_data_tree,
                         )
                         default_choice = True
                         break
@@ -924,7 +980,9 @@ class XSDParser:
                             break
                     if not default_choice:
                         form_content = self.generate_choice_extensions(
-                            complex_types, xml_doc_tree, edit_data_tree=edit_data_tree
+                            complex_types,
+                            xml_doc_tree,
+                            edit_data_tree=edit_data_tree,
                         )
                 else:  # len(complex_types) == 0
                     simple_types = xml_doc_tree.findall(
@@ -1002,7 +1060,9 @@ class XSDParser:
             module_url = get_module_url(element)
             _has_module = True if module_url is not None else False
             # check if the module manages the occurrences by itself
-            _is_multiple = is_module_multiple(element) if _has_module else False
+            _is_multiple = (
+                is_module_multiple(element) if _has_module else False
+            )
 
         # FIXME see if we can avoid these basic initialization
         # FIXME this is not necessarily true (see attributes)
@@ -1043,7 +1103,9 @@ class XSDParser:
 
         is_ref = False
         # get the name of the element, go find the reference if there's one
-        if "ref" in element.attrib:  # type is a reference included in the document
+        if (
+            "ref" in element.attrib
+        ):  # type is a reference included in the document
             is_ref = True
             ref = element.attrib["ref"]
             ref_element, xml_tree, schema_location = get_ref_element(
@@ -1066,7 +1128,9 @@ class XSDParser:
             else:
                 # the element was not found where it was supposed to be
                 # could be a use case too complex for the current parser
-                warning_message = "Ref element not found: " + str(element.attrib)
+                warning_message = "Ref element not found: " + str(
+                    element.attrib
+                )
                 logger.warning(warning_message)
 
                 return db_element
@@ -1114,10 +1178,14 @@ class XSDParser:
         if self.editing:
             if xml_element is None:
                 # get the number of occurrences in the data
-                edit_elements = edit_data_tree.xpath(full_path, namespaces=namespaces)
+                edit_elements = edit_data_tree.xpath(
+                    full_path, namespaces=namespaces
+                )
                 nb_occurrences_data = len(edit_elements)
             else:
-                if xml_element is False:  # explicitly say to not generate the element
+                if (
+                    xml_element is False
+                ):  # explicitly say to not generate the element
                     edit_elements = []
                     nb_occurrences_data = 1
                 else:
@@ -1252,7 +1320,9 @@ class XSDParser:
                                 # get the value of the attribute
                                 if edit_elements[x] is not None:
                                     # set the value of the element
-                                    if isinstance(edit_elements[x], numbers.Number):
+                                    if isinstance(
+                                        edit_elements[x], numbers.Number
+                                    ):
                                         default_value = str(edit_elements[x])
                                     else:
                                         default_value = edit_elements[x]
@@ -1273,7 +1343,9 @@ class XSDParser:
                         element_type, etree._Element
                     ):  # no complex/simple type
                         placeholder = (
-                            app_info["placeholder"] if "placeholder" in app_info else ""
+                            app_info["placeholder"]
+                            if "placeholder" in app_info
+                            else ""
                         )
                         tooltip = (
                             format_tooltip(app_info["tooltip"])
@@ -1329,7 +1401,11 @@ class XSDParser:
         return db_element
 
     def generate_element_absent(
-        self, element_id, xsd_doc_data, data_structure=None, renderer_class=ListRenderer
+        self,
+        element_id,
+        xsd_doc_data,
+        data_structure=None,
+        renderer_class=ListRenderer,
     ):
         """Generate data structure for an XML element absent from the tree
 
@@ -1343,7 +1419,9 @@ class XSDParser:
 
         """
 
-        sub_element = data_structure_element_api.get_by_id(element_id, self.request)
+        sub_element = data_structure_element_api.get_by_id(
+            element_id, self.request
+        )
 
         if self.auto_key_keyref:
             self.init_key_keyref(sub_element)
@@ -1394,11 +1472,15 @@ class XSDParser:
         xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
 
         if "min" in schema_element.options:
-            xml_element.attrib["minOccurs"] = str(schema_element.options["min"])
+            xml_element.attrib["minOccurs"] = str(
+                schema_element.options["min"]
+            )
 
         if "max" in schema_element.options:
             if schema_element.options["max"] != -1:
-                xml_element.attrib["maxOccurs"] = str(schema_element.options["max"])
+                xml_element.attrib["maxOccurs"] = str(
+                    schema_element.options["max"]
+                )
             else:
                 xml_element.attrib["maxOccurs"] = "unbounded"
 
@@ -1406,11 +1488,17 @@ class XSDParser:
         if schema_element.tag == "choice":
             # can use generate_element to generate a choice never generated
             db_tree = self.generate_choice(
-                xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True
+                xml_element,
+                xml_doc_tree,
+                full_path=xml_xpath,
+                force_generation=True,
             )
         elif schema_element.tag == "sequence":
             db_tree = self.generate_sequence(
-                xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True
+                xml_element,
+                xml_doc_tree,
+                full_path=xml_xpath,
+                force_generation=True,
             )
         else:
             # Cannot directly use generate_element because only the body
@@ -1537,7 +1625,11 @@ class XSDParser:
                 nb_occurrences = 1
 
             for x in range(0, int(nb_occurrences)):
-                db_elem_iter = {"tag": "sequence-iter", "value": None, "children": []}
+                db_elem_iter = {
+                    "tag": "sequence-iter",
+                    "value": None,
+                    "children": [],
+                }
                 self.check_in_memory_elements()
 
                 # generates the sequence
@@ -1553,7 +1645,9 @@ class XSDParser:
                         )
 
                         db_elem_iter["children"].append(element_result)
-                    elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                    elif child.tag == "{0}sequence".format(
+                        LXML_SCHEMA_NAMESPACE
+                    ):
                         sequence_result = self.generate_sequence(
                             child,
                             xml_tree,
@@ -1564,7 +1658,9 @@ class XSDParser:
                         )
 
                         db_elem_iter["children"].append(sequence_result)
-                    elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+                    elif child.tag == "{0}choice".format(
+                        LXML_SCHEMA_NAMESPACE
+                    ):
                         choice_result = self.generate_choice(
                             child,
                             xml_tree,
@@ -1583,7 +1679,11 @@ class XSDParser:
                 db_element["children"].append(db_elem_iter)
 
         else:  # min_occurs == 1 and max_occurs == 1
-            db_elem_iter = {"tag": "sequence-iter", "value": None, "children": []}
+            db_elem_iter = {
+                "tag": "sequence-iter",
+                "value": None,
+                "children": [],
+            }
             self.check_in_memory_elements()
 
             # XSD xpath
@@ -1773,20 +1873,27 @@ class XSDParser:
                     element_found = elements_found[x]
                 except Exception as exception:
                     logger.warning(
-                        "generate_choice threw an exception: {0}".format(str(exception))
+                        "generate_choice threw an exception: {0}".format(
+                            str(exception)
+                        )
                     )
 
             for (counter, choiceChild) in enumerate(list(element)):
                 # For unbounded choice, explicitly don't generate the choices not selected
-                if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                if choiceChild.tag == "{0}element".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     # get the schema namespaces
                     xml_tree_str = XSDTree.tostring(xml_tree)
                     namespaces = get_namespaces(xml_tree_str)
                     # add the XSI prefix used by extensions
-                    namespaces["xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
-                    target_namespace, target_namespace_prefix = get_target_namespace(
-                        xml_tree, namespaces
-                    )
+                    namespaces[
+                        "xsi"
+                    ] = "http://www.w3.org/2001/XMLSchema-instance"
+                    (
+                        target_namespace,
+                        target_namespace_prefix,
+                    ) = get_target_namespace(xml_tree, namespaces)
                     # Find the default element
                     if choiceChild.attrib.get("name") is not None:
                         opt_label = choiceChild.attrib.get("name")
@@ -1796,13 +1903,17 @@ class XSDParser:
                         if ":" in choiceChild.attrib.get("ref"):
                             target_namespace_prefix = opt_label.split(":")[0]
                             if target_namespace_prefix in namespaces:
-                                target_namespace = namespaces[target_namespace_prefix]
+                                target_namespace = namespaces[
+                                    target_namespace_prefix
+                                ]
                             opt_label = opt_label.split(":")[1]
 
                     if self.editing:
                         # TODO: manage unbounded choices for sequences/choices as well
                         if max_occurs != 1:
-                            xml_element = False  # explicitly don't generate the element
+                            xml_element = (
+                                False  # explicitly don't generate the element
+                            )
                             element_path = (
                                 opt_label
                                 if target_namespace is None
@@ -1847,9 +1958,13 @@ class XSDParser:
 
                     db_child_0 = element_result
                     db_child["children"].append(db_child_0)
-                elif choiceChild.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
+                elif choiceChild.tag == "{0}group".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     logger.info("generate_sequence case not implemented.")
-                elif choiceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+                elif choiceChild.tag == "{0}choice".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     choice = self.generate_choice(
                         choiceChild,
                         xml_tree,
@@ -1860,7 +1975,9 @@ class XSDParser:
                     )
 
                     db_child["children"].append(choice)
-                elif choiceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                elif choiceChild.tag == "{0}sequence".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     sequence = self.generate_sequence(
                         choiceChild,
                         xml_tree,
@@ -1880,7 +1997,11 @@ class XSDParser:
         return db_element
 
     def generate_choice_absent(
-        self, element_id, xsd_doc_data, data_structure=None, renderer_class=ListRenderer
+        self,
+        element_id,
+        xsd_doc_data,
+        data_structure=None,
+        renderer_class=ListRenderer,
     ):
         """Generate data structure for an XML choice
 
@@ -1893,7 +2014,9 @@ class XSDParser:
         Returns:
 
         """
-        element = data_structure_element_api.get_by_id(element_id, self.request)
+        element = data_structure_element_api.get_by_id(
+            element_id, self.request
+        )
         parent = element.parent
 
         if self.auto_key_keyref:
@@ -1948,7 +2071,9 @@ class XSDParser:
             # provide xpath without element name because already generated in
             # generate_element
             db_tree = self.generate_element(
-                xml_element, xml_doc_tree, full_path=xml_xpath.rsplit("/", 1)[0]
+                xml_element,
+                xml_doc_tree,
+                full_path=xml_xpath.rsplit("/", 1)[0],
             )
         elif element.tag == "sequence":
             db_tree = self.generate_sequence(
@@ -2007,7 +2132,9 @@ class XSDParser:
             "value": None,
             "children": [],
             "options": {
-                "name": element.attrib["name"] if "name" in element.attrib else "",
+                "name": element.attrib["name"]
+                if "name" in element.attrib
+                else "",
                 "xmlns": get_element_namespace(element, xml_tree),
             },
         }
@@ -2065,7 +2192,9 @@ class XSDParser:
                 db_element["children"].append(choice_content)
                 return db_element
 
-        restriction_child = element.find("{0}restriction".format(LXML_SCHEMA_NAMESPACE))
+        restriction_child = element.find(
+            "{0}restriction".format(LXML_SCHEMA_NAMESPACE)
+        )
         if restriction_child is not None:
             restriction = self.generate_restriction(
                 restriction_child,
@@ -2085,13 +2214,23 @@ class XSDParser:
                 if default_value is None:
                     default_value = ""
 
-                db_child = {"tag": "list", "value": default_value, "children": []}
+                db_child = {
+                    "tag": "list",
+                    "value": default_value,
+                    "children": [],
+                }
                 self.check_in_memory_elements()
             else:
-                union_child = element.find("{0}union".format(LXML_SCHEMA_NAMESPACE))
+                union_child = element.find(
+                    "{0}union".format(LXML_SCHEMA_NAMESPACE)
+                )
                 if union_child is not None:
                     # TODO: provide UI for unions
-                    db_child = {"tag": "union", "value": default_value, "children": []}
+                    db_child = {
+                        "tag": "union",
+                        "value": default_value,
+                        "children": [],
+                    }
                     self.check_in_memory_elements()
                 else:
                     db_child = {"tag": "error"}
@@ -2145,7 +2284,9 @@ class XSDParser:
             "value": None,
             "children": [],
             "options": {
-                "name": element.attrib["name"] if "name" in element.attrib else "",
+                "name": element.attrib["name"]
+                if "name" in element.attrib
+                else "",
                 "xmlns": get_element_namespace(element, xml_tree),
             },
         }
@@ -2256,7 +2397,9 @@ class XSDParser:
 
                 db_element["children"].append(element_result)
         # does it contain sequence or all?
-        complex_type_child = element.find("{0}sequence".format(LXML_SCHEMA_NAMESPACE))
+        complex_type_child = element.find(
+            "{0}sequence".format(LXML_SCHEMA_NAMESPACE)
+        )
         if complex_type_child is not None:
             sequence_result = self.generate_sequence(
                 complex_type_child,
@@ -2268,7 +2411,9 @@ class XSDParser:
 
             db_element["children"].append(sequence_result)
         else:
-            complex_type_child = element.find("{0}all".format(LXML_SCHEMA_NAMESPACE))
+            complex_type_child = element.find(
+                "{0}all".format(LXML_SCHEMA_NAMESPACE)
+            )
             if complex_type_child is not None:
                 sequence_result = self.generate_sequence(
                     complex_type_child,
@@ -2386,7 +2531,9 @@ class XSDParser:
 
                 if choiceChild.tag == "{0}simpleType".format(
                     LXML_SCHEMA_NAMESPACE
-                ) or choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                ) or choiceChild.tag == "{0}complexType".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     result = dict()
 
                     if choiceChild.tag == "{0}complexType".format(
@@ -2423,8 +2570,10 @@ class XSDParser:
                     else:
                         opt_label = choiceChild.attrib.get("ref")
 
-                        if ":" in choiceChild.attrib.get("ref"):
+                        if opt_label and ":" in opt_label:
                             opt_label = opt_label.split(":")[1]
+                        # if ":" in opt_label:
+                        #     opt_label = opt_label.split(":")[1]
 
                     # look for active choice when editing
                     if self.editing:
@@ -2489,7 +2638,9 @@ class XSDParser:
         self.check_in_memory_elements()
 
         # generates the content
-        restriction_child = element.find("{0}restriction".format(LXML_SCHEMA_NAMESPACE))
+        restriction_child = element.find(
+            "{0}restriction".format(LXML_SCHEMA_NAMESPACE)
+        )
         if restriction_child is not None:
             restriction_result = self.generate_restriction(
                 restriction_child,
@@ -2502,7 +2653,9 @@ class XSDParser:
 
             db_element["children"].append(restriction_result)
         else:
-            extension_child = element.find("{0}extension".format(LXML_SCHEMA_NAMESPACE))
+            extension_child = element.find(
+                "{0}extension".format(LXML_SCHEMA_NAMESPACE)
+            )
             extension_result = self.generate_extension(
                 extension_child,
                 xml_tree,
@@ -2563,9 +2716,14 @@ class XSDParser:
 
                 # add extra parameters coming from url parameters
                 if module_url.query != "":
-                    db_element["options"]["params"] = dict(parse_qsl(module_url.query))
+                    db_element["options"]["params"] = dict(
+                        parse_qsl(module_url.query)
+                    )
 
-                db_element["options"]["xpath"] = {"xsd": xsd_xpath, "xml": xml_xpath}
+                db_element["options"]["xpath"] = {
+                    "xsd": xsd_xpath,
+                    "xml": xml_xpath,
+                }
 
                 db_element["options"]["multiple"] = module.multiple
 
@@ -2646,7 +2804,9 @@ class XSDParser:
         self.check_in_memory_elements()
 
         # generates the content
-        restriction_child = element.find("{0}restriction".format(LXML_SCHEMA_NAMESPACE))
+        restriction_child = element.find(
+            "{0}restriction".format(LXML_SCHEMA_NAMESPACE)
+        )
         if restriction_child is not None:
             restriction_result = self.generate_restriction(
                 restriction_child,
@@ -2660,7 +2820,9 @@ class XSDParser:
 
             db_element["children"].append(restriction_result)
         else:
-            extension_child = element.find("{0}extension".format(LXML_SCHEMA_NAMESPACE))
+            extension_child = element.find(
+                "{0}extension".format(LXML_SCHEMA_NAMESPACE)
+            )
             extension_result = self.generate_extension(
                 extension_child,
                 xml_tree,
@@ -2717,7 +2879,9 @@ class XSDParser:
         }
         self.check_in_memory_elements()
 
-        enumeration = element.findall("{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
+        enumeration = element.findall(
+            "{0}enumeration".format(LXML_SCHEMA_NAMESPACE)
+        )
 
         if len(enumeration) > 0:
             option_list = []
@@ -2725,7 +2889,10 @@ class XSDParser:
             if is_fixed:
                 # Fixed
                 for enum in enumeration:
-                    db_child = {"tag": "enumeration", "value": enum.attrib.get("value")}
+                    db_child = {
+                        "tag": "enumeration",
+                        "value": enum.attrib.get("value"),
+                    }
                     self.check_in_memory_elements()
 
                     if enum.attrib.get("value") == default_value:
@@ -2746,10 +2913,15 @@ class XSDParser:
                     db_element["children"].append(db_child)
             elif self.editing:
                 # Edition
-                default_value = default_value if default_value is not None else ""
+                default_value = (
+                    default_value if default_value is not None else ""
+                )
 
                 for enum in enumeration:
-                    db_child = {"tag": "enumeration", "value": enum.attrib.get("value")}
+                    db_child = {
+                        "tag": "enumeration",
+                        "value": enum.attrib.get("value"),
+                    }
                     self.check_in_memory_elements()
                     if (
                         default_value is not None
@@ -2773,16 +2945,25 @@ class XSDParser:
             else:
                 # New document
                 for enum in enumeration:
-                    db_child = {"tag": "enumeration", "value": enum.attrib.get("value")}
+                    db_child = {
+                        "tag": "enumeration",
+                        "value": enum.attrib.get("value"),
+                    }
                     self.check_in_memory_elements()
-                    entry = (enum.attrib.get("value"), enum.attrib.get("value"), False)
+                    entry = (
+                        enum.attrib.get("value"),
+                        enum.attrib.get("value"),
+                        False,
+                    )
                     option_list.append(entry)
 
                     db_element["children"].append(db_child)
 
                 db_element["value"] = db_element["children"][0]["value"]
         else:
-            simple_type = element.find("{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
+            simple_type = element.find(
+                "{0}simpleType".format(LXML_SCHEMA_NAMESPACE)
+            )
             if simple_type is not None:
                 simple_type_result = self.generate_simple_type(
                     simple_type,
@@ -2833,7 +3014,11 @@ class XSDParser:
         """
         # FIXME doesn't represent all the possibilities
         #  (http://www.w3schools.com/xml/el_extension.asp)
-        db_element: Dict[str, Any] = {"tag": "extension", "value": None, "children": []}
+        db_element: Dict[str, Any] = {
+            "tag": "extension",
+            "value": None,
+            "children": [],
+        }
         self.check_in_memory_elements()
 
         ##################################################
@@ -2874,7 +3059,9 @@ class XSDParser:
                 )
             else:  # not a built-in data type
                 # fixed not allowed for extensions with base complex type
-                if base_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                if base_type.tag == "{0}complexType".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     complex_type_result = self.generate_complex_type(
                         base_type,
                         xml_tree,
@@ -2886,7 +3073,9 @@ class XSDParser:
                     )
 
                     db_element["children"].append(complex_type_result)
-                elif base_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                elif base_type.tag == "{0}simpleType".format(
+                    LXML_SCHEMA_NAMESPACE
+                ):
                     simple_type_result = self.generate_simple_type(
                         base_type,
                         xml_tree,
@@ -2928,7 +3117,9 @@ class XSDParser:
                 extended_element.insert(0, element_result)
 
         # does it contain sequence or all?
-        complex_type_child = element.find("{0}sequence".format(LXML_SCHEMA_NAMESPACE))
+        complex_type_child = element.find(
+            "{0}sequence".format(LXML_SCHEMA_NAMESPACE)
+        )
         if complex_type_child is not None:
             sequence_result = self.generate_sequence(
                 complex_type_child,
@@ -2940,7 +3131,9 @@ class XSDParser:
 
             extended_element.append(sequence_result)
         else:
-            complex_type_child = element.find("{0}all".format(LXML_SCHEMA_NAMESPACE))
+            complex_type_child = element.find(
+                "{0}all".format(LXML_SCHEMA_NAMESPACE)
+            )
             if complex_type_child is not None:
                 sequence_result = self.generate_sequence(
                     complex_type_child,
@@ -3031,7 +3224,9 @@ class XSDParser:
         # get keys in element scope
         list_key = element.findall("{0}key".format(LXML_SCHEMA_NAMESPACE))
         # get keyrefs in element scope
-        list_keyref = element.findall("{0}keyref".format(LXML_SCHEMA_NAMESPACE))
+        list_keyref = element.findall(
+            "{0}keyref".format(LXML_SCHEMA_NAMESPACE)
+        )
 
         # remove indexes from the xpath
         full_path = re.sub(r"\[[0-9]+]", "", full_path)
@@ -3041,12 +3236,16 @@ class XSDParser:
                 key_name = key.attrib["name"]
                 key_field = ""
 
-                selector = key.find("{0}selector".format(LXML_SCHEMA_NAMESPACE))
+                selector = key.find(
+                    "{0}selector".format(LXML_SCHEMA_NAMESPACE)
+                )
                 selector_xpath = selector.attrib["xpath"]
                 key_selector = full_path + "/" + selector_xpath
                 # remove namespaces
                 for prefix in list(selector.nsmap.keys()):
-                    key_selector = re.sub(r"{}:".format(prefix), "", key_selector)
+                    key_selector = re.sub(
+                        r"{}:".format(prefix), "", key_selector
+                    )
 
                 # FIXME: manage multiple fields
                 fields = key.findall("{0}field".format(LXML_SCHEMA_NAMESPACE))
@@ -3075,15 +3274,21 @@ class XSDParser:
                 if ":" in keyref_refer:
                     keyref_refer = keyref_refer.split(":")[1]
 
-                selector = keyref.find("{0}selector".format(LXML_SCHEMA_NAMESPACE))
+                selector = keyref.find(
+                    "{0}selector".format(LXML_SCHEMA_NAMESPACE)
+                )
                 selector_xpath = selector.attrib["xpath"]
                 keyref_selector = full_path + "/" + selector_xpath
                 # remove namespaces
                 for prefix in list(selector.nsmap.keys()):
-                    keyref_selector = re.sub(r"{}:".format(prefix), "", keyref_selector)
+                    keyref_selector = re.sub(
+                        r"{}:".format(prefix), "", keyref_selector
+                    )
 
                 # FIXME: manage multiple fields
-                fields = keyref.findall("{0}field".format(LXML_SCHEMA_NAMESPACE))
+                fields = keyref.findall(
+                    "{0}field".format(LXML_SCHEMA_NAMESPACE)
+                )
                 for field in fields:
                     field_xpath = field.attrib["xpath"]
                     keyref_field = keyref_selector + "/" + field_xpath
@@ -3103,7 +3308,9 @@ class XSDParser:
         Returns:
 
         """
-        root = data_structure_element_api.get_root_element(element, self.request)
+        root = data_structure_element_api.get_root_element(
+            element, self.request
+        )
         if "keys" in root.options:
             self.keys = root.options["keys"]
         if "keyrefs" in root.options:

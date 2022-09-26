@@ -57,7 +57,9 @@ def get_by_xpath(xpath, request):
     if request.user.is_anonymous:
         return DataStructureElement.get_by_xpath_and_user(xpath, user=None)
 
-    return DataStructureElement.get_by_xpath_and_user(xpath, user=str(request.user.id))
+    return DataStructureElement.get_by_xpath_and_user(
+        xpath, user=str(request.user.id)
+    )
 
 
 @access_control(parser_access_control.is_data_structure_element_owner)

@@ -10,7 +10,9 @@ from core_parser_app.components.data_structure.admin_site import (
     CustomDataStructureAdmin,
 )
 from core_parser_app.components.data_structure.models import DataStructure
-from core_parser_app.components.data_structure.models import DataStructureElement
+from core_parser_app.components.data_structure.models import (
+    DataStructureElement,
+)
 from core_parser_app.components.data_structure_element.admin_site import (
     CustomDataStructureElementAdmin,
 )

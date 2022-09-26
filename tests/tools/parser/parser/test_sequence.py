@@ -145,11 +145,16 @@ class ParserReloadSequenceTestSuite(TestCase):
 
         # Generate result dict
         result_dict = self.parser.generate_sequence(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.sequence_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.sequence_data_handler.get_json(
+            xsd_files + ".reload"
+        )
 
         return result_dict, expected_dict
 

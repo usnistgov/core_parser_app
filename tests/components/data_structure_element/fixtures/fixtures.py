@@ -3,7 +3,9 @@
 from django.contrib.auth.models import User, Group, Permission
 
 from core_main_app.components.template.models import Template
-from core_main_app.utils.integration_tests.fixture_interface import FixtureInterface
+from core_main_app.utils.integration_tests.fixture_interface import (
+    FixtureInterface,
+)
 from core_parser_app.components.data_structure.models import (
     DataStructureElement,
 )
@@ -36,7 +38,9 @@ class DataStructureElementFixtures(FixtureInterface):
         self.template = None
 
         if add_user_perm:
-            default_group, created = Group.objects.get_or_create(name="default")
+            default_group, created = Group.objects.get_or_create(
+                name="default"
+            )
             mock_data_structure_access_perm = Permission.objects.get(
                 codename=rights.MOCK_DATA_STRUCTURE_ACCESS
             )
@@ -44,12 +48,16 @@ class DataStructureElementFixtures(FixtureInterface):
             default_group.user_set.add(self.default_owner_with_perm)
             default_group.user_set.add(self.other_user_with_perm)
         if add_anon_perm:
-            anonymous_group, created = Group.objects.get_or_create(name="anonymous")
+            anonymous_group, created = Group.objects.get_or_create(
+                name="anonymous"
+            )
 
             mock_anon_data_structure_access_perm = Permission.objects.get(
                 codename=rights.MOCK_ANON_DATA_STRUCTURE_ACCESS
             )
-            anonymous_group.permissions.add(mock_anon_data_structure_access_perm)
+            anonymous_group.permissions.add(
+                mock_anon_data_structure_access_perm
+            )
 
     def insert_data(self, user=None, data_structure_class=MockDataStructure):
         """Insert a set of Data
@@ -98,7 +106,12 @@ class DataStructureElementFixtures(FixtureInterface):
         self.data_structure.save()
 
     def _generate_data_structure_element(
-        self, element_id, user=None, options=None, parent=None, data_structure=None
+        self,
+        element_id,
+        user=None,
+        options=None,
+        parent=None,
+        data_structure=None,
     ):
         """Return a DataStructureElement with the given parameters
 
@@ -158,11 +171,17 @@ class DataStructureElementFixtures(FixtureInterface):
             data_structure=self.data_structure,
         )
         element_1200 = self._generate_data_structure_element(
-            "1200", user=user, parent=element_1000, data_structure=self.data_structure
+            "1200",
+            user=user,
+            parent=element_1000,
+            data_structure=self.data_structure,
         )
 
         element_1110 = self._generate_data_structure_element(
-            "1110", user=user, parent=element_1100, data_structure=self.data_structure
+            "1110",
+            user=user,
+            parent=element_1100,
+            data_structure=self.data_structure,
         )
 
         element_1120 = self._generate_data_structure_element(

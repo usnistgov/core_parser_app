@@ -25,7 +25,9 @@ def index(request):
     # set context
     context = {"modules": list_modules}
     # render template
-    return render(request, "core_parser_app/common/modules.html", context=context)
+    return render(
+        request, "core_parser_app/common/modules.html", context=context
+    )
 
 
 def load_resources_view(request):
@@ -57,7 +59,9 @@ def load_resources_view(request):
     # Add all resources from requested modules
     for url in mod_urls:
         module = module_api.get_by_url(url)
-        module_view = AbstractModule.get_view_from_view_path(module.view).as_view()
+        module_view = AbstractModule.get_view_from_view_path(
+            module.view
+        ).as_view()
         mod_resources = module_view(request).content.decode("utf-8")
 
         mod_resources = sanitize(mod_resources)
@@ -96,11 +100,15 @@ def load_resources_view(request):
     # Aggregate scripts
     for script in resources["scripts"]:
         if script.startswith("http://") or script.startswith("https://"):
-            script_tag = '<script class="module" src="' + script + '"></script>'
+            script_tag = (
+                '<script class="module" src="' + script + '"></script>'
+            )
         else:
             with open(finders.find(script), "r") as script_file:
                 script_tag = (
-                    '<script class="module">' + script_file.read() + "</script>"
+                    '<script class="module">'
+                    + script_file.read()
+                    + "</script>"
                 )
 
         response["scripts"] += script_tag
@@ -115,7 +123,9 @@ def load_resources_view(request):
             )
         else:
             with open(finders.find(style), "r") as script_file:
-                script_tag = '<style class="module">' + script_file.read() + "</style>"
+                script_tag = (
+                    '<style class="module">' + script_file.read() + "</style>"
+                )
 
         response["styles"] += script_tag
 

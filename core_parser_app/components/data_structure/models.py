@@ -28,7 +28,11 @@ class DataStructureElement(models.Model):
         related_name="children",
     )
     data_structure = models.ForeignKey(
-        "DataStructure", on_delete=models.CASCADE, default=None, null=True, blank=True
+        "DataStructure",
+        on_delete=models.CASCADE,
+        default=None,
+        null=True,
+        blank=True,
     )
     creation_date = models.DateTimeField(auto_now_add=True)
 
@@ -44,7 +48,9 @@ class DataStructureElement(models.Model):
 
         """
         try:
-            return DataStructureElement.objects.get(pk=str(data_structure_element_id))
+            return DataStructureElement.objects.get(
+                pk=str(data_structure_element_id)
+            )
         except ObjectDoesNotExist as exception:
             raise exceptions.DoesNotExist(str(exception))
         except Exception as ex:
@@ -194,7 +200,9 @@ class DataStructure(models.Model):
             return data_structure
 
         # raise exception
-        raise exceptions.DoesNotExist("No data structure found for the given id.")
+        raise exceptions.DoesNotExist(
+            "No data structure found for the given id."
+        )
 
     @classmethod
     def pre_delete(cls, sender, instance, **kwargs):
@@ -213,7 +221,9 @@ class DataStructure(models.Model):
 
         """
         if self.data_structure_element_root is not None:
-            delete_branch_task.apply_async((str(self.data_structure_element_root.id),))
+            delete_branch_task.apply_async(
+                (str(self.data_structure_element_root.id),)
+            )
 
     def __str__(self):
         """Data Structure as string

@@ -41,7 +41,8 @@ def transform_xsd_to_html_with_modules(xsd_string):
         module_tag_name = MODULE_TAG_NAME
 
     return xsl_transform(
-        xsd_string, read_and_update_xslt_with_settings(xslt_path, module_tag_name)
+        xsd_string,
+        read_and_update_xslt_with_settings(xslt_path, module_tag_name),
     )
 
 

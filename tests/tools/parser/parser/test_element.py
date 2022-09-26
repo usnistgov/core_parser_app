@@ -37,7 +37,9 @@ class ParserGenerateElementTestSuite(TestCase):
         )[0]
 
         # Generate result dict
-        result_dict = self.parser.generate_element(xsd_element, xsd_tree, full_path="")
+        result_dict = self.parser.generate_element(
+            xsd_element, xsd_tree, full_path=""
+        )
 
         # Load expected dictionary and compare with result
         expected_dict = self.element_data_handler.get_json(xsd_files)
@@ -52,7 +54,9 @@ class ParserGenerateElementTestSuite(TestCase):
         )[0]
 
         # Generate result dict
-        result_dict = self.parser.generate_element(xsd_element, xsd_tree, full_path="")
+        result_dict = self.parser.generate_element(
+            xsd_element, xsd_tree, full_path=""
+        )
 
         # Load expected dictionary and compare with result
         expected_dict = self.element_data_handler.get_json(xsd_files)
@@ -103,7 +107,9 @@ class ParserGenerateElementTestSuite(TestCase):
         )[0]
 
         # generate result dict
-        result_dict = self.parser.generate_element(xsd_element, xsd_tree, full_path="")
+        result_dict = self.parser.generate_element(
+            xsd_element, xsd_tree, full_path=""
+        )
 
         # Load expected dictionary and compare with result
         expected_dict = self.element_data_handler.get_json(xsd_files)
@@ -163,7 +169,9 @@ class ParserReloadElementTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.element_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.element_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_reload_simple_type_basic_ns(self):
@@ -174,7 +182,9 @@ class ParserReloadElementTestSuite(TestCase):
             "/xs:schema/xs:element", namespaces=self.namespaces
         )[0]
 
-        xml_tree = self.element_data_handler.get_xml(xsd_files.replace("_ns", ""))
+        xml_tree = self.element_data_handler.get_xml(
+            xsd_files.replace("_ns", "")
+        )
         xml_data = XSDTree.tostring(xml_tree)
         edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
@@ -184,7 +194,9 @@ class ParserReloadElementTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.element_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.element_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_reload_simple_type_unbounded(self):
@@ -209,7 +221,9 @@ class ParserReloadElementTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.element_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.element_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_reload_simple_type_unbounded_ns(self):
@@ -227,11 +241,16 @@ class ParserReloadElementTestSuite(TestCase):
 
         # Generate result dict
         result_dict = self.parser.generate_element(
-            xsd_element, xsd_tree, full_path="/root[1]", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root[1]",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.element_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.element_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_reload_complex_type_basic(self):
@@ -252,7 +271,9 @@ class ParserReloadElementTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.element_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.element_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)
 
     def test_create_complex_type_unbounded(self):
@@ -270,9 +291,14 @@ class ParserReloadElementTestSuite(TestCase):
 
         # Generate result dict
         result_dict = self.parser.generate_element(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.element_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.element_data_handler.get_json(
+            xsd_files + ".reload"
+        )
         self.assertDictEqual(expected_dict, result_dict)

@@ -64,7 +64,10 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("user", models.CharField(blank=True, max_length=200, null=True)),
+                (
+                    "user",
+                    models.CharField(blank=True, max_length=200, null=True),
+                ),
                 ("tag", models.CharField(max_length=200)),
                 ("value", models.TextField(blank=True, null=True)),
                 ("creation_date", models.DateTimeField(auto_now_add=True)),
@@ -105,7 +108,8 @@ class Migration(migrations.Migration):
             model_name="datastructure",
             name="template",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="core_main_app.template"
+                on_delete=django.db.models.deletion.CASCADE,
+                to="core_main_app.template",
             ),
         ),
         migrations.AlterUniqueTogether(

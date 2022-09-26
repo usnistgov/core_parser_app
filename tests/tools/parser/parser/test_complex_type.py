@@ -149,11 +149,16 @@ class ParserReloadComplexTypeTestSuite(TestCase):
 
         # Generate result dict
         result_string = self.parser.generate_complex_type(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
+        expected_dict = self.complex_type_data_handler.get_json(
+            f"{xsd_files}.reload"
+        )
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_sequence_basic(self):
@@ -170,11 +175,16 @@ class ParserReloadComplexTypeTestSuite(TestCase):
 
         # Generate result dict
         result_string = self.parser.generate_complex_type(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
+        expected_dict = self.complex_type_data_handler.get_json(
+            f"{xsd_files}.reload"
+        )
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_simple_content_basic(self):
@@ -201,7 +211,9 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
+        expected_dict = self.complex_type_data_handler.get_json(
+            f"{xsd_files}.reload"
+        )
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_complex_content_basic(self):
@@ -218,11 +230,16 @@ class ParserReloadComplexTypeTestSuite(TestCase):
 
         # Generate result dict
         result_string = self.parser.generate_complex_type(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
+        expected_dict = self.complex_type_data_handler.get_json(
+            f"{xsd_files}.reload"
+        )
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_attribute_basic(self):
@@ -239,11 +256,16 @@ class ParserReloadComplexTypeTestSuite(TestCase):
 
         # Generate result dict
         result_string = self.parser.generate_complex_type(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
+        expected_dict = self.complex_type_data_handler.get_json(
+            f"{xsd_files}.reload"
+        )
         self.assertDictEqual(result_string, expected_dict)
 
     def test_reload_multiple_basic(self):
@@ -260,9 +282,14 @@ class ParserReloadComplexTypeTestSuite(TestCase):
 
         # Generate result dict
         result_string = self.parser.generate_complex_type(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.complex_type_data_handler.get_json(f"{xsd_files}.reload")
+        expected_dict = self.complex_type_data_handler.get_json(
+            f"{xsd_files}.reload"
+        )
         self.assertDictEqual(result_string, expected_dict)

@@ -30,7 +30,8 @@ class ParserCreateRestrictionTestSuite(TestCase):
     def _run_test(self, xsd_files):
         xsd_tree = self.restriction_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
-            "/xs:schema/xs:simpleType/xs:restriction", namespaces=self.namespaces
+            "/xs:schema/xs:simpleType/xs:restriction",
+            namespaces=self.namespaces,
         )[0]
 
         result_dict = self.parser.generate_restriction(
@@ -76,7 +77,8 @@ class ParserReloadRestrictionTestSuite(TestCase):
     def _run_test(self, xsd_files):
         xsd_tree = self.restriction_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(
-            "/xs:schema/xs:simpleType/xs:restriction", namespaces=self.namespaces
+            "/xs:schema/xs:simpleType/xs:restriction",
+            namespaces=self.namespaces,
         )[0]
 
         xml_tree = self.restriction_data_handler.get_xml(xsd_files)
@@ -93,7 +95,9 @@ class ParserReloadRestrictionTestSuite(TestCase):
         )
 
         # Load expected dictionary and compare with result
-        expected_dict = self.restriction_data_handler.get_json(xsd_files + ".reload")
+        expected_dict = self.restriction_data_handler.get_json(
+            xsd_files + ".reload"
+        )
 
         return result_dict, expected_dict
 

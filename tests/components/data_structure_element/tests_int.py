@@ -43,7 +43,8 @@ class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
         mock_request.user = self.fixtures.default_owner_with_perm
         # Act
         result = data_structure_element_api.get_by_id(
-            self.fixtures.data_structure_element_collection["2000"].id, mock_request
+            self.fixtures.data_structure_element_collection["2000"].id,
+            mock_request,
         )
         # Assert
         self.assertEqual(
@@ -76,7 +77,9 @@ class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
         """test_data_get_by_xpath_return_data_if_found"""
 
         # Act
-        expected_element = self.fixtures.data_structure_element_collection["1121"]
+        expected_element = self.fixtures.data_structure_element_collection[
+            "1121"
+        ]
         result = data_structure_element_api.get_by_xpath(
             expected_element.options["xpath"]["xml"], self.mock_request
         )
@@ -112,7 +115,8 @@ class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
 
         # Act
         result = data_structure_element_api.get_root_element(
-            self.fixtures.data_structure_element_collection["1121"], mock_request
+            self.fixtures.data_structure_element_collection["1121"],
+            mock_request,
         )
         # Assert
         self.assertEqual(
@@ -128,7 +132,8 @@ class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
 
         # Act
         result = data_structure_element_api.get_root_element(
-            self.fixtures.data_structure_element_collection["1100"], mock_request
+            self.fixtures.data_structure_element_collection["1100"],
+            mock_request,
         )
         # Assert
         self.assertEqual(
@@ -144,7 +149,8 @@ class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
 
         # Act
         result = data_structure_element_api.get_root_element(
-            self.fixtures.data_structure_element_collection["root"], mock_request
+            self.fixtures.data_structure_element_collection["root"],
+            mock_request,
         )
         # Assert
         self.assertEqual(
@@ -158,9 +164,13 @@ class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
         mock_request = Mock(spec=HttpRequest)
         mock_request.user = self.fixtures.default_owner_with_perm
 
-        for element in self.fixtures.data_structure_element_collection.values():
+        for (
+            element
+        ) in self.fixtures.data_structure_element_collection.values():
             # Act
-            result = data_structure_element_api.get_root_element(element, mock_request)
+            result = data_structure_element_api.get_root_element(
+                element, mock_request
+            )
             # Assert
             self.assertEqual(
                 result, self.fixtures.data_structure_element_collection["root"]

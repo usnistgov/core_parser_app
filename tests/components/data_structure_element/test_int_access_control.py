@@ -10,7 +10,9 @@ from core_main_app.commons.exceptions import DoesNotExist
 from core_main_app.utils.integration_tests.integration_base_test_case import (
     MongoIntegrationBaseTestCase,
 )
-from core_parser_app.access_control import _check_data_structure_elements_access
+from core_parser_app.access_control import (
+    _check_data_structure_elements_access,
+)
 from core_parser_app.components.data_structure.models import (
     DataStructureElement,
 )
@@ -209,9 +211,9 @@ class TestGetByXPath(MongoIntegrationBaseTestCase):
         self.mock_request.user = self.users["anon"]
 
         result = data_structure_element_api.get_by_xpath(
-            self.fixtures.data_structure_element_collection["1121"].options["xpath"][
-                "xml"
-            ],
+            self.fixtures.data_structure_element_collection["1121"].options[
+                "xpath"
+            ]["xml"],
             self.mock_request,
         )
 
@@ -223,9 +225,9 @@ class TestGetByXPath(MongoIntegrationBaseTestCase):
         self.mock_request.user = self.users["user"]
 
         result = data_structure_element_api.get_by_xpath(
-            self.fixtures.data_structure_element_collection["1121"].options["xpath"][
-                "xml"
-            ],
+            self.fixtures.data_structure_element_collection["1121"].options[
+                "xpath"
+            ]["xml"],
             self.mock_request,
         )
 
@@ -237,9 +239,9 @@ class TestGetByXPath(MongoIntegrationBaseTestCase):
         self.mock_request.user = self.users["owner"]
 
         result = data_structure_element_api.get_by_xpath(
-            self.fixtures.data_structure_element_collection["1121"].options["xpath"][
-                "xml"
-            ],
+            self.fixtures.data_structure_element_collection["1121"].options[
+                "xpath"
+            ]["xml"],
             self.mock_request,
         )
 
@@ -254,9 +256,9 @@ class TestGetByXPath(MongoIntegrationBaseTestCase):
         self.mock_request.user = self.users["superuser"]
 
         result = data_structure_element_api.get_by_xpath(
-            self.fixtures.data_structure_element_collection["1121"].options["xpath"][
-                "xml"
-            ],
+            self.fixtures.data_structure_element_collection["1121"].options[
+                "xpath"
+            ]["xml"],
             self.mock_request,
         )
 
@@ -324,7 +326,9 @@ class TestRemoveChild(MongoIntegrationBaseTestCase):
         )
 
         self.assertEqual(
-            self.fixtures.data_structure_element_collection["1000"].children.count(),
+            self.fixtures.data_structure_element_collection[
+                "1000"
+            ].children.count(),
             orig_children_count - 1,
         )
 
@@ -344,7 +348,9 @@ class TestRemoveChild(MongoIntegrationBaseTestCase):
         )
 
         self.assertEqual(
-            self.fixtures.data_structure_element_collection["1000"].children.count(),
+            self.fixtures.data_structure_element_collection[
+                "1000"
+            ].children.count(),
             orig_children_count - 1,
         )
 
@@ -414,7 +420,9 @@ class TestAddChild(MongoIntegrationBaseTestCase):
         )
 
         self.assertEqual(
-            self.fixtures.data_structure_element_collection["1000"].children.count(),
+            self.fixtures.data_structure_element_collection[
+                "1000"
+            ].children.count(),
             orig_children_count + 1,
         )
 
@@ -434,7 +442,9 @@ class TestAddChild(MongoIntegrationBaseTestCase):
         )
 
         self.assertEqual(
-            self.fixtures.data_structure_element_collection["1000"].children.count(),
+            self.fixtures.data_structure_element_collection[
+                "1000"
+            ].children.count(),
             orig_children_count + 1,
         )
 
@@ -485,7 +495,8 @@ class TestGetRootElement(MongoIntegrationBaseTestCase):
         self.mock_request.user = self.users["owner"]
 
         result = data_structure_element_api.get_root_element(
-            self.fixtures.data_structure_element_collection["1121"], self.mock_request
+            self.fixtures.data_structure_element_collection["1121"],
+            self.mock_request,
         )
 
         self.assertEqual(
@@ -499,7 +510,8 @@ class TestGetRootElement(MongoIntegrationBaseTestCase):
         self.mock_request.user = self.users["superuser"]
 
         result = data_structure_element_api.get_root_element(
-            self.fixtures.data_structure_element_collection["1121"], self.mock_request
+            self.fixtures.data_structure_element_collection["1121"],
+            self.mock_request,
         )
 
         self.assertEqual(
@@ -508,7 +520,9 @@ class TestGetRootElement(MongoIntegrationBaseTestCase):
         )
 
 
-class TestDataStructureElementPermissionWithOwners(MongoIntegrationBaseTestCase):
+class TestDataStructureElementPermissionWithOwners(
+    MongoIntegrationBaseTestCase
+):
     """Test access to data structure elements when owner is set"""
 
     def setUp(self):
@@ -556,7 +570,9 @@ class TestDataStructureElementPermissionWithOwners(MongoIntegrationBaseTestCase)
             )
 
 
-class TestDataStructureElementPermissionWithoutOwners(MongoIntegrationBaseTestCase):
+class TestDataStructureElementPermissionWithoutOwners(
+    MongoIntegrationBaseTestCase
+):
     """Test access to data structure elements when owner is not set"""
 
     def setUp(self):
@@ -571,7 +587,8 @@ class TestDataStructureElementPermissionWithoutOwners(MongoIntegrationBaseTestCa
         """test_anon_user_can_access_dse_if_permission_and_no_owner"""
 
         _check_data_structure_elements_access(
-            [self.fixtures.data_structure_element_collection["root"]], AnonymousUser()
+            [self.fixtures.data_structure_element_collection["root"]],
+            AnonymousUser(),
         )
 
 

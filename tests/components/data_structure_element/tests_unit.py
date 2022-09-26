@@ -58,7 +58,9 @@ class TestDataStructureElementGetById(TestCase):
             data_structure_element_api.get_by_id(-1, self.mock_request)
 
     @patch.object(DataStructureElement, "get_by_id_and_user")
-    def test_data_structure_element_get_by_id_return_data_if_found(self, mock_get):
+    def test_data_structure_element_get_by_id_return_data_if_found(
+        self, mock_get
+    ):
         """test_data_structure_element_get_by_id_return_data_if_found"""
 
         # Arrange
@@ -87,10 +89,14 @@ class TestDataStructureElementGetByXpath(TestCase):
         mock_get.side_effect = exceptions.DoesNotExist("")
         # Act # Assert
         with self.assertRaises(exceptions.DoesNotExist):
-            data_structure_element_api.get_by_xpath("value_xpath", mock_request)
+            data_structure_element_api.get_by_xpath(
+                "value_xpath", mock_request
+            )
 
     @patch.object(DataStructureElement, "get_by_xpath")
-    def test_data_structure_element_get_by_xpath_return_data_if_found(self, mock_get):
+    def test_data_structure_element_get_by_xpath_return_data_if_found(
+        self, mock_get
+    ):
         """test_data_structure_element_get_by_xpath_return_data_if_found"""
 
         # Arrange
@@ -119,7 +125,10 @@ class TestDataStructureElementUpsert(TestCase):
         mock_request.user = mock_user
 
         mock_data_structure_element = DataStructureElement(
-            user="1", tag="tag", value="value", data_structure=MockDataStructure()
+            user="1",
+            tag="tag",
+            value="value",
+            data_structure=MockDataStructure(),
         )
         mock_save.return_value = mock_data_structure_element
 

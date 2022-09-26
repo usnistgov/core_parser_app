@@ -62,7 +62,11 @@ class AbstractListRenderer(DefaultRenderer):
                 % str(type(is_hidden))
             )
 
-        data = {"content": content, "element_id": element_id, "is_hidden": is_hidden}
+        data = {
+            "content": content,
+            "element_id": element_id,
+            "is_hidden": is_hidden,
+        }
 
         return self._load_template("ul", data)
 
@@ -148,7 +152,9 @@ class ListRenderer(AbstractListRenderer):
                 if child.children.count() > 0:
                     children_number += 1
             else:
-                message = "render_element (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_element (iteration): " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
         final_html = ""
@@ -158,7 +164,10 @@ class ListRenderer(AbstractListRenderer):
         del_button = False
 
         if "max" in element.options:
-            if children_number < element.options["max"] or element.options["max"] == -1:
+            if (
+                children_number < element.options["max"]
+                or element.options["max"] == -1
+            ):
                 add_button = True
 
         if "min" in element.options:
@@ -213,13 +222,19 @@ class ListRenderer(AbstractListRenderer):
 
                     if sub_inputs[child_index]:
                         html_content += (
-                            element_name + sub_elements[child_index] + html_buttons
+                            element_name
+                            + sub_elements[child_index]
+                            + html_buttons
                         )
                     else:
                         html_content += (
-                            self._render_collapse_button() + element_name + html_buttons
+                            self._render_collapse_button()
+                            + element_name
+                            + html_buttons
                         )
-                        html_content += self._render_ul(sub_elements[child_index], None)
+                        html_content += self._render_ul(
+                            sub_elements[child_index], None
+                        )
 
             # FIXME temp fix, do it in a cleaner way
             if self.partial and "real_root" in element.options:
@@ -288,7 +303,11 @@ class ListRenderer(AbstractListRenderer):
                 if child.children.count() > 0:
                     children_number += 1
             else:
-                message = "render_attribute (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_attribute (iteration): "
+                    + child.tag
+                    + " not handled"
+                )
                 self.warnings.append(message)
 
         final_html = ""
@@ -298,7 +317,10 @@ class ListRenderer(AbstractListRenderer):
         del_button = False
 
         if "max" in element.options:
-            if children_number < element.options["max"] or element.options["max"] == -1:
+            if (
+                children_number < element.options["max"]
+                or element.options["max"] == -1
+            ):
                 add_button = True
 
         if "min" in element.options:
@@ -346,13 +368,19 @@ class ListRenderer(AbstractListRenderer):
 
                     if sub_inputs[child_index]:
                         html_content += (
-                            element_name + sub_elements[child_index] + html_buttons
+                            element_name
+                            + sub_elements[child_index]
+                            + html_buttons
                         )
                     else:
                         html_content += (
-                            self._render_collapse_button() + element_name + html_buttons
+                            self._render_collapse_button()
+                            + element_name
+                            + html_buttons
                         )
-                        html_content += self._render_ul(sub_elements[child_index], None)
+                        html_content += self._render_ul(
+                            sub_elements[child_index], None
+                        )
 
             # FIXME temp fix, do it in a cleaner way
             if self.partial and "real_root" in element.options:
@@ -384,7 +412,11 @@ class ListRenderer(AbstractListRenderer):
                 if child.children.count() > 0:
                     children_number += 1
             else:
-                message = "render_sequence (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_sequence (iteration): "
+                    + child.tag
+                    + " not handled"
+                )
                 self.warnings.append(message)
 
         final_html = ""
@@ -395,7 +427,10 @@ class ListRenderer(AbstractListRenderer):
         empty = False
 
         if "max" in element.options:
-            if children_number < element.options["max"] or element.options["max"] == -1:
+            if (
+                children_number < element.options["max"]
+                or element.options["max"] == -1
+            ):
                 add_button = True
 
         if "min" in element.options:
@@ -438,7 +473,9 @@ class ListRenderer(AbstractListRenderer):
                         or element.options["min"] != 1
                         or force_full_display
                     ):
-                        html_content += self._render_ul(sub_elements[child_index], None)
+                        html_content += self._render_ul(
+                            sub_elements[child_index], None
+                        )
                     else:
                         html_content += sub_elements[child_index]
 
@@ -489,7 +526,9 @@ class ListRenderer(AbstractListRenderer):
 
                 choice_values[child.pk] = child.value
             else:
-                message = "render_choice (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_choice (iteration): " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
         # Buttons generation (render once, reused many times)
@@ -497,7 +536,10 @@ class ListRenderer(AbstractListRenderer):
         del_button = False
 
         if "max" in element.options:
-            if children_number < element.options["max"] or element.options["max"] == -1:
+            if (
+                children_number < element.options["max"]
+                or element.options["max"] == -1
+            ):
                 add_button = True
 
         if "min" in element.options:
@@ -516,7 +558,9 @@ class ListRenderer(AbstractListRenderer):
 
             for child in children[iter_element].all().order_by("pk"):
                 element_html = ""
-                is_selected_element = str(child.pk) == choice_values[iter_element]
+                is_selected_element = (
+                    str(child.pk) == choice_values[iter_element]
+                )
 
                 if child.tag == "element":
                     name = (
@@ -562,7 +606,11 @@ class ListRenderer(AbstractListRenderer):
                         element_html, str(child.pk), (not is_selected_element)
                     )
 
-            label = element.options["label"] if "label" in element.options else "Choice"
+            label = (
+                element.options["label"]
+                if "label" in element.options
+                else "Choice"
+            )
 
             if children_number == 0:  # Choice has no child
                 li_class = "removed"
@@ -602,7 +650,9 @@ class ListRenderer(AbstractListRenderer):
             elif child.tag == "restriction":
                 html_content += self.render_restriction(child)
             else:
-                message = "render_simple_content: " + child.tag + " not handled"
+                message = (
+                    "render_simple_content: " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
         return html_content
@@ -624,7 +674,9 @@ class ListRenderer(AbstractListRenderer):
             elif child.tag == "restriction":
                 html_content += self.render_extension(child)
             else:
-                message = "render_complex_content: " + child.tag + " not handled"
+                message = (
+                    "render_complex_content: " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
         return html_content
@@ -708,7 +760,9 @@ class ListRenderer(AbstractListRenderer):
 
         for child in element.children.all().order_by("pk"):
             if child.tag == "enumeration":
-                options.append((child.value, child.value, child.value == element.value))
+                options.append(
+                    (child.value, child.value, child.value == element.value)
+                )
             elif child.tag == "simple_type":
                 subhtml += self.render_simple_type(child)
             elif child.tag == "input":
@@ -737,7 +791,9 @@ class ListRenderer(AbstractListRenderer):
         module_url = module_options["url"]
 
         module = module_api.get_by_url(module_url)
-        module_view = AbstractModule.get_view_from_view_path(module.view).as_view()
+        module_view = AbstractModule.get_view_from_view_path(
+            module.view
+        ).as_view()
 
         module_request = self.request
         module_request.method = "GET"
@@ -759,7 +815,9 @@ class ListRenderer(AbstractListRenderer):
         # renders the module
         return module_view(module_request).content.decode("utf-8")
 
-    def _render_list_attributes(self, attributes, html_content, simple_element):
+    def _render_list_attributes(
+        self, attributes, html_content, simple_element
+    ):
         """Renders attributes as a list
 
         Args:

@@ -41,7 +41,9 @@ def get_data_structure_element_value(request):
         return HttpResponseBadRequest()
 
     try:
-        element = data_structure_element_api.get_by_id(request.GET["id"], request)
+        element = data_structure_element_api.get_by_id(
+            request.GET["id"], request
+        )
         element_value = element.value
 
         if element.tag == "module":
@@ -51,7 +53,8 @@ def get_data_structure_element_value(request):
             }
 
         return HttpResponse(
-            json.dumps({"value": element_value}), content_type="application/json"
+            json.dumps({"value": element_value}),
+            content_type="application/json",
         )
     except (AccessControlError, DoesNotExist) as exc:
         return HttpResponseBadRequest(json.dumps({"message": str(exc)}))

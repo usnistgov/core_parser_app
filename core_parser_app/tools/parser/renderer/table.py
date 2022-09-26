@@ -22,7 +22,9 @@ class AbstractTableRenderer(DefaultRenderer):
         table_renderer_path = join("renderer", "table")
         table_templates = {
             "top": loader.get_template(join(table_renderer_path, "wrap.html")),
-            "table": loader.get_template(join(table_renderer_path, "table.html")),
+            "table": loader.get_template(
+                join(table_renderer_path, "table.html")
+            ),
             "tr": loader.get_template(join(table_renderer_path, "tr.html")),
         }
 
@@ -118,7 +120,9 @@ class TableRenderer(AbstractTableRenderer):
                 if child.children.count() > 0:
                     children_number += 1
             else:
-                message = "render_element (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_element (iteration): " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
         final_html = ""
@@ -128,7 +132,10 @@ class TableRenderer(AbstractTableRenderer):
         del_button = False
 
         if "max" in element.options:
-            if children_number < element.options["max"] or element.options["max"] == -1:
+            if (
+                children_number < element.options["max"]
+                or element.options["max"] == -1
+            ):
                 add_button = True
 
         if "min" in element.options:
@@ -203,7 +210,9 @@ class TableRenderer(AbstractTableRenderer):
             elif child["tag"] == "attribute":
                 html_content += self.render_attribute(child)
             else:
-                logger.debug("%s not handled (render_complex_type)", child["tag"])
+                logger.debug(
+                    "%s not handled (render_complex_type)", child["tag"]
+                )
 
         return html_content
 
@@ -223,7 +232,9 @@ class TableRenderer(AbstractTableRenderer):
             if child["tag"] == "elem-iter":
                 children += child["children"]
             else:
-                logger.debug("%s not handled (render_attribute base)", child["tag"])
+                logger.debug(
+                    "%s not handled (render_attribute base)", child["tag"]
+                )
 
         for child in children:
             if child["tag"] == "simple_type":
@@ -271,7 +282,9 @@ class TableRenderer(AbstractTableRenderer):
             elif child["tag"] == "extension":
                 html_content += self.render_extension(child)
             else:
-                logger.debug("%s not handled (render_simple_content)", child["tag"])
+                logger.debug(
+                    "%s not handled (render_simple_content)", child["tag"]
+                )
 
         return html_content
 
@@ -292,7 +305,9 @@ class TableRenderer(AbstractTableRenderer):
             if child["tag"] == "restriction":
                 html_content += self.render_restriction(child)
             else:
-                logger.debug("%s not handled (render_simple_type)", child["tag"])
+                logger.debug(
+                    "%s not handled (render_simple_type)", child["tag"]
+                )
 
         return html_content
 

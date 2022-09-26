@@ -105,6 +105,8 @@ def delete_module(template, xpath, request):
 
     """
     # delete module attribute from element
-    template.content = delete_appinfo_element(template.content, xpath, MODULE_TAG_NAME)
+    template.content = delete_appinfo_element(
+        template.content, xpath, MODULE_TAG_NAME
+    )
 
     return template_api.upsert(template, request=request)

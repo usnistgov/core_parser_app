@@ -129,10 +129,15 @@ class ParserReloadChoiceTestSuite(TestCase):
         edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         result_string = self.parser.generate_choice(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
-        expected_element = self.choice_data_handler.get_json(xsd_files + ".reload")
+        expected_element = self.choice_data_handler.get_json(
+            xsd_files + ".reload"
+        )
 
         self.assertDictEqual(expected_element, result_string)
 
@@ -150,10 +155,15 @@ class ParserReloadChoiceTestSuite(TestCase):
         edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         result_string = self.parser.generate_choice(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
-        expected_element = self.choice_data_handler.get_json(xsd_files + ".reload")
+        expected_element = self.choice_data_handler.get_json(
+            xsd_files + ".reload"
+        )
 
         self.assertDictEqual(expected_element, result_string)
 
@@ -171,10 +181,15 @@ class ParserReloadChoiceTestSuite(TestCase):
         edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         result_string = self.parser.generate_choice(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
-        expected_element = self.choice_data_handler.get_json(xsd_files + ".reload")
+        expected_element = self.choice_data_handler.get_json(
+            xsd_files + ".reload"
+        )
 
         self.assertDictEqual(expected_element, result_string)
 
@@ -192,9 +207,14 @@ class ParserReloadChoiceTestSuite(TestCase):
         edit_data_tree = XSDTree.transform_to_xml(xml_data)
 
         result_string = self.parser.generate_choice(
-            xsd_element, xsd_tree, full_path="/root", edit_data_tree=edit_data_tree
+            xsd_element,
+            xsd_tree,
+            full_path="/root",
+            edit_data_tree=edit_data_tree,
         )
 
-        expected_element = self.choice_data_handler.get_json(xsd_files + ".reload")
+        expected_element = self.choice_data_handler.get_json(
+            xsd_files + ".reload"
+        )
 
         self.assertDictEqual(expected_element, result_string)

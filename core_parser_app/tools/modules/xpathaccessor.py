@@ -44,7 +44,9 @@ class XPathAccessor(metaclass=ABCMeta):
 
         Return:
         """
-        root_id = data_structure_api.get_by_id(form_id).data_structure_element_root.id
+        root_id = data_structure_api.get_by_id(
+            form_id
+        ).data_structure_element_root.id
         form_element = self._get_element(root_id, xpath)
         input_element = self.get_input(form_element)
 
@@ -89,7 +91,10 @@ class XPathAccessor(metaclass=ABCMeta):
 
     @staticmethod
     def element_has_xpath(element, xpath):
-        return "xpath" in element.options and element.options["xpath"]["xml"] == xpath
+        return (
+            "xpath" in element.options
+            and element.options["xpath"]["xml"] == xpath
+        )
 
     @abstractmethod
     def set_xpath_accessor(self, request):

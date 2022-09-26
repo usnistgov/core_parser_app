@@ -60,7 +60,9 @@ class TestGetResources(TestCase):
 class TestGet(TestCase):
     """Test Get"""
 
-    @patch("core_parser_app.tools.modules.views.module.AbstractModule.render_template")
+    @patch(
+        "core_parser_app.tools.modules.views.module.AbstractModule.render_template"
+    )
     @patch("core_parser_app.components.data_structure_element.api.get_by_id")
     @patch("core_parser_app.components.data_structure_element.api.upsert")
     def test_get_returns_http_response(
@@ -80,15 +82,21 @@ class TestGet(TestCase):
         module_object = ModuleImplementation()
 
         mock_data_structure_element = _create_mock_data_structure_element()
-        mock_data_structure_element_get_by_id.return_value = mock_data_structure_element
-        mock_data_structure_element_upsert.return_value = mock_data_structure_element
+        mock_data_structure_element_get_by_id.return_value = (
+            mock_data_structure_element
+        )
+        mock_data_structure_element_upsert.return_value = (
+            mock_data_structure_element
+        )
         mock_render_template.return_value = ""
 
         response = module_object.get(request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
-    @patch("core_parser_app.tools.modules.views.module.AbstractModule.render_template")
+    @patch(
+        "core_parser_app.tools.modules.views.module.AbstractModule.render_template"
+    )
     @patch("core_parser_app.components.data_structure_element.api.get_by_id")
     @patch("core_parser_app.components.data_structure_element.api.upsert")
     def test_get_data_structure_element_contains_module_values(
@@ -108,13 +116,19 @@ class TestGet(TestCase):
         module_object = ModuleImplementation()
 
         data_structure_element = _create_mock_data_structure_element()
-        mock_data_structure_element_get_by_id.return_value = data_structure_element
-        mock_data_structure_element_upsert.return_value = data_structure_element
+        mock_data_structure_element_get_by_id.return_value = (
+            data_structure_element
+        )
+        mock_data_structure_element_upsert.return_value = (
+            data_structure_element
+        )
         mock_render_template.return_value = ""
 
         module_object.get(request)
 
-        self.assertTrue(data_structure_element.options["data"] == "module result")
+        self.assertTrue(
+            data_structure_element.options["data"] == "module result"
+        )
 
     @patch(
         "core_parser_app.components.data_structure.models.DataStructureElement.get_by_id"
@@ -153,7 +167,9 @@ class TestPost(TestCase):
 
         self.assertTrue(isinstance(response, HttpResponseBadRequest))
 
-    @patch("core_parser_app.tools.modules.views.module.AbstractModule.render_template")
+    @patch(
+        "core_parser_app.tools.modules.views.module.AbstractModule.render_template"
+    )
     @patch("core_parser_app.components.data_structure_element.api.get_by_id")
     @patch("core_parser_app.components.data_structure_element.api.upsert")
     def test_post_returns_http_response(
@@ -173,15 +189,21 @@ class TestPost(TestCase):
         module_object = ModuleImplementation()
 
         mock_data_structure_element = _create_mock_data_structure_element()
-        mock_data_structure_element_get_by_id.return_value = mock_data_structure_element
-        mock_data_structure_element_upsert.return_value = mock_data_structure_element
+        mock_data_structure_element_get_by_id.return_value = (
+            mock_data_structure_element
+        )
+        mock_data_structure_element_upsert.return_value = (
+            mock_data_structure_element
+        )
         mock_render_template.return_value = ""
 
         response = module_object.post(mock_request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
-    @patch("core_parser_app.tools.modules.views.module.AbstractModule.render_template")
+    @patch(
+        "core_parser_app.tools.modules.views.module.AbstractModule.render_template"
+    )
     @patch("core_parser_app.components.data_structure_element.api.get_by_id")
     @patch("core_parser_app.components.data_structure_element.api.upsert")
     def test_post_data_structure_element_contains_module_values(
@@ -202,8 +224,12 @@ class TestPost(TestCase):
         module_object = ModuleImplementation()
 
         mock_data_structure_element = _create_mock_data_structure_element()
-        mock_data_structure_element_get_by_id.return_value = mock_data_structure_element
-        mock_data_structure_element_upsert.return_value = mock_data_structure_element
+        mock_data_structure_element_get_by_id.return_value = (
+            mock_data_structure_element
+        )
+        mock_data_structure_element_upsert.return_value = (
+            mock_data_structure_element
+        )
         mock_render_template.return_value = mock_module_template
 
         response = module_object.post(mock_request)

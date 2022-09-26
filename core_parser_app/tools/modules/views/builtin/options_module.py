@@ -58,7 +58,9 @@ class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
                     "<option value='" + key + "' selected>" + val + "</option>"
                 )
             else:
-                options_html += "<option value='" + key + "'>" + val + "</option>"
+                options_html += (
+                    "<option value='" + key + "'>" + val + "</option>"
+                )
 
         params = {"options": options_html}
 

@@ -58,7 +58,9 @@ class AbstractModule(View, metaclass=ABCMeta):
         if "resources" in request.GET:
             return self._get_resources()
         elif "managing_occurrences" in request.GET:
-            return HttpResponse(json.dumps(self.is_managing_occurrences), HTTP_200_OK)
+            return HttpResponse(
+                json.dumps(self.is_managing_occurrences), HTTP_200_OK
+            )
         else:
             return self._get(request)
 
@@ -75,7 +77,9 @@ class AbstractModule(View, metaclass=ABCMeta):
         url = (
             request.GET["url"]
             if "url" in request.GET
-            else data_structure_element_api.get_by_id(module_id, request).options["url"]
+            else data_structure_element_api.get_by_id(
+                module_id, request
+            ).options["url"]
         )
         template_data = {
             "module_id": module_id,
@@ -93,7 +97,9 @@ class AbstractModule(View, metaclass=ABCMeta):
             template_data["display"] = self._render_data(request)
 
             # get module element
-            module_element = data_structure_element_api.get_by_id(module_id, request)
+            module_element = data_structure_element_api.get_by_id(
+                module_id, request
+            )
             # get its options
             options = module_element.options
             # update module element data
@@ -119,7 +125,9 @@ class AbstractModule(View, metaclass=ABCMeta):
         # TODO Add additional checks
 
         # Apply tags to the template
-        html_string = AbstractModule.render_template(self.template_name, template_data)
+        html_string = AbstractModule.render_template(
+            self.template_name, template_data
+        )
         return HttpResponse(html_string, status=HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
@@ -163,9 +171,13 @@ class AbstractModule(View, metaclass=ABCMeta):
             module_element.options = options
             data_structure_element_api.upsert(module_element, request)
         except Exception as e:
-            raise ModuleError("Something went wrong during module update: " + str(e))
+            raise ModuleError(
+                "Something went wrong during module update: " + str(e)
+            )
 
-        html_code = AbstractModule.render_template(self.template_name, template_data)
+        html_code = AbstractModule.render_template(
+            self.template_name, template_data
+        )
 
         response_dict = dict()
         response_dict["html"] = html_code

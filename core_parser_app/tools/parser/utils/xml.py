@@ -61,7 +61,9 @@ def delete_annotations(element):
     Returns:
 
     """
-    annotations = element.findall("./{0}annotation".format(LXML_SCHEMA_NAMESPACE))
+    annotations = element.findall(
+        "./{0}annotation".format(LXML_SCHEMA_NAMESPACE)
+    )
     for annotation in annotations:
         element.remove(annotation)
 

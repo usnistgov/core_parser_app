@@ -30,7 +30,9 @@ class DataHandler:
         is_in_tag = False
 
         with open(filename, "r") as file_content:
-            file_lines = [line.strip("\r\n\t ") for line in file_content.readlines()]
+            file_lines = [
+                line.strip("\r\n\t ") for line in file_content.readlines()
+            ]
 
             for line in file_lines:
                 if is_in_tag:  # Add space if we are in the tag

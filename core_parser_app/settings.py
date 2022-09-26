@@ -10,7 +10,9 @@ from django.conf import settings
 if not settings.configured:
     settings.configure()
 
-MODULES_ROOT = join(dirname(realpath(__file__)).replace("\\", "/"), "tools", "modules")
+MODULES_ROOT = join(
+    dirname(realpath(__file__)).replace("\\", "/"), "tools", "modules"
+)
 
 MODULE_TAG_NAME = getattr(settings, "MODULE_TAG_NAME", "module")
 

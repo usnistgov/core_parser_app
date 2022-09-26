@@ -25,13 +25,16 @@ def _check_data_structure_elements_access(data_structure_element_list, user):
     Returns:
     """
     for data_structure_element in data_structure_element_list:
-        permission = data_structure_element.data_structure.get_object_permission()
+        permission = (
+            data_structure_element.data_structure.get_object_permission()
+        )
         codename = permission.split(".")[1]
         # check if user can access this type of data structure element
         if user.is_anonymous:
             # Check in the ANONYMOUS_GROUP
             if not Group.objects.filter(
-                Q(name=rights.ANONYMOUS_GROUP) & Q(permissions__codename=codename)
+                Q(name=rights.ANONYMOUS_GROUP)
+                & Q(permissions__codename=codename)
             ):
                 raise AccessControlError(
                     "User does not have the permission to access this data structure."
@@ -54,7 +57,9 @@ def _check_data_structure_element_ownership(data_structure_element, user):
     Returns:
 
     """
-    if data_structure_element.user and data_structure_element.user != str(user.id):
+    if data_structure_element.user and data_structure_element.user != str(
+        user.id
+    ):
         raise AccessControlError("User is not the owner of the object.")
 
 
@@ -116,7 +121,9 @@ def is_data_structure_element_owner(fn, *args, **kwargs):
         if len(fn_output) != len(output_data_structure_element_list):
             raise CoreError("Function returned unexpected elements")
 
-        fn_output_data_structure_element_list += output_data_structure_element_list
+        fn_output_data_structure_element_list += (
+            output_data_structure_element_list
+        )
     else:  # Outputs are neither a list nor an instance of DataStrctureElement
         raise CoreError("Function returned unexpected elements")
 

@@ -75,7 +75,9 @@ class XmlRenderer(AbstractXmlRenderer):
             content = self.render_choice(self.data)
             root = self.data.children.all().order_by("pk")[0]
             root_elem_id = root.value
-            root_elem = data_structure_element_api.get_by_id(root_elem_id, self.request)
+            root_elem = data_structure_element_api.get_by_id(
+                root_elem_id, self.request
+            )
             root_name = root_elem.options["name"]
 
             if (
@@ -83,7 +85,10 @@ class XmlRenderer(AbstractXmlRenderer):
             ):  # Multi-root with element (no need for an element wrapper)
                 return content[1]
             # Multi-root with complexType
-            if "xmlns" in root_elem.options and root_elem.options["xmlns"] is not None:
+            if (
+                "xmlns" in root_elem.options
+                and root_elem.options["xmlns"] is not None
+            ):
                 xml_ns = ' xmlns="{}"'.format(root_elem.options["xmlns"])
                 content[0] += xml_ns
             return self._render_xml(root_name, content[0], content[1])
@@ -138,7 +143,9 @@ class XmlRenderer(AbstractXmlRenderer):
                 if child.children.count() > 0:
                     children_number += 1
             else:
-                message = "render_element (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_element (iteration): " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
         element_name = element.options["name"]
@@ -159,7 +166,9 @@ class XmlRenderer(AbstractXmlRenderer):
                     content[1] += tmp_content[1]
                     content[2] += tmp_content[2]
                 elif child.tag == "input":
-                    tmp_content = child.value if child.value is not None else ""
+                    tmp_content = (
+                        child.value if child.value is not None else ""
+                    )
                     content[1] += (
                         XmlEntities().escape_xml_entities(tmp_content)
                         if AUTO_ESCAPE_XML_ENTITIES
@@ -190,9 +199,12 @@ class XmlRenderer(AbstractXmlRenderer):
                     ):
                         if (
                             "xmlns" in parent.options
-                            and element.options["xmlns"] != parent.options["xmlns"]
+                            and element.options["xmlns"]
+                            != parent.options["xmlns"]
                         ):
-                            xmlns = ' xmlns="{}"'.format(element.options["xmlns"])
+                            xmlns = ' xmlns="{}"'.format(
+                                element.options["xmlns"]
+                            )
                             content[0] += xmlns
                 else:
                     if (
@@ -212,7 +224,9 @@ class XmlRenderer(AbstractXmlRenderer):
                         )
                     xml_string += content[2]
                 else:
-                    xml_string += self._render_xml(element_name, content[0], content[1])
+                    xml_string += self._render_xml(
+                        element_name, content[0], content[1]
+                    )
 
         return xml_string
 
@@ -233,7 +247,11 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == "elem-iter":
                 children += child.children.all().order_by("pk")
             else:
-                message = "render_attribute (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_attribute (iteration): "
+                    + child.tag
+                    + " not handled"
+                )
                 self.warnings.append(message)
 
         for child in children:
@@ -253,7 +271,10 @@ class XmlRenderer(AbstractXmlRenderer):
                 self.warnings.append(message)
 
             # namespaces
-            if "xmlns" in element.options and element.options["xmlns"] is not None:
+            if (
+                "xmlns" in element.options
+                and element.options["xmlns"] is not None
+            ):
                 # check that element isn't declaring the same namespace xmlns=""
                 parent = self._get_parent_element(element)
                 xmlns = ""
@@ -276,16 +297,22 @@ class XmlRenderer(AbstractXmlRenderer):
                                 xmlns = ' xmlns{0}="{1}"'.format(
                                     ":" + ns_prefix, element.options["xmlns"]
                                 )
-                                attr_key = "{0}:{1}".format(ns_prefix, attr_key)
+                                attr_key = "{0}:{1}".format(
+                                    ns_prefix, attr_key
+                                )
                             else:
-                                xmlns = ' xmlns="{0}"'.format(element.options["xmlns"])
+                                xmlns = ' xmlns="{0}"'.format(
+                                    element.options["xmlns"]
+                                )
                         else:
                             xmlns = ""
 
                 if isinstance(attr_value, numbers.Number):
                     attr_value = str(attr_value)
 
-                attr_list.append(xmlns + " " + attr_key + "='" + attr_value + "'")
+                attr_list.append(
+                    xmlns + " " + attr_key + "='" + attr_value + "'"
+                )
 
                 # TODO: check that sibling attributes are not declaring the
                 #  same namespaces
@@ -356,7 +383,11 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == "sequence-iter":
                 children += child.children.all().order_by("pk")
             else:
-                message = "render_sequence (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_sequence (iteration): "
+                    + child.tag
+                    + " not handled"
+                )
                 self.warnings.append(message)
 
         for child in children:
@@ -397,7 +428,9 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == "restriction":
                 tmp_content = self.render_restriction(child)
             else:
-                message = "render_simple_content: " + child.tag + " not handled"
+                message = (
+                    "render_simple_content: " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
             content[0] = " ".join([content[0], tmp_content[0]]).strip()
@@ -425,7 +458,9 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == "restriction":
                 tmp_content = self.render_restriction(child)
             else:
-                message = "render_complex_content: " + child.tag + " not handled"
+                message = (
+                    "render_complex_content: " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
             content[0] = " ".join([content[0], tmp_content[0]]).strip()
@@ -454,7 +489,9 @@ class XmlRenderer(AbstractXmlRenderer):
                 child_keys.append(child.pk)
                 choice_values[child.pk] = child.value
             else:
-                message = "render_choice (iteration): " + child.tag + " not handled"
+                message = (
+                    "render_choice (iteration): " + child.tag + " not handled"
+                )
                 self.warnings.append(message)
 
         for iter_element in child_keys:
@@ -585,12 +622,16 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == "enumeration":
                 tmp_content[1] = value if value is not None else ""
                 if AUTO_ESCAPE_XML_ENTITIES:
-                    tmp_content[1] = XmlEntities().escape_xml_entities(tmp_content[1])
+                    tmp_content[1] = XmlEntities().escape_xml_entities(
+                        tmp_content[1]
+                    )
                 value = None  # Avoid to copy the value several times
             elif child.tag == "input":
                 tmp_content[1] = child.value if child.value is not None else ""
                 if AUTO_ESCAPE_XML_ENTITIES:
-                    tmp_content[1] = XmlEntities().escape_xml_entities(tmp_content[1])
+                    tmp_content[1] = XmlEntities().escape_xml_entities(
+                        tmp_content[1]
+                    )
             elif child.tag == "simple_type":
                 tmp_content = self.render_simple_type(child)
             else:
@@ -620,7 +661,9 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == "input":
                 tmp_content[1] = child.value if child.value is not None else ""
                 if AUTO_ESCAPE_XML_ENTITIES:
-                    tmp_content[1] = XmlEntities().escape_xml_entities(tmp_content[1])
+                    tmp_content[1] = XmlEntities().escape_xml_entities(
+                        tmp_content[1]
+                    )
             elif child.tag == "attribute":
                 tmp_content[0] = self.render_attribute(child)
             elif child.tag == "simple_type":

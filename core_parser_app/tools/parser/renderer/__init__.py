@@ -50,7 +50,9 @@ class DefaultRenderer:
             "form_error": loader.get_template(
                 join(default_renderer_path, "form-error.html")
             ),
-            "warning": loader.get_template(join(default_renderer_path, "warning.html")),
+            "warning": loader.get_template(
+                join(default_renderer_path, "warning.html")
+            ),
             "input": loader.get_template(
                 join(default_renderer_path, "inputs", "input.html")
             ),
@@ -103,7 +105,9 @@ class DefaultRenderer:
         # FIXME remove parameter type-checking
         if tpl_data is not None and type(tpl_data) != dict:
             raise TypeError(
-                "Data parameter should be a dict (" + str(type(tpl_data)) + " given)"
+                "Data parameter should be a dict ("
+                + str(type(tpl_data))
+                + " given)"
             )
 
         if tpl_data is not None:
@@ -123,7 +127,9 @@ class DefaultRenderer:
         # FIXME remove parameter type-checking
         if type(err_message) is not str:
             raise TypeError(
-                "Error message should be string (" + str(type(err_message)) + " given)"
+                "Error message should be string ("
+                + str(type(err_message))
+                + " given)"
             )
 
         context = {}
@@ -192,7 +198,9 @@ class DefaultRenderer:
 
         return self._load_template("input", data)
 
-    def _render_select(self, select_id, select_class, option_list, element_options):
+    def _render_select(
+        self, select_id, select_class, option_list, element_options
+    ):
         """Renders a drop down list
 
         Args:
@@ -207,7 +215,11 @@ class DefaultRenderer:
         if select_id is None:
             is_fixed = False
         else:
-            is_fixed = element_options["fixed"] if "fixed" in element_options else False
+            is_fixed = (
+                element_options["fixed"]
+                if "fixed" in element_options
+                else False
+            )
 
         data = {
             "select_id": select_id,
@@ -254,14 +266,22 @@ class DefaultRenderer:
             logger.debug("_render_buttons: no add, no delete")
         else:
             if add_button:
-                form_string += self._load_template("btn_add", {"is_hidden": False})
+                form_string += self._load_template(
+                    "btn_add", {"is_hidden": False}
+                )
             else:
-                form_string += self._load_template("btn_add", {"is_hidden": True})
+                form_string += self._load_template(
+                    "btn_add", {"is_hidden": True}
+                )
 
             if delete_button:
-                form_string += self._load_template("btn_del", {"is_hidden": False})
+                form_string += self._load_template(
+                    "btn_del", {"is_hidden": False}
+                )
             else:
-                form_string += self._load_template("btn_del", {"is_hidden": True})
+                form_string += self._load_template(
+                    "btn_del", {"is_hidden": True}
+                )
 
         return form_string
 
