@@ -1,7 +1,5 @@
 """ Checkboxes Module
 """
-from __future__ import division
-
 from abc import ABCMeta
 from math import ceil
 

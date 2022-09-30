@@ -4,7 +4,7 @@
 from unittest.case import TestCase
 
 from django.core import exceptions as django_exceptions
-from mock.mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from core_main_app.commons.exceptions import DoesNotExist
 from core_parser_app.components.module import api as module_api

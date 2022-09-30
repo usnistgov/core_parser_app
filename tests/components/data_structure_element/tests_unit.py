@@ -1,22 +1,21 @@
 """ Unit Test Data Structure Element
 """
 from unittest.case import TestCase
-from unittest.mock import Mock
+from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpRequest
-from mock import patch
-
-from core_main_app.commons import exceptions
-from core_main_app.utils.tests_tools.MockUser import create_mock_user
-import core_parser_app.components.data_structure_element.api as data_structure_element_api
-from core_parser_app.components.data_structure.models import (
-    DataStructureElement,
-)
 from tests.components.data_structure_element.fixtures.fixtures import (
     DataStructureElementFixtures,
 )
 from tests.fixtures_utils import MockDataStructure
+
+import core_parser_app.components.data_structure_element.api as data_structure_element_api
+from core_main_app.commons import exceptions
+from core_main_app.utils.tests_tools.MockUser import create_mock_user
+from core_parser_app.components.data_structure.models import (
+    DataStructureElement,
+)
 
 
 class TestDataStructureElementGetById(TestCase):

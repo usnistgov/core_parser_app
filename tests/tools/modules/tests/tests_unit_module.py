@@ -5,7 +5,7 @@ from unittest.case import TestCase
 
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBadRequest
-from mock.mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from core_main_app.utils.tests_tools.MockUser import create_mock_user
 from core_parser_app.components.data_structure.models import (

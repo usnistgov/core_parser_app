@@ -10,7 +10,6 @@ from builtins import str
 from typing import Dict, Any
 from urllib.parse import parse_qsl
 
-from future import standard_library
 from lxml import etree
 
 from core_main_app.commons.exceptions import CoreError
@@ -47,7 +46,6 @@ from xml_utils.xsd_tree.xsd_tree import XSDTree
 from xml_utils.xsd_types.xsd_types import get_xsd_types
 
 logger = logging.getLogger(__name__)
-standard_library.install_aliases()
 
 
 ##################################################

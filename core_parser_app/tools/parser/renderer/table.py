@@ -1,7 +1,5 @@
 """Table Renderer class
 """
-from __future__ import print_function
-
 import logging
 from os.path import join
 
