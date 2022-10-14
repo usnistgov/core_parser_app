@@ -1,9 +1,6 @@
 """ Checkboxes Module
 """
 from abc import ABCMeta
-from math import ceil
-
-from past.utils import old_div
 
 from core_parser_app.tools.modules.exceptions import ModuleError
 from core_parser_app.tools.modules.views.module import AbstractModule
@@ -14,12 +11,12 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
 
     def __init__(
         self,
-        scripts=list(),
-        styles=list(),
+        scripts=None,
+        styles=None,
         label=None,
         name=None,
         options=None,
-        selected=list(),
+        selected=None,
     ):
         """Initialize the module
 
@@ -31,9 +28,16 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
             options:
             selected:
         """
-        scripts = ["core_parser_app/js/builtin/checkboxes.js"] + scripts
-        styles = ["core_parser_app/css/builtin/checkboxes.css"] + styles
-        AbstractModule.__init__(self, scripts=scripts, styles=styles)
+
+        module_scripts = ["core_parser_app/js/builtin/checkboxes.js"]
+        if scripts:
+            module_scripts += scripts
+        module_styles = ["core_parser_app/css/builtin/checkboxes.css"]
+        if styles:
+            module_styles += styles
+        AbstractModule.__init__(
+            self, scripts=module_scripts, styles=module_styles
+        )
 
         if name is None:
             raise ModuleError("The name can't be empty.")
@@ -74,7 +78,7 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
         # Compute number of items in each columns
         col_nb = 3
         opt_nb = len(self.options)
-        max_item_nb = int(ceil(old_div(opt_nb, col_nb)))
+        max_item_nb = opt_nb // col_nb
 
         # Parameters initialization
         params = {
@@ -96,7 +100,9 @@ class AbstractCheckboxesModule(AbstractModule, metaclass=ABCMeta):
                 col_id += 1
 
             checkboxes_html += AbstractCheckboxesModule._create_html_checkbox(
-                key, val, checked=(key in self.selected)
+                key,
+                val,
+                checked=(key in self.selected if self.selected else False),
             )
             item_nb += 1
 

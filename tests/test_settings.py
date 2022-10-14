@@ -4,14 +4,16 @@ SECRET_KEY = "fake-key"
 
 INSTALLED_APPS = [
     # Django apps
-    # 'django.contrib.admin',
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sites",
+    "django.contrib.sessions",
     # Local apps
     "tests",
     "core_main_app",
     "core_parser_app",
+    "core_parser_app.tools.modules",
+    "core_parser_app.tools.parser",
 ]
 
 # IN-MEMORY TEST DATABASE
@@ -29,6 +31,8 @@ DATABASES = {
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": ["templates"],
+        "APP_DIRS": True,
     },
 ]
 
