@@ -51,24 +51,28 @@ class ManageModulesUserView(View):
             )
 
         try:
+            # Build context
+            context = get_context(
+                pk,
+                self.back_to_previous_url,
+                self.read_only,
+                self.title,
+                request=request,
+            )
+            # Set page title
+            context.update({"page_title": "Modules"})
             return render(
                 request,
                 "core_parser_app/common/module_manager.html",
                 modals=modals,
                 assets=assets,
-                context=get_context(
-                    pk,
-                    self.back_to_previous_url,
-                    self.read_only,
-                    self.title,
-                    request=request,
-                ),
+                context=context,
             )
         except Exception as exception:
             return render(
                 request,
                 "core_main_app/common/commons/error.html",
-                context={"error": str(exception)},
+                context={"error": str(exception), "page_title": "Error"},
             )
 
 

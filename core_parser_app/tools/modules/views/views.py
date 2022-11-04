@@ -24,6 +24,10 @@ def index(request):
     list_modules = module_api.get_all()
     # set context
     context = {"modules": list_modules}
+
+    # Set page title
+    context.update({"page_title": "Modules"})
+
     # render template
     return render(
         request, "core_parser_app/common/modules.html", context=context
