@@ -1020,7 +1020,7 @@ class XSDParser:
             del exc_info
 
             self.editing = False
-            raise Exception(exception_message)
+            raise ParserError(exception_message)
 
     def generate_element(
         self,
@@ -3328,5 +3328,5 @@ class XSDParser:
                 "Check the value of PARSER_MAX_IN_MEMORY_ELEMENTS."
             )
             raise ParserError(
-                "A memory error occurred, please contact the system administrator. "
+                "A memory error occurred (PARSER_MAX_IN_MEMORY_ELEMENTS)."
             )
