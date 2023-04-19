@@ -7,7 +7,7 @@ from django.test import RequestFactory
 from django.urls import reverse
 
 from core_main_app.utils.integration_tests.integration_base_test_case import (
-    MongoIntegrationBaseTestCase,
+    IntegrationBaseTestCase,
 )
 from core_parser_app.components.data_structure.models import (
     DataStructureElement,
@@ -20,7 +20,7 @@ from tests.components.data_structure_element.fixtures.fixtures import (
 from tests.views.user.ajax.fixtures import DataStructureElementFixture
 
 
-class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
+class TestGetDataStructureElementValue(IntegrationBaseTestCase):
     """Test Get Data Structure Element Value"""
 
     def setUp(self):
@@ -97,7 +97,7 @@ class TestGetDataStructureElementValue(MongoIntegrationBaseTestCase):
         )
 
 
-class TestPostDataStructureElementValue(MongoIntegrationBaseTestCase):
+class TestPostDataStructureElementValue(IntegrationBaseTestCase):
     """Test Post Data Structure Element Value"""
 
     def setUp(self):

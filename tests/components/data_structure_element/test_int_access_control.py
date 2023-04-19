@@ -8,7 +8,7 @@ from django.http import HttpRequest
 from core_main_app.access_control.exceptions import AccessControlError
 from core_main_app.commons.exceptions import DoesNotExist
 from core_main_app.utils.integration_tests.integration_base_test_case import (
-    MongoIntegrationBaseTestCase,
+    IntegrationBaseTestCase,
 )
 from core_parser_app.access_control import (
     _check_data_structure_elements_access,
@@ -25,7 +25,7 @@ from tests.components.data_structure_element.fixtures.fixtures import (
 from tests.fixtures_utils import MockAnonDataStructure
 
 
-class TestUpsert(MongoIntegrationBaseTestCase):
+class TestUpsert(IntegrationBaseTestCase):
     """Test Upsert"""
 
     def setUp(self):
@@ -120,7 +120,7 @@ class TestUpsert(MongoIntegrationBaseTestCase):
         )
 
 
-class TestGetById(MongoIntegrationBaseTestCase):
+class TestGetById(IntegrationBaseTestCase):
     """Test Get By Id"""
 
     def setUp(self):
@@ -187,7 +187,7 @@ class TestGetById(MongoIntegrationBaseTestCase):
         )
 
 
-class TestGetByXPath(MongoIntegrationBaseTestCase):
+class TestGetByXPath(IntegrationBaseTestCase):
     """Test Get By XPath"""
 
     def setUp(self):
@@ -268,7 +268,7 @@ class TestGetByXPath(MongoIntegrationBaseTestCase):
         )
 
 
-class TestRemoveChild(MongoIntegrationBaseTestCase):
+class TestRemoveChild(IntegrationBaseTestCase):
     """Test Remove Child"""
 
     def setUp(self):
@@ -355,7 +355,7 @@ class TestRemoveChild(MongoIntegrationBaseTestCase):
         )
 
 
-class TestAddChild(MongoIntegrationBaseTestCase):
+class TestAddChild(IntegrationBaseTestCase):
     """Test Add Child"""
 
     def setUp(self):
@@ -449,7 +449,7 @@ class TestAddChild(MongoIntegrationBaseTestCase):
         )
 
 
-class TestGetRootElement(MongoIntegrationBaseTestCase):
+class TestGetRootElement(IntegrationBaseTestCase):
     """Test Get Root Element"""
 
     def setUp(self):
@@ -520,9 +520,7 @@ class TestGetRootElement(MongoIntegrationBaseTestCase):
         )
 
 
-class TestDataStructureElementPermissionWithOwners(
-    MongoIntegrationBaseTestCase
-):
+class TestDataStructureElementPermissionWithOwners(IntegrationBaseTestCase):
     """Test access to data structure elements when owner is set"""
 
     def setUp(self):
@@ -570,9 +568,7 @@ class TestDataStructureElementPermissionWithOwners(
             )
 
 
-class TestDataStructureElementPermissionWithoutOwners(
-    MongoIntegrationBaseTestCase
-):
+class TestDataStructureElementPermissionWithoutOwners(IntegrationBaseTestCase):
     """Test access to data structure elements when owner is not set"""
 
     def setUp(self):
@@ -593,7 +589,7 @@ class TestDataStructureElementPermissionWithoutOwners(
 
 
 class TestDataStructureElementPermissionWithoutOwnersWithoutPerm(
-    MongoIntegrationBaseTestCase
+    IntegrationBaseTestCase
 ):
     """Test access to data structure elements when owner is not set"""
 

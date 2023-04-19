@@ -6,7 +6,7 @@ from django.http import HttpRequest
 
 from core_main_app.commons import exceptions
 from core_main_app.utils.integration_tests.integration_base_test_case import (
-    MongoIntegrationBaseTestCase,
+    IntegrationBaseTestCase,
 )
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
@@ -16,7 +16,7 @@ from tests.components.data_structure_element.fixtures.fixtures import (
 )
 
 
-class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
+class TestDataStructureElementGetById(IntegrationBaseTestCase):
     """Test Data Structure Element Get By Id"""
 
     def setUp(self):
@@ -60,7 +60,7 @@ class TestDataStructureElementGetById(MongoIntegrationBaseTestCase):
             data_structure_element_api.get_by_id("", mock_request)
 
 
-class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
+class TestDataStructureElementGetByXpath(IntegrationBaseTestCase):
     """Test Data Structure Element Get By Xpath"""
 
     def setUp(self):
@@ -97,7 +97,7 @@ class TestDataStructureElementGetByXpath(MongoIntegrationBaseTestCase):
         self.assertEqual(result.count(), 0)
 
 
-class TestDataStructureElementGetRootElement(MongoIntegrationBaseTestCase):
+class TestDataStructureElementGetRootElement(IntegrationBaseTestCase):
     """Test Data Structure Element Get Root Element"""
 
     def setUp(self):
