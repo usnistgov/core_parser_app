@@ -1203,7 +1203,12 @@ class XSDParser:
                 removed = True
 
         # get the use from app info element
-        app_info_use = app_info["use"] if "use" in app_info else ""
+        app_info_use = (
+            app_info["use"]
+            if "use" in app_info
+            and app_info["use"] in ["recommended", "required", "readonly"]
+            else ""
+        )
         app_info_use = app_info_use if app_info_use is not None else ""
         use += " " + app_info_use
 

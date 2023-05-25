@@ -1,4 +1,6 @@
-<input type="date" id="{{ id }}" class="default"
+<input type="date" id="{{ id }}"
+       {% if use == "readonly" %} disabled {% endif %}
+       class="default {% if use %} {{ use | escape }}{% endif %}"
     {% if value %} value="{{ value | escape }}"{% else %} value=""{% endif %}
     {% if placeholder != "" %} placeholder="{{ placeholder }}"{% endif %}
     {% if fixed %} disabled {% endif %} />

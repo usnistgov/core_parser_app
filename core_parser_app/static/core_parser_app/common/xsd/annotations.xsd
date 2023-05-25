@@ -53,6 +53,15 @@
                     </xs:appinfo>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="birthday" type="xs:date">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <label>Birthday: </label>
+                        <use>readonly</use>
+                        <tooltip>Birthday of your contact</tooltip>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
