@@ -24,3 +24,5 @@ PARSER_MAX_IN_MEMORY_ELEMENTS = getattr(
 """ Maximum number of in-memory elements allowed by the system during the parsing of XML/XSD files.
 A large number of elements may cause performance issues.
 """
+
+BOOTSTRAP_VERSION = getattr(settings, "BOOTSTRAP_VERSION", "5.1.3")

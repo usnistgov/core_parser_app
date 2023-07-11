@@ -10,6 +10,7 @@ from django.template.loader import get_template
 from django.views.generic import View
 from rest_framework.status import HTTP_200_OK
 
+from core_parser_app import settings
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
 )
@@ -268,6 +269,8 @@ class AbstractModule(View, metaclass=ABCMeta):
         """
         if context is None:
             context = {}
+
+        context.update({"BOOTSTRAP_VERSION": settings.BOOTSTRAP_VERSION})
 
         template = get_template(template_name)
         return template.render(context)
