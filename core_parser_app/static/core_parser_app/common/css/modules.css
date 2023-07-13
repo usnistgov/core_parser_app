@@ -2,6 +2,10 @@
     float: right;
 }
 
-.red-background {
+#modules-table tr{
+    border-bottom: 1px solid #ccc;
+}
+
+#modules-table .red-background {
     background-color: #fee;
 }
