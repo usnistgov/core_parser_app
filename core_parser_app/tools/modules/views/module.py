@@ -4,13 +4,13 @@ import importlib
 import json
 from abc import ABCMeta, abstractmethod
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.http.response import HttpResponseBadRequest
 from django.template.loader import get_template
 from django.views.generic import View
 from rest_framework.status import HTTP_200_OK
 
-from core_parser_app import settings
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
 )
