@@ -1,12 +1,13 @@
-"""
-    Common views
+""" Common views
 """
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, NoReverseMatch
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 
+from core_main_app.commons.exceptions import XSDError
 from core_main_app.components.template import api as template_api
+from core_main_app.components.template.models import Template
 from core_main_app.utils.rendering import render
 from core_parser_app.components.module import api as module_api
 from core_parser_app.utils.xml import transform_xsd_to_html_with_modules
@@ -85,6 +86,10 @@ def get_context(template_id, url_previous_button, read_only, title, request):
 
     # get the template
     template = template_api.get_by_id(template_id, request=request)
+
+    # check template format
+    if template.format != Template.XSD:
+        raise XSDError("The template is not an XML Schema")
 
     # get template content as HTML
     xsd_tree_html = transform_xsd_to_html_with_modules(template.content)

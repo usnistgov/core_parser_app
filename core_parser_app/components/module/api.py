@@ -1,6 +1,8 @@
 """API for modules
 """
+from core_main_app.commons.exceptions import XSDError
 from core_main_app.components.template import api as template_api
+from core_main_app.components.template.models import Template
 from xml_utils.xsd_tree.operations.appinfo import (
     add_appinfo_element,
     delete_appinfo_element,
@@ -84,6 +86,10 @@ def add_module(template, module_id, xpath, request):
     Returns:
 
     """
+    # check template format
+    if template.format != Template.XSD:
+        raise XSDError("The template is not an XML Schema")
+
     # get the module
     module_object = get_by_id(module_id)
 
@@ -104,6 +110,10 @@ def delete_module(template, xpath, request):
     Returns:
 
     """
+    # check template format
+    if template.format != Template.XSD:
+        raise XSDError("The template is not an XML Schema")
+
     # delete module attribute from element
     template.content = delete_appinfo_element(
         template.content, xpath, MODULE_TAG_NAME

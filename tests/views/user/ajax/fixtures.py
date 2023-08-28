@@ -37,7 +37,7 @@ class DataStructureElementFixture(FixtureInterface):
         )
         self.template = Template(
             content=xsd,
-            hash="hash",
+            _hash="hash",
             filename="template.xsd",
             user=None,
             _cls="Template",

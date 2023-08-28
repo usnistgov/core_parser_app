@@ -2,11 +2,12 @@
 """
 
 from unittest.case import TestCase
-
-from django.core import exceptions as django_exceptions
 from unittest.mock import Mock, patch
 
-from core_main_app.commons.exceptions import DoesNotExist
+from django.core import exceptions as django_exceptions
+
+from core_main_app.commons.exceptions import DoesNotExist, XSDError
+from core_main_app.components.template.models import Template
 from core_parser_app.components.module import api as module_api
 from core_parser_app.components.module.models import Module
 
@@ -138,6 +139,34 @@ class TestModuleGetAllUrls(TestCase):
         self.assertTrue(all(isinstance(item, str) for item in result))
 
 
+class TestAddModule(TestCase):
+    """Test Add Module"""
+
+    def test_add_module_raises_xsd_error_if_wrong_template_format(self):
+        """test_add_module_raises_xsd_error_if_wrong_template_format"""
+
+        # Arrange
+        json_template = _get_json_template()
+
+        # Act + Assert
+        with self.assertRaises(XSDError):
+            module_api.add_module(json_template, 1, "xpath", request=None)
+
+
+class TestDeleteModule(TestCase):
+    """Test Delete Module"""
+
+    def test_delete_module_raises_xsd_error_if_wrong_template_format(self):
+        """test_delete_module_raises_xsd_error_if_wrong_template_format"""
+
+        # Arrange
+        json_template = _get_json_template()
+
+        # Act + Assert
+        with self.assertRaises(XSDError):
+            module_api.delete_module(json_template, 1, "xpath")
+
+
 def _create_module():
     """Returns a module
 
@@ -158,3 +187,16 @@ def _create_mock_module():
     mock_module.view = "Module.view"
     mock_module.id = 1
     return mock_module
+
+
+def _get_json_template():
+    """Get JSON template
+
+    Returns:
+
+    """
+    template = Template()
+    template.format = Template.JSON
+    template.id_field = 1
+    template.content = "{}"
+    return template
