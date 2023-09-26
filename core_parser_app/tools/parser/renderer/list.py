@@ -50,13 +50,13 @@ class AbstractListRenderer(DefaultRenderer):
         #     ' given)')
 
         # FIXME remove parameter type-checking
-        if type(element_id) != str and element_id is not None:
+        if not isinstance(element_id, str) and element_id is not None:
             raise TypeError(
                 "Second param (element_id) should be a str or None (%s given)"
                 % str(type(element_id))
             )
 
-        if type(is_hidden) != bool:
+        if not isinstance(is_hidden, bool):
             raise TypeError(
                 "Third param (chosen) should be a bool (%s given)"
                 % str(type(is_hidden))

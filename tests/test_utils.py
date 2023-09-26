@@ -113,7 +113,7 @@ def convert(data):
     Returns:
 
     """
-    if type(data) == str:
+    if isinstance(data, str):
         return str(data)
     if isinstance(data, collections.Mapping):
         return dict(list(map(convert, iter(data.items()))))

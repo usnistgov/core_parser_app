@@ -28,7 +28,7 @@ class DefaultRenderer:
             raise TypeError("xsd_data type should be a SchemaElement")
 
         if template_list is not None:
-            if type(template_list) != dict:
+            if not isinstance(template_list, dict):
                 raise TypeError(
                     "template_list type is wrong (%s received, dict needed"
                     % str(type(template_list))
@@ -103,7 +103,7 @@ class DefaultRenderer:
             )
 
         # FIXME remove parameter type-checking
-        if tpl_data is not None and type(tpl_data) != dict:
+        if tpl_data is not None and not isinstance(tpl_data, dict):
             raise TypeError(
                 "Data parameter should be a dict ("
                 + str(type(tpl_data))

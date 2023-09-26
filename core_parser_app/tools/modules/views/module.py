@@ -159,7 +159,7 @@ class AbstractModule(View, metaclass=ABCMeta):
             options = module_element.options
 
             # TODO: needs to be updated
-            if type(self.data) == dict:
+            if isinstance(self.data, dict):
                 options["data"] = self.data["data"]
                 options["attributes"] = self.data["attributes"]
             else:
