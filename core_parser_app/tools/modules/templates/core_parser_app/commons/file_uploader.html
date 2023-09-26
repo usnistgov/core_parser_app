@@ -1,13 +1,12 @@
 <div class="input-group ">
-    {% if BOOTSTRAP_VERSION == "4.6.2" %}
+    {% if BOOTSTRAP_VERSION|first == '4' %}
         <div class="custom-file">
             <span class="hidden">{{ form }}</span>
             <label class="custom-file-label" for="file-input-{{ module_id }}">
                 Choose file
             </label>
-
         </div>
-    {% elif BOOTSTRAP_VERSION == "5.1.3" %}
+    {% elif BOOTSTRAP_VERSION|first == '5' %}
         <input  id="file-input-{{ module_id }}" class="form-control form-control-lg" type="file" name="file">
     {% endif %}
 </div>
