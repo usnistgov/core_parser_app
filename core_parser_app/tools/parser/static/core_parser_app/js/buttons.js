@@ -60,7 +60,7 @@
                 // If new modules are included, we need to load the resources
                 initModules();
 
-                console.log("Element " + elementId + " successfully created");
+                console.log("Element " + elementId + " created");
             },
             error: function() {
                 console.error("An error occurred while generating a new element.");
@@ -109,7 +109,7 @@
                 }
 
                 $element.remove();
-                console.log("Element " + elementId + " successfully removed");
+                console.log("Element " + elementId + " removed");
             },
             error: function() {
                 console.error("An error occurred while generating a new element.");
