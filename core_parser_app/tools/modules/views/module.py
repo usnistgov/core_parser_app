@@ -247,7 +247,6 @@ class AbstractModule(View, metaclass=ABCMeta):
         :param view:
         :return:
         """
-        # module = module_api.get_by_url(url)
         pkglist = view.split(".")
 
         pkgs = ".".join(pkglist[:-1])
