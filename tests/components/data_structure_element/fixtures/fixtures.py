@@ -9,6 +9,7 @@ from core_main_app.utils.integration_tests.fixture_interface import (
 )
 from core_parser_app.components.data_structure.models import (
     DataStructureElement,
+    DataStructure,
 )
 from tests import rights
 from tests.fixtures_utils import MockDataStructure, create_user
@@ -212,4 +213,151 @@ class DataStructureElementFixtures(FixtureInterface):
             "1121": element_1121,
             "1200": element_1200,
             "2000": element_2000,
+        }
+
+
+class DataStructureElementDeleteFixtures(FixtureInterface):
+    """Represents Data structure element delete fixtures"""
+
+    data_structure = None
+    data_structure_element_collection = None
+    template = None
+
+    def insert_data(self):
+        """Insert a set of Data
+            user: owner
+
+        Returns:
+        """
+        self.generate_template()
+        self.generate_data_structure()
+        self.generate_data_structure_elements()
+
+    def generate_template(self):
+        """generate_template
+
+        Returns:
+        """
+        xsd = (
+            '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">'
+            '<xs:element name="tag"></xs:element></xs:schema>'
+        )
+        self.template = Template(
+            content=xsd,
+            _hash="hash",
+            filename="template.xsd",
+            user=None,
+            _cls="Template",
+        )
+        self.template.save()
+
+    def generate_data_structure(self):
+        """generate_template
+
+        Args:
+
+        Returns:
+        """
+        self.data_structure = DataStructure(
+            user="1", template=self.template, name="name"
+        )
+        self.data_structure.save()
+
+    def _generate_data_structure_element(
+        self,
+        element_id,
+        options=None,
+        parent=None,
+        data_structure=None,
+    ):
+        """Return a DataStructureElement with the given parameters
+
+        Args:
+            element_id:
+            user:
+            options:
+            parent:
+            data_structure:
+
+        Returns:
+        """
+        options = {} if options is None else options
+
+        data_structure_element = DataStructureElement(
+            user="1",
+            tag=f"tag_{element_id}",
+            value=f"value_{element_id}",
+            options=options,
+            parent=parent,
+            data_structure=data_structure,
+        )
+        data_structure_element.save()
+        return data_structure_element
+
+    def generate_data_structure_elements(self):
+        """Insert data structure elements on multiple levels in mock database
+
+        Example:
+
+            Root -> 1000 -> 1100 -> 1110
+                                 -> 1120 -> 1121
+                         -> 1200
+                 -> 2000
+
+        Returns:
+
+        """
+        element_root = self._generate_data_structure_element(
+            "root",
+            data_structure=self.data_structure,
+        )
+        element_1000 = self._generate_data_structure_element(
+            "1000",
+            parent=element_root,
+            data_structure=self.data_structure,
+        )
+
+        element_1100 = self._generate_data_structure_element(
+            "1100",
+            parent=element_1000,
+            data_structure=self.data_structure,
+        )
+
+        element_1200 = self._generate_data_structure_element(
+            "1200",
+            parent=element_1000,
+            data_structure=self.data_structure,
+        )
+
+        element_1110 = self._generate_data_structure_element(
+            "1110",
+            parent=element_1100,
+            data_structure=self.data_structure,
+        )
+
+        element_1120 = self._generate_data_structure_element(
+            "1120",
+            parent=element_1100,
+            data_structure=self.data_structure,
+        )
+
+        element_1121 = self._generate_data_structure_element(
+            "1121",
+            options={"xpath": {"xml": "value_xpath"}},
+            parent=element_1120,
+            data_structure=self.data_structure,
+        )
+
+        self.data_structure.data_structure_element_root = element_root
+        self.data_structure.save()
+
+        # Set the collection of data structure element
+        self.data_structure_element_collection = {
+            "root": element_root,
+            "1000": element_1000,
+            "1100": element_1100,
+            "1110": element_1110,
+            "1120": element_1120,
+            "1121": element_1121,
+            "1200": element_1200,
         }

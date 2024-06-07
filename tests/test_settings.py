@@ -9,6 +9,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sites",
     "django.contrib.sessions",
+    "django_celery_beat",
     # Local apps
     "tests",
     "core_main_app",
@@ -45,3 +46,4 @@ CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 MONGODB_INDEXING = False
 MONGODB_ASYNC_SAVE = False
 BOOTSTRAP_VERSION = "5.1.3"
+CELERY_ALWAYS_EAGER = True

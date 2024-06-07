@@ -40,6 +40,24 @@ class TestDataStructureGetById(TestCase):
         self.assertIsInstance(result, DataStructure)
 
 
+class TestDataStructureDeleteDataStructureWithElements(TestCase):
+    """TestDataStructureDeleteDataStructureWithElements"""
+
+    @patch(
+        "core_parser_app.components.data_structure.models.DataStructure.get_by_id"
+    )
+    def test_data_structure_delete_data_structure_with_elements(
+        self, mock_get
+    ):
+        """test_data_structure_delete_data_structure_with_elements"""
+        # Arrange
+        mock_ds = _get_data_structure()
+        mock_get.return_value = mock_ds
+        result = mock_ds.delete_data_structure_with_elements()
+
+        self.assertEqual(result, None)
+
+
 def _get_data_structure():
 
     template = Template()
@@ -50,4 +68,6 @@ def _get_data_structure():
     )
     template.content = xsd
 
-    return DataStructure(user="1", template=template, name="name_title_2")
+    return DataStructure(
+        user="1", id=-1, template=template, name="name_title_2"
+    )

@@ -4,12 +4,15 @@
 import logging
 from abc import abstractmethod
 
+from core_parser_app.tasks import (
+    delete_branch_task,
+    delete_data_structure_task,
+)
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from core_main_app.commons import exceptions
 from core_main_app.components.template.models import Template
-from core_parser_app.tasks import delete_branch_task
 
 logger = logging.getLogger(__name__)
 
@@ -205,15 +208,13 @@ class DataStructure(models.Model):
             "No data structure found for the given id."
         )
 
-    @classmethod
-    def pre_delete(cls, sender, instance, **kwargs):
-        """Pre delete operations
+    def delete_data_structure_with_elements(self):
+        """delete_data_structure
 
         Returns:
-
         """
-        # Delete data structure elements
-        instance.delete_data_structure_elements_from_root()
+        # Delete data structure
+        delete_data_structure_task.apply_async((str(self.id),))
 
     def delete_data_structure_elements_from_root(self):
         """Delete all data structure elements from the root
