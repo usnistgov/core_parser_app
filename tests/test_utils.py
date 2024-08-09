@@ -99,7 +99,7 @@ class DataHandler:
         """
         filename = join(self.dir_name, filename + ".json")
         with open(filename, "r") as json_file:
-            json_data = json.load(json_file, encoding="utf-8")
+            json_data = json.load(json_file)
 
         return convert(json_data)
 
@@ -115,9 +115,9 @@ def convert(data):
     """
     if isinstance(data, str):
         return str(data)
-    if isinstance(data, collections.Mapping):
+    if isinstance(data, collections.abc.Mapping):
         return dict(list(map(convert, iter(data.items()))))
-    if isinstance(data, collections.Iterable):
+    if isinstance(data, collections.abc.Iterable):
         return type(data)(list(map(convert, data)))
 
     return data
