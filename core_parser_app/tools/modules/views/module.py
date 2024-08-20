@@ -1,5 +1,6 @@
 """Abstract Class Module
 """
+
 import importlib
 import json
 from abc import ABCMeta, abstractmethod

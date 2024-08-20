@@ -1,5 +1,6 @@
 """ Fixtures file for Data Structure Element
 """
+
 from django.contrib.auth.models import User, Group, Permission
 
 from core_main_app.components.template.models import Template

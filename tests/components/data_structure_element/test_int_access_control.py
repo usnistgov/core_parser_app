@@ -1,5 +1,6 @@
 """ Integration tests for DataStructureElement API
 """
+
 from unittest.mock import Mock
 
 from django.contrib.auth.models import AnonymousUser

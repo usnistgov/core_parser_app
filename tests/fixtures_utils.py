@@ -1,5 +1,6 @@
 """ Utils for core_parser_app fixtures
 """
+
 from django.contrib.auth.models import User
 
 from core_parser_app.components.data_structure.models import DataStructure

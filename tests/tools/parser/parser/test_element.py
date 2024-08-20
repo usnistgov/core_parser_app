@@ -1,5 +1,6 @@
 """ Tests for XSDParser - element
 """
+
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
 from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE

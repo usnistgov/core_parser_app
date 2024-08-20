@@ -1,5 +1,6 @@
 """Checkbox Renderer class
 """
+
 import logging
 
 from core_parser_app.tools.parser.renderer.list import ListRenderer

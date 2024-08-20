@@ -1,5 +1,6 @@
 """XML Renderer class
 """
+
 import logging
 import numbers
 from os.path import join

@@ -1,5 +1,6 @@
 """Parser class
 """
+
 import logging
 import numbers
 import re
@@ -1883,7 +1884,7 @@ class XSDParser:
                         )
                     )
 
-            for (counter, choiceChild) in enumerate(list(element)):
+            for counter, choiceChild in enumerate(list(element)):
                 # For unbounded choice, explicitly don't generate the choices not selected
                 if choiceChild.tag == "{0}element".format(
                     LXML_SCHEMA_NAMESPACE
@@ -1892,9 +1893,9 @@ class XSDParser:
                     xml_tree_str = XSDTree.tostring(xml_tree)
                     namespaces = get_namespaces(xml_tree_str)
                     # add the XSI prefix used by extensions
-                    namespaces[
-                        "xsi"
-                    ] = "http://www.w3.org/2001/XMLSchema-instance"
+                    namespaces["xsi"] = (
+                        "http://www.w3.org/2001/XMLSchema-instance"
+                    )
                     (
                         target_namespace,
                         target_namespace_prefix,
@@ -2137,9 +2138,9 @@ class XSDParser:
             "value": None,
             "children": [],
             "options": {
-                "name": element.attrib["name"]
-                if "name" in element.attrib
-                else "",
+                "name": (
+                    element.attrib["name"] if "name" in element.attrib else ""
+                ),
                 "xmlns": get_element_namespace(element, xml_tree),
             },
         }
@@ -2289,9 +2290,9 @@ class XSDParser:
             "value": None,
             "children": [],
             "options": {
-                "name": element.attrib["name"]
-                if "name" in element.attrib
-                else "",
+                "name": (
+                    element.attrib["name"] if "name" in element.attrib else ""
+                ),
                 "xmlns": get_element_namespace(element, xml_tree),
             },
         }
@@ -2524,7 +2525,7 @@ class XSDParser:
             }
             self.check_in_memory_elements()
 
-            for (counter, choiceChild) in enumerate(list(element)):
+            for counter, choiceChild in enumerate(list(element)):
 
                 if is_root:
                     if target_namespace_prefix != "":
@@ -2577,8 +2578,6 @@ class XSDParser:
 
                         if opt_label and ":" in opt_label:
                             opt_label = opt_label.split(":")[1]
-                        # if ":" in opt_label:
-                        #     opt_label = opt_label.split(":")[1]
 
                     # look for active choice when editing
                     if self.editing:

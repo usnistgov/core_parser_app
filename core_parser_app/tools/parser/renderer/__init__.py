@@ -1,5 +1,6 @@
 """Base Renderer class
 """
+
 import logging
 from os.path import join
 
@@ -226,9 +227,11 @@ class DefaultRenderer:
             "select_class": select_class,
             "option_list": option_list,
             "fixed": is_fixed,
-            "tooltip": element_options["tooltip"]
-            if "tooltip" in element_options
-            else "",
+            "tooltip": (
+                element_options["tooltip"]
+                if "tooltip" in element_options
+                else ""
+            ),
         }
 
         return self._load_template("select", data)

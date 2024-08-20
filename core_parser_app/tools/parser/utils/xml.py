@@ -1,5 +1,6 @@
 """XML utils
 """
+
 import logging
 from urllib.parse import urlparse
 

@@ -1,5 +1,6 @@
 """ Testing utils
 """
+
 import collections
 import json
 from os.path import join

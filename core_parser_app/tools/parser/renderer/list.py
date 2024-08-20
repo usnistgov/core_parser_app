@@ -1,5 +1,6 @@
 """List Renderer class
 """
+
 import logging
 from os.path import join
 

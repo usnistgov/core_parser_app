@@ -1,5 +1,6 @@
 """Checkboxes module unit testing
 """
+
 from unittest.case import TestCase
 
 from core_main_app.utils.tests_tools.MockUser import create_mock_user

@@ -1,5 +1,6 @@
 """ Pop up module
 """
+
 from abc import ABCMeta, abstractmethod
 
 from core_parser_app.tools.modules.views.module import AbstractModule

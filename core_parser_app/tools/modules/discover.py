@@ -1,5 +1,6 @@
 """Auto discovery of modules
 """
+
 import logging
 
 from django.db import IntegrityError

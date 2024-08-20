@@ -1,5 +1,6 @@
 """ Synchronous Input Module
 """
+
 from abc import ABCMeta
 
 from core_parser_app.tools.modules.exceptions import ModuleError

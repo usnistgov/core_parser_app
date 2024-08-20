@@ -1,5 +1,6 @@
 """ Settings for core_parser_app tests
 """
+
 SECRET_KEY = "fake-key"
 
 INSTALLED_APPS = [

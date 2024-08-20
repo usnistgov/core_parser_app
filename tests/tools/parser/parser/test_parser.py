@@ -1,5 +1,6 @@
 """ Tests for Parser
 """
+
 from unittest.mock import patch
 
 from django.test.testcases import TestCase

@@ -1,5 +1,6 @@
 """ Integration testing for user-side AJAX requests
 """
+
 import json
 
 from django.contrib.auth.models import AnonymousUser

@@ -1,5 +1,6 @@
 """ Fixtures for user-side AJAX
 """
+
 from core_main_app.components.template.models import Template
 from core_main_app.utils.integration_tests.fixture_interface import (
     FixtureInterface,

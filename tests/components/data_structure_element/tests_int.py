@@ -1,5 +1,6 @@
 """ Integration test of Data structure element
 """
+
 from unittest.mock import Mock
 
 from django.http import HttpRequest

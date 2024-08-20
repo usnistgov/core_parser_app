@@ -1,5 +1,6 @@
 """Sanitize util
 """
+
 import json
 import logging
 from builtins import str

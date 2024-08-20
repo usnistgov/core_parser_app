@@ -1,5 +1,6 @@
 """Module command unit testing
 """
+
 from io import StringIO
 from unittest.case import TestCase
 

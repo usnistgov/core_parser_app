@@ -1,5 +1,6 @@
 """ XSDParser tests for restriction tag
 """
+
 from os.path import join, dirname, abspath
 
 from django.test.testcases import TestCase

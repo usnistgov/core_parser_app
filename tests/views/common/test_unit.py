@@ -1,5 +1,6 @@
 """ Core Parser App - Unit test views
 """
+
 from unittest.mock import patch
 
 from django.test import SimpleTestCase

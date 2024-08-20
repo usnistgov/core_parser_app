@@ -1,5 +1,6 @@
 """ Options Module
 """
+
 from abc import ABCMeta
 
 from core_parser_app.tools.modules.views.module import AbstractModule

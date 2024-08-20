@@ -1,5 +1,6 @@
 """Views for the module system
 """
+
 import json
 
 from django.contrib.staticfiles import finders

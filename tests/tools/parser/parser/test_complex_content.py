@@ -1,5 +1,6 @@
 """ Tests for XSDParser - complex content
 """
+
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
 
