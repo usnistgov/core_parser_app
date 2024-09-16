@@ -58,6 +58,24 @@ class TestDataStructureDeleteDataStructureWithElements(TestCase):
         self.assertEqual(result, None)
 
 
+class TestDataStructureDeleteDataStructuredElementsFromRoot(TestCase):
+    """TestDataStructureDeleteDataStructuredElementsFromRoot"""
+
+    @patch(
+        "core_parser_app.components.data_structure.models.DataStructure.get_by_id"
+    )
+    def test_data_structure_delete_data_structure_elements_from_root(
+        self, mock_get
+    ):
+        """test_data_structure_delete_data_structure_elements_from_root"""
+        # Arrange
+        mock_ds = _get_data_structure()
+        mock_get.return_value = mock_ds
+        result = mock_ds.delete_data_structure_elements_from_root()
+
+        self.assertEqual(result, None)
+
+
 def _get_data_structure():
 
     template = Template()

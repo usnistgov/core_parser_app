@@ -4,10 +4,6 @@
 import logging
 from abc import abstractmethod
 
-from core_parser_app.tasks import (
-    delete_branch_task,
-    delete_data_structure_task,
-)
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
@@ -213,6 +209,8 @@ class DataStructure(models.Model):
 
         Returns:
         """
+        from core_parser_app.tasks import delete_data_structure_task
+
         # Delete data structure
         delete_data_structure_task.apply_async((str(self.id),))
 
@@ -222,6 +220,8 @@ class DataStructure(models.Model):
         Returns:
 
         """
+        from core_parser_app.tasks import delete_branch_task
+
         if self.data_structure_element_root is not None:
             delete_branch_task.apply_async(
                 (str(self.data_structure_element_root.id),)
