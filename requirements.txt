@@ -1,4 +1,4 @@
 celery
 Django
 djangorestframework
-lxml==5.2.*
+lxml==5.4.*
