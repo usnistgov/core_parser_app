@@ -30,7 +30,7 @@ var loadModuleResources = function(moduleURLList) {
         },
         error: function() {
             // Raise error
-            console.error('An error occured when loading the modules');
+            console.error('An error occurred when loading the modules');
         }
     });
 };

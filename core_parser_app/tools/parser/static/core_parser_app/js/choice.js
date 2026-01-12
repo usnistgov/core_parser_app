@@ -17,7 +17,7 @@
                 console.log('Element ' + choiceId + ' saved');
             },
             'error': function() {
-                console.error('An error occured when saving element ' + choiceId);
+                console.error('An error occurred when saving element ' + choiceId);
             }
         });
     };
@@ -76,7 +76,7 @@
                     console.log('Element ' + currentChoiceValue + ' succesfully generated');
                 },
                 'error': function() {
-                    console.error('An error occured when generating element ' + currentChoiceValue);
+                    console.error('An error occurred when generating element ' + currentChoiceValue);
                 }
             });
         } else {  // Branch exists (need to be toggle)
