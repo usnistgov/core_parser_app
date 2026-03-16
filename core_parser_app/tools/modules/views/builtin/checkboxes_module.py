@@ -1,5 +1,4 @@
-""" Checkboxes Module
-"""
+"""Checkboxes Module"""
 
 from abc import ABCMeta
 

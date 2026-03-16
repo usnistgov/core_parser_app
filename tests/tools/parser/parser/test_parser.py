@@ -1,5 +1,4 @@
-""" Tests for Parser
-"""
+"""Tests for Parser"""
 
 from unittest.mock import patch
 

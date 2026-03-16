@@ -1,5 +1,4 @@
-""" Custom admin site for the Module model
-"""
+"""Custom admin site for the Module model"""
 
 from django.contrib import admin
 

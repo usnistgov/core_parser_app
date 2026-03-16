@@ -1,5 +1,4 @@
-""" Access control functions
-"""
+"""Access control functions"""
 
 import logging
 

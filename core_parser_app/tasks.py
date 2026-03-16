@@ -1,5 +1,4 @@
-""" Parser tasks
-"""
+"""Parser tasks"""
 
 from celery import shared_task
 

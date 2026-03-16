@@ -1,5 +1,4 @@
-""" XSDParser tests for restriction tag
-"""
+"""XSDParser tests for restriction tag"""
 
 from os.path import join, dirname, abspath
 

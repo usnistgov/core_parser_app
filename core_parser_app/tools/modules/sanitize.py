@@ -1,5 +1,4 @@
-"""Sanitize util
-"""
+"""Sanitize util"""
 
 import json
 import logging

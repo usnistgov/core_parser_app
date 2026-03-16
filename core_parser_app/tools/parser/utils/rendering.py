@@ -1,5 +1,4 @@
-"""Form rendering utils
-"""
+"""Form rendering utils"""
 
 import re
 import textwrap

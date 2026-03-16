@@ -1,5 +1,4 @@
-"""Parser class
-"""
+"""Parser class"""
 
 import logging
 import numbers

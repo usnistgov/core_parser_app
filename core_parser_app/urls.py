@@ -1,5 +1,4 @@
-""" Url router for the parser application
-"""
+"""Url router for the parser application"""
 
 from django.conf.urls import include
 from django.urls import re_path

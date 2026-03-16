@@ -1,5 +1,4 @@
-""" Integration test of Data structure element
-"""
+"""Integration test of Data structure element"""
 
 from unittest.mock import Mock
 

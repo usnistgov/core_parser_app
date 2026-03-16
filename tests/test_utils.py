@@ -1,5 +1,4 @@
-""" Testing utils
-"""
+"""Testing utils"""
 
 import collections
 import json

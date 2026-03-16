@@ -1,5 +1,4 @@
-"""Xpath accessor class
-"""
+"""Xpath accessor class"""
 
 from abc import ABCMeta, abstractmethod
 

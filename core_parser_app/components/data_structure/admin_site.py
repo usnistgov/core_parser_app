@@ -1,5 +1,4 @@
-""" Custom admin site for the Data Structure model
-"""
+"""Custom admin site for the Data Structure model"""
 
 from django.contrib import admin
 

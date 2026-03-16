@@ -1,5 +1,4 @@
-"""Table Renderer class
-"""
+"""Table Renderer class"""
 
 import logging
 from os.path import join

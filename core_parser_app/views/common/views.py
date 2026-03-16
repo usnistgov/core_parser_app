@@ -1,5 +1,4 @@
-""" Common views
-"""
+"""Common views"""
 
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, NoReverseMatch

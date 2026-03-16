@@ -1,5 +1,4 @@
-""" System APIs for the parser app
-"""
+"""System APIs for the parser app"""
 
 
 def delete_branch_from_db(element_id):

@@ -1,5 +1,4 @@
-""" Unit Test Data Structure
-"""
+"""Unit Test Data Structure"""
 
 from unittest.case import TestCase
 from unittest.mock import patch

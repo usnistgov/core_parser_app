@@ -1,5 +1,4 @@
-""" Tests for XSDParser - choice
-"""
+"""Tests for XSDParser - choice"""
 
 from os.path import join, dirname, abspath
 from unittest.case import TestCase

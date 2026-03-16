@@ -1,5 +1,4 @@
-"""Sanitize unit testing
-"""
+"""Sanitize unit testing"""
 
 from unittest.case import TestCase
 

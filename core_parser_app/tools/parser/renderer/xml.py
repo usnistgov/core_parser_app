@@ -1,5 +1,4 @@
-"""XML Renderer class
-"""
+"""XML Renderer class"""
 
 import logging
 import numbers

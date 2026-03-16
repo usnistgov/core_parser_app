@@ -1,5 +1,4 @@
-"""Base Renderer class
-"""
+"""Base Renderer class"""
 
 import logging
 from os.path import join

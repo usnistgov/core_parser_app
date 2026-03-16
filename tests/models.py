@@ -1,5 +1,4 @@
-"""Parser test models
-"""
+"""Parser test models"""
 
 from django.db import models
 

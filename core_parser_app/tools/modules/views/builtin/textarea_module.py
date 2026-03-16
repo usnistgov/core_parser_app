@@ -1,5 +1,4 @@
-""" Text area Module
-"""
+"""Text area Module"""
 
 from abc import ABCMeta
 

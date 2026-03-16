@@ -1,5 +1,4 @@
-""" Parser Exceptions
-"""
+"""Parser Exceptions"""
 
 
 class ParserError(Exception):

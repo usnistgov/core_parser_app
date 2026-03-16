@@ -1,5 +1,4 @@
-""" Settings for core_parser_app tests
-"""
+"""Settings for core_parser_app tests"""
 
 SECRET_KEY = "fake-key"
 

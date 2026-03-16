@@ -1,5 +1,4 @@
-""" Parser unit tests for complex type
-"""
+"""Parser unit tests for complex type"""
 
 from os.path import join, dirname, abspath
 from unittest.case import TestCase
@@ -7,7 +6,6 @@ from xml_utils.commons.constants import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from xml_utils.xsd_tree.xsd_tree import XSDTree
 from tests.test_utils import DataHandler
 from core_parser_app.tools.parser.parser import XSDParser
-
 
 # FIXME: use django finder
 RESOURCES_PATH = join(dirname(abspath(__file__)), "..", "data")

@@ -1,5 +1,4 @@
-"""Url routing
-"""
+"""Url routing"""
 
 from django.urls import re_path
 

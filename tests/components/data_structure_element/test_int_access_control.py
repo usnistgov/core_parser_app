@@ -1,5 +1,4 @@
-""" Integration tests for DataStructureElement API
-"""
+"""Integration tests for DataStructureElement API"""
 
 from unittest.mock import Mock
 

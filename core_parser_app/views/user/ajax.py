@@ -1,5 +1,4 @@
-"""AJAX views
-"""
+"""AJAX views"""
 
 import json
 

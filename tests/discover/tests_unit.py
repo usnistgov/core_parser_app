@@ -1,5 +1,4 @@
-"""Module discover unit testing
-"""
+"""Module discover unit testing"""
 
 from unittest.case import TestCase
 from unittest.mock import patch

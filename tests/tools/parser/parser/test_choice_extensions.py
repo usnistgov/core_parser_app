@@ -1,4 +1,4 @@
-""" Unit tests for `core_parser_app.tools.parser.XSDParser.generate_choice_extensions`
+"""Unit tests for `core_parser_app.tools.parser.XSDParser.generate_choice_extensions`
 method.
 """
 

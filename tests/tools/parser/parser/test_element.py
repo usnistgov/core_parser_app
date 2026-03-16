@@ -1,5 +1,4 @@
-""" Tests for XSDParser - element
-"""
+"""Tests for XSDParser - element"""
 
 from os.path import join, dirname, abspath
 from unittest.case import TestCase

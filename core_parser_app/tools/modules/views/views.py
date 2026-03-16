@@ -1,5 +1,4 @@
-"""Views for the module system
-"""
+"""Views for the module system"""
 
 import json
 

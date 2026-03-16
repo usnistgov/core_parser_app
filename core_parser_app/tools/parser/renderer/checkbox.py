@@ -1,5 +1,4 @@
-"""Checkbox Renderer class
-"""
+"""Checkbox Renderer class"""
 
 import logging
 

@@ -1,5 +1,4 @@
-"""Checkboxes module unit testing
-"""
+"""Checkboxes module unit testing"""
 
 from unittest.case import TestCase
 

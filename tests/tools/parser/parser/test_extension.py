@@ -1,5 +1,4 @@
-""" XSDParser tests for extension tag
-"""
+"""XSDParser tests for extension tag"""
 
 from os.path import join, dirname, abspath
 from unittest.case import TestCase

@@ -1,5 +1,4 @@
-"""Module system unit testing
-"""
+"""Module system unit testing"""
 
 import json
 from unittest.case import TestCase

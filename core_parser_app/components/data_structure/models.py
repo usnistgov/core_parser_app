@@ -1,5 +1,4 @@
-""" Data structure model
-"""
+"""Data structure model"""
 
 import logging
 from abc import abstractmethod

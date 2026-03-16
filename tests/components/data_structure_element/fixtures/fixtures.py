@@ -1,5 +1,4 @@
-""" Fixtures file for Data Structure Element
-"""
+"""Fixtures file for Data Structure Element"""
 
 from django.contrib.auth.models import User, Group, Permission
 

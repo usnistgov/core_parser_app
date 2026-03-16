@@ -1,5 +1,4 @@
-"""Auto discovery of modules
-"""
+"""Auto discovery of modules"""
 
 import logging
 

@@ -1,5 +1,4 @@
-""" XML utils
-"""
+"""XML utils"""
 
 from django.contrib.staticfiles import finders
 

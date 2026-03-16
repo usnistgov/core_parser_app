@@ -1,5 +1,4 @@
-""" Options Module
-"""
+"""Options Module"""
 
 from abc import ABCMeta
 

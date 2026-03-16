@@ -1,5 +1,4 @@
-"""Auto Complete Module
-"""
+"""Auto Complete Module"""
 
 from abc import ABCMeta
 

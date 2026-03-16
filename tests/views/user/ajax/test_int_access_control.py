@@ -1,5 +1,4 @@
-""" Integration testing for user-side AJAX requests
-"""
+"""Integration testing for user-side AJAX requests"""
 
 import json
 

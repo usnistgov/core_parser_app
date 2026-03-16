@@ -1,5 +1,4 @@
-""" Input Button Module
-"""
+"""Input Button Module"""
 
 from abc import ABCMeta
 

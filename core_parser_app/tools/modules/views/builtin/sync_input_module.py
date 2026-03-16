@@ -1,5 +1,4 @@
-""" Synchronous Input Module
-"""
+"""Synchronous Input Module"""
 
 from abc import ABCMeta
 

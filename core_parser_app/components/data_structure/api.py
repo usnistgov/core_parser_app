@@ -1,5 +1,4 @@
-"""Data structure api
-"""
+"""Data structure api"""
 
 from core_parser_app.components.data_structure.models import DataStructure
 

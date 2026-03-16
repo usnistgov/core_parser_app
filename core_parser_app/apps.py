@@ -1,5 +1,4 @@
-"""Core parser app config
-"""
+"""Core parser app config"""
 
 from django.apps import AppConfig
 

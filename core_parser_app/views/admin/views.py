@@ -1,5 +1,4 @@
-"""Core parser app admin views
-"""
+"""Core parser app admin views"""
 
 from django.views.generic import View
 

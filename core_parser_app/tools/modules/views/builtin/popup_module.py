@@ -1,5 +1,4 @@
-""" Pop up module
-"""
+"""Pop up module"""
 
 from abc import ABCMeta, abstractmethod
 

@@ -1,5 +1,4 @@
-""" Modules Exceptions
-"""
+"""Modules Exceptions"""
 
 
 class ModuleError(Exception):

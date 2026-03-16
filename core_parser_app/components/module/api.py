@@ -1,5 +1,4 @@
-"""API for modules
-"""
+"""API for modules"""
 
 from core_main_app.commons.exceptions import XSDError
 from core_main_app.components.template import api as template_api

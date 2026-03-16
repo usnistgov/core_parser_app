@@ -1,5 +1,4 @@
-""" Utils for core_parser_app fixtures
-"""
+"""Utils for core_parser_app fixtures"""
 
 from django.contrib.auth.models import User
 

@@ -1,5 +1,4 @@
-""" Core Parser App - Unit test views
-"""
+"""Core Parser App - Unit test views"""
 
 from unittest.mock import patch
 

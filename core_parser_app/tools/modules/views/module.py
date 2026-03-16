@@ -1,5 +1,4 @@
-"""Abstract Class Module
-"""
+"""Abstract Class Module"""
 
 import importlib
 import json
