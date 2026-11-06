@@ -62,8 +62,6 @@ class AbstractModule(View, metaclass=ABCMeta):
             return HttpResponse(
                 json.dumps(self.is_managing_occurrences), HTTP_200_OK
             )
-        else:
-            return self._get(request)
 
     def _get(self, request):
         """Manage the GET requests

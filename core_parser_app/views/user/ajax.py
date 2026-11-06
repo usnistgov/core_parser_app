@@ -10,6 +10,7 @@ from core_main_app.commons.exceptions import DoesNotExist
 from core_parser_app.components.data_structure_element import (
     api as data_structure_element_api,
 )
+from core_parser_app.tools.modules.sanitize import sanitize
 
 
 @login_required
@@ -80,7 +81,7 @@ def save_data_structure_element_value(request):
         )
 
         input_previous_value = input_element.value
-        input_element.value = request.POST["value"]
+        input_element.value = sanitize(request.POST["value"])
         data_structure_element_api.upsert(input_element, request)
 
         return HttpResponse(

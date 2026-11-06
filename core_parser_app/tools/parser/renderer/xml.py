@@ -5,6 +5,7 @@ import numbers
 from os.path import join
 
 from django.template import loader
+from django.utils.html import escape
 
 from xml_utils.xsd_tree.operations.xml_entities import XmlEntities
 from core_parser_app.components.data_structure_element import (
@@ -584,9 +585,13 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == "attribute":
                 tmp_content[0] = self.render_attribute(child)
             elif child.tag == "union":
-                tmp_content[1] = child.value if child.value is not None else ""
+                tmp_content[1] = escape(
+                    child.value if child.value is not None else ""
+                )
             elif child.tag == "list":
-                tmp_content[1] = child.value if child.value is not None else ""
+                tmp_content[1] = escape(
+                    child.value if child.value is not None else ""
+                )
             elif child.tag == "module":
                 if child.options["multiple"]:
                     tmp_content[2] = self.render_module(child)[1]

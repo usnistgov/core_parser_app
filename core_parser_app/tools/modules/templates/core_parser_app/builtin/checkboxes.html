@@ -2,11 +2,13 @@
 	{% if label %}
 	<label>{{ label }}</label>
 	{% endif %}
-   	{% autoescape off %}
 	<div class="row">
-        <div class="col">{{ column1 }}</div>
-        <div class="col">{{ column2 }}</div>
-        <div class="col">{{ column3 }}</div>
+		{% for col in columns %}
+			<div class="col">
+				{% for item in col %}
+					<span><input type="checkbox" {% if item.checked %}checked{% endif %} value="{{ item.key }}"/>{{ item.val }}</span>
+				{% endfor %}
+			</div>
+		{% endfor %}
     </div>
-	{% endautoescape %}
 </div>

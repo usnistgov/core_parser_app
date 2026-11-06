@@ -90,7 +90,7 @@ class TestGet(TestCase):
         )
         mock_render_template.return_value = ""
 
-        response = module_object.get(request)
+        response = module_object._get(request)
 
         self.assertTrue(isinstance(response, HttpResponse))
 
@@ -124,7 +124,7 @@ class TestGet(TestCase):
         )
         mock_render_template.return_value = ""
 
-        module_object.get(request)
+        module_object._get(request)
 
         self.assertTrue(
             data_structure_element.options["data"] == "module result"

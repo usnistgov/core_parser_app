@@ -72,12 +72,7 @@ var saveModuleData = function($module, modData, asyncOpt) {
             var moduleResult = $(data.html).find('.moduleResult').html();
 
             $module.find('.moduleDisplay').html(moduleDisplay);
-            $module.find('.moduleResult').html(moduleResult);     
-            
-            /* look at extra data received from the server */
-            /*if ('xpath_accessor' in data){
-            	xpath_accessor(data.xpath_accessor);
-            }*/
+            $module.find('.moduleResult').text(moduleResult);
         },
         error: function() {
             console.error("An error occurred when saving module data");

@@ -4,6 +4,7 @@ import logging
 from os.path import join
 
 from django.template import loader
+from django.utils.html import escape
 
 from core_parser_app.components.module import api as module_api
 from core_parser_app.tools.modules.views.module import AbstractModule
@@ -179,7 +180,7 @@ class ListRenderer(AbstractListRenderer):
         element_name = element.options["name"]
 
         if "label" in element.options and element.options["label"] != "":
-            element_name = element.options["label"]
+            element_name = escape(element.options["label"])
 
         for child_key in child_keys:
             # FIXME Use tuples instead
@@ -331,7 +332,7 @@ class ListRenderer(AbstractListRenderer):
         element_name = element.options["name"]
 
         if "label" in element.options and element.options["label"] != "":
-            element_name = element.options["label"]
+            element_name = escape(element.options["label"])
 
         for child_key in child_keys:
             sub_elements = []
@@ -607,7 +608,7 @@ class ListRenderer(AbstractListRenderer):
                     )
 
             label = (
-                element.options["label"]
+                escape(element.options["label"])
                 if "label" in element.options
                 else "Choice"
             )
@@ -791,9 +792,7 @@ class ListRenderer(AbstractListRenderer):
         module_url = module_options["url"]
 
         module = module_api.get_by_url(module_url)
-        module_view = AbstractModule.get_view_from_view_path(
-            module.view
-        ).as_view()
+        module_view = AbstractModule.get_view_from_view_path(module.view)()
 
         module_request = self.request
         module_request.method = "GET"
@@ -813,7 +812,8 @@ class ListRenderer(AbstractListRenderer):
             module_request.GET["attributes"] = module_options["attributes"]
 
         # renders the module
-        return module_view(module_request).content.decode("utf-8")
+        module_view.request = module_request
+        return module_view._get(module_request).content.decode("utf-8")
 
     def _render_list_attributes(
         self, attributes, html_content, simple_element

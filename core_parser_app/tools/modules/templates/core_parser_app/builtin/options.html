@@ -8,8 +8,8 @@
 	{%else%}
 	<select>
 	{% endif %}
-    	{% autoescape off %}
-		{{options}}
-		{% endautoescape %}
+	{% for opt in options%}
+	<option value="{{ opt.key }}" {% if opt.selected%}selected{% endif %}>{{ opt.val }}</option>
+	{% endfor %}
 	</select>
 </div>

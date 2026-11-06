@@ -11,5 +11,5 @@ $(".custom-file span input[type=file]").on('change',function(event){
     }
 
     //replace the "Choose a file" label
-    $(this).parent().next('.custom-file-label').html(fileName);
+    $(this).parent().next('.custom-file-label').text(fileName);
 });

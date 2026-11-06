@@ -17,6 +17,7 @@ from core_main_app.utils.requests_utils.requests_utils import send_get_request
 from core_main_app.utils.xsd_flattener.xsd_flattener_database_url import (
     XSDFlattenerDatabaseOrURL,
 )
+from core_main_app.utils.validation import url_validation
 from core_parser_app.components.data_structure.models import (
     DataStructureElement,
 )
@@ -223,7 +224,7 @@ def update_root_xpath(element, xpath, index, request=None):
         update_root_xpath(child, xpath, index, request)
 
 
-def get_nodes_xpath(elements, xml_tree, download_enabled=True, request=None):
+def get_nodes_xpath(elements, xml_tree, download_enabled=False, request=None):
     """Perform a lookup in subelements to build xpath.
 
     Get nodes' xpath, only one level deep. It's not going to every leaves. Only
@@ -295,7 +296,7 @@ def lookup_occurs(
     xml_tree,
     full_path,
     edit_data_tree,
-    download_enabled=True,
+    download_enabled=False,
     request=None,
 ):
     """Lookup in data to get the number of occurrences of a sequence or  choice
@@ -420,7 +421,7 @@ def get_element_type(
     target_namespace_prefix,
     schema_location=None,
     attr="type",
-    download_enabled=True,
+    download_enabled=False,
     request=None,
 ):
     """Get XSD type to render. Returns the tree where the type was found.
@@ -536,7 +537,7 @@ def get_element_type(
     return element_type, xml_tree, schema_location
 
 
-def import_xml_tree(el_import, download_enabled=True, request=None):
+def import_xml_tree(el_import, download_enabled=False, request=None):
     """
     Return tree after downloading import's schemaLocation
 
@@ -552,7 +553,8 @@ def import_xml_tree(el_import, download_enabled=True, request=None):
 
     if not download_enabled:
         raise ParserError("Dependency could not be downloaded")
-
+    # validate url
+    url_validation(ref_xml_schema_url)
     # download the file
     ref_xml_schema_file = send_get_request(ref_xml_schema_url)
     # read the content of the file
@@ -582,7 +584,7 @@ def get_ref_element(
     namespaces,
     element_tag,
     schema_location=None,
-    download_enabled=True,
+    download_enabled=False,
     request=None,
 ):
     """
@@ -849,9 +851,9 @@ class XSDParser:
         min_tree=True,
         ignore_modules=False,
         collapse=True,
-        auto_key_keyref=True,
+        auto_key_keyref=False,
         implicit_extension_base=False,
-        download_dependencies=True,
+        download_dependencies=False,
         store_type=False,
         request=None,
     ):
@@ -1442,9 +1444,10 @@ class XSDParser:
             # open the imported file
             download_enabled = self.download_dependencies
             if download_enabled:
-                ref_xml_schema_file = send_get_request(
-                    schema_element.options["schema_location"]
-                )
+                # validate url
+                schema_location_url = schema_element.options["schema_location"]
+                url_validation(schema_location_url)
+                ref_xml_schema_file = send_get_request(schema_location_url)
                 # get the content of the file
                 ref_xml_schema_content = ref_xml_schema_file.content
                 # build the XML tree
@@ -2036,9 +2039,10 @@ class XSDParser:
             # open the imported file
             download_enabled = self.download_dependencies
             if download_enabled:
-                ref_xml_schema_file = send_get_request(
-                    element.options["schema_location"]
-                )
+                # validate url
+                schema_location_url = element.options["schema_location"]
+                url_validation(schema_location_url)
+                ref_xml_schema_file = send_get_request(schema_location_url)
                 # get the content of the file
                 ref_xml_schema_content = ref_xml_schema_file.content
                 # build the XML tree

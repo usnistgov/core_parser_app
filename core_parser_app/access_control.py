@@ -57,8 +57,10 @@ def _check_data_structure_element_ownership(data_structure_element, user):
     Returns:
 
     """
-    if data_structure_element.user and data_structure_element.user != str(
-        user.id
+    user_id = str(user.id) if (user and not user.is_anonymous) else None
+    if (
+        not data_structure_element.user
+        or data_structure_element.user != user_id
     ):
         raise AccessControlError("User is not the owner of the object.")
 

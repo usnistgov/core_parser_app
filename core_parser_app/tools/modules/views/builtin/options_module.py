@@ -47,22 +47,16 @@ class AbstractOptionsModule(AbstractModule, metaclass=ABCMeta):
         Returns:
 
         """
-        options_html = ""
-
         if self.selected not in list(self.options.keys()):
             self.selected = None
 
+        options_list = []
         for key, val in list(self.options.items()):
-            if self.selected is not None and key == self.selected:
-                options_html += (
-                    "<option value='" + key + "' selected>" + val + "</option>"
-                )
-            else:
-                options_html += (
-                    "<option value='" + key + "'>" + val + "</option>"
-                )
+            options_list.append(
+                {"key": key, "val": val, "selected": (self.selected == key)}
+            )
 
-        params = {"options": options_html}
+        params = {"options": options_list}
 
         if self.label is not None:
             params.update({"label": self.label})

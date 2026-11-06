@@ -48,16 +48,18 @@ class TestCheckDataStructureElementOwnership(TestCase):
                 self.mock_owned_dse, self.users["anon"]
             )
 
-    def test_anon_data_structure_random_user_pass(self):
-        """test_anon_data_structure_random_user_pass"""
+    def test_anon_data_structure_random_user_fail(self):
+        """test_anon_data_structure_random_user_fail"""
 
-        _check_data_structure_element_ownership(
-            self.mock_anon_dse, self.users["random"]
-        )
+        with self.assertRaises(AccessControlError):
+            _check_data_structure_element_ownership(
+                self.mock_anon_dse, self.users["random"]
+            )
 
-    def test_anon_data_structure_anon_user_pass(self):
-        """test_anon_data_structure_anon_user_pass"""
+    def test_anon_data_structure_anon_user_fail(self):
+        """test_anon_data_structure_anon_user_fail"""
 
-        _check_data_structure_element_ownership(
-            self.mock_anon_dse, self.users["anon"]
-        )
+        with self.assertRaises(AccessControlError):
+            _check_data_structure_element_ownership(
+                self.mock_anon_dse, self.users["anon"]
+            )

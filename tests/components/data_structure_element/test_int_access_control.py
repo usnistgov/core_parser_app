@@ -579,13 +579,16 @@ class TestDataStructureElementPermissionWithoutOwners(IntegrationBaseTestCase):
             user=AnonymousUser(), data_structure_class=MockAnonDataStructure
         )
 
-    def test_anon_user_can_access_dse_if_permission_and_no_owner(self):
-        """test_anon_user_can_access_dse_if_permission_and_no_owner"""
+    def test_anon_user_access_dse_if_permission_and_no_owner_raises_error(
+        self,
+    ):
+        """test_anon_user_access_dse_if_permission_and_no_owner_raises_error"""
 
-        _check_data_structure_elements_access(
-            [self.fixtures.data_structure_element_collection["root"]],
-            AnonymousUser(),
-        )
+        with self.assertRaises(AccessControlError):
+            _check_data_structure_elements_access(
+                [self.fixtures.data_structure_element_collection["root"]],
+                AnonymousUser(),
+            )
 
 
 class TestDataStructureElementPermissionWithoutOwnersWithoutPerm(
